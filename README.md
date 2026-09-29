@@ -1,4 +1,4 @@
-# Smart Job Portal System
+# Job Portal System
 
 A **Spring Boot based backend application** that provides a platform for managing job postings and user authentication. The system allows users to register, login securely using **JWT authentication**, and access job-related APIs.
 
