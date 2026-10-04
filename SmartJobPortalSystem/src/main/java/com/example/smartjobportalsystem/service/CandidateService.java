@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -175,7 +174,7 @@ public class CandidateService {
         candidateRepository.save(cand);
 
 
-        String message = "Company " + String.join(",", updatedFields) + " Updated Successfully!";
+        String message = "Candidate " + String.join(",", updatedFields) + " Updated Successfully!";
         if (newToken != null) {
             return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", message, newToken));
         }
@@ -184,9 +183,11 @@ public class CandidateService {
 
 
     // apply job
-    public ResponseEntity<?> applyJob(Integer jobId, Integer candidateId) {
+    public ResponseEntity<?> applyJob(Integer jobId, Integer userId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+        Integer candidateId =candidate.getCandidateId();
 
-        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + candidateId));
+        Resume resume = resumeRepository.findByCandidate_CandidateId(candidateId).orElseThrow(() -> new NotFoundException("No resume found, upload Resume to apply job"));
         Job job = jobRepository.findById(jobId).orElseThrow(() -> new NotFoundException("Job not found with id: " + jobId));
 
 
@@ -204,8 +205,8 @@ public class CandidateService {
         JobApplication jobApplication = new JobApplication();
         jobApplication.setCandidate(candidate);
         jobApplication.setJob(job);
+        jobApplication.setResume(resume);
         jobApplicationRepository.save(jobApplication);
-
 
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Job Applied Successfully"));
     }
@@ -266,7 +267,7 @@ public class CandidateService {
         }
 
       //create folder for uploading resume
-        String dirPath = "uploads/resume/" + candidateId + "/";
+        String dirPath = "uploads/resume/" +"CAND_"+ candidateId + "/";
         File dir = new File(dirPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -291,7 +292,7 @@ public class CandidateService {
         }
 //
         String extension= Objects.requireNonNull(reqFileName).substring(reqFileName.lastIndexOf("."));
-        String fileName=candidate.getFirstname()+"_"+candidate.getLastname()+"_"+LocalDate.now()+extension;
+        String fileName=candidate.getFirstname()+"_"+candidate.getLastname()+extension;
 
         //creating file path
         Path filePath= Paths.get(dirPath + fileName);
@@ -441,6 +442,21 @@ public class CandidateService {
         verification.setVerified(true); // email is verified
         verificationRepository.save(verification);
 
+
+        // send welcome email after successful registration
+        EmailRequestDTO emailDTO = new EmailRequestDTO();
+        emailDTO.setToEmail(verifyCandidate.getEmail());
+        emailDTO.setSubject("Welcome to Smart Job Portal – Your Career Journey Starts Here!");
+        emailDTO.setDescription(
+                "Hi "+newCandidate.getFirstname() + " "+newCandidate.getLastname()+", \n\n"+
+                "Welcome to Smart Job Portal!" + "\n" +
+                "Your registration was successful. \n\n" +
+                "Go ahead, explore new job opportunities, apply for your dream job, and get hired faster with our platform! \n\n" +
+                "Best wishes,\n" +
+                "Smart Job Portal Team"
+        );
+        emailService.sendEmail(emailDTO);
+
         verifyCandidateRepository.delete(verifyCandidate); // delete temporary candidate details
         verificationRepository.delete(verification);
 
@@ -472,10 +488,22 @@ public class CandidateService {
         verification.setUsed(true);
         verificationRepository.save(verification);
 
+        String token = jwtService.generateToken(verifyCandidate.getEmail());
+
+        // send success after new email updation
+        EmailRequestDTO emailDTO = new EmailRequestDTO();
+        emailDTO.setToEmail(verifyCandidate.getEmail());
+        emailDTO.setSubject("Email Updation Successful!");
+        emailDTO.setDescription(
+                "Hi "+ candidate.getFirstname()+" "+candidate.getLastname() +", \n\n"+
+                "Your email has been SUCCESSFULLY updated from "+ users.getEmail() + " to " +verifyCandidate.getEmail()+ "\n\n" +
+                "Best regards, \n\n" +
+                "Smart Job Portal team."
+                );
+
         verifyCandidateRepository.delete(verifyCandidate);
         verificationRepository.delete(verification);
 
-        String token = jwtService.generateToken(verifyCandidate.getEmail());
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Email Updated Successfully",token));
 
 
