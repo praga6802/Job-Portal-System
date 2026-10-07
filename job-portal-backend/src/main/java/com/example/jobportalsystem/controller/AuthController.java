@@ -11,10 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
-
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:5500", allowCredentials = "true")
 public class AuthController {
 
     @Autowired
