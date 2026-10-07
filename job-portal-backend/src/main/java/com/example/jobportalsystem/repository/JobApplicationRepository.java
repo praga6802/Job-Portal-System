@@ -1,0 +1,62 @@
+package com.example.jobportalsystem.repository;
+
+import com.example.jobportalsystem.dto.ApplicationsCompanyDTO;
+import com.example.jobportalsystem.dto.ApplicationsJobDTO;
+import com.example.jobportalsystem.entity.Candidate;
+import com.example.jobportalsystem.entity.Company;
+import com.example.jobportalsystem.entity.Job;
+import com.example.jobportalsystem.entity.JobApplication;
+
+import com.example.jobportalsystem.enums.ApplicationStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+
+@Repository
+public interface JobApplicationRepository extends JpaRepository<JobApplication, Integer> {
+
+
+    List<JobApplication> findByCandidate(Candidate candidate);
+
+
+    List<JobApplication> findByJob_Company(Company company);
+
+
+    @Query("""
+            SELECT new com.example.jobportalsystem.dto.ApplicationsJobDTO(
+                j.jobId,j.title,c.name,COUNT(a)
+            )
+            FROM JobApplication a
+            JOIN a.job j 
+            JOIN j.company c
+            GROUP BY j.jobId,j.title,c.name
+            """)
+    Optional<List<ApplicationsJobDTO>> getApplicationsPerJob();
+
+
+    @Query("SELECT COUNT(a) from JobApplication a")
+    Long getTotalApplications();
+
+
+    @Query("""
+           SELECT new com.example.jobportalsystem.dto.ApplicationsCompanyDTO(
+                c.companyId,c.name, COUNT(a)
+           )
+           FROM JobApplication a JOIN a.job j JOIN j.company c 
+           GROUP BY c.companyId, c.name
+            """)
+    Optional<List<ApplicationsCompanyDTO>> getApplicationsPerCompany();
+
+
+    List<JobApplication> findByJob(Job job);
+
+
+    boolean existsByCandidate_CandidateIdAndJob_JobId(Integer candidateId, Integer jobId);
+
+    List<JobApplication> findByStatusAndJob_Company(ApplicationStatus applicationStatus, Company company);
+}

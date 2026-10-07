@@ -1,0 +1,393 @@
+package com.example.jobportalsystem.service;
+
+import com.example.jobportalsystem.dto.*;
+import com.example.jobportalsystem.entity.*;
+import com.example.jobportalsystem.enums.JobStatus;
+import com.example.jobportalsystem.exception.NotFoundException;
+import com.example.jobportalsystem.repository.*;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+
+
+@Service
+public class AdminService {
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private CandidateRepository candidateRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
+    private JobApplicationRepository jobApplicationRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Autowired
+    private JWTService jwtService;
+
+    // register admin
+    public ResponseEntity<?> register(AdminRegisterDTO admin) {
+
+        if (adminRepository.existsByEmail(admin.getEmail()) || usersRepository.existsByEmail(admin.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Email already exists!"));
+        }
+
+        if (adminRepository.existsByContact(admin.getContact())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Mobile Number already exists!"));
+        }
+
+        Users user = new Users();
+        if(admin.getEmail()!=null && !admin.getEmail().isEmpty()){
+            user.setEmail(admin.getEmail());
+        }
+
+        if(admin.getPassword()!=null && !admin.getPassword().isEmpty()){
+            user.setPassword(passwordEncoder.encode(admin.getPassword()));
+        }
+        user.setRole("ADMIN");
+        usersRepository.save(user);
+
+        Admin admin1 = new Admin();
+        if(admin.getFirstname()!=null && !admin.getFirstname().isEmpty()) {
+            admin1.setFirstname(admin.getFirstname());
+        }
+
+        if(admin.getLastname()!=null && !admin.getLastname().isEmpty()) {
+            admin1.setLastname(admin.getLastname());
+        }
+
+        if(admin.getEmail()!=null && !admin.getEmail().isEmpty()) {
+            admin1.setEmail(admin.getEmail());
+        }
+
+        if(admin.getContact()!=null && !admin.getContact().isEmpty()){
+            admin1.setContact(admin.getContact());
+        }
+
+        admin1.setUser(user);
+
+        adminRepository.save(admin1);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Admin Registered Successfully"));
+    }
+
+    // update admin details
+    @Transactional
+    public ResponseEntity<?> updateAdmin(Integer adminId, AdminRegisterDTO admin) {
+        List<String> updatedFields = new ArrayList<>();
+        String newToken = null;
+
+        Users user = usersRepository.findById(adminId).orElseThrow(() -> new NotFoundException("User not found!"));
+        Admin admin1 = adminRepository.findByUserUserId(adminId).orElseThrow(() -> new NotFoundException("Admin not found!"));
+        if (admin.getFirstname() != null && !admin.getFirstname().trim().isEmpty()) {
+            admin1.setFirstname(admin.getFirstname());
+            updatedFields.add("First name");
+        }
+
+        if (admin.getLastname() != null && !admin.getLastname().trim().isEmpty()) {
+            admin1.setLastname(admin.getLastname());
+            updatedFields.add("Last name");
+        }
+
+        if (admin.getEmail() != null && !admin.getEmail().trim().isEmpty()) {
+            if (admin1.getEmail().equalsIgnoreCase(admin.getEmail())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same Email"));
+            }
+            if (adminRepository.existsByEmail(admin.getEmail()) || usersRepository.existsByEmail(admin.getEmail())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Email already taken!"));
+            }
+            admin1.setEmail(admin.getEmail());
+            user.setEmail(admin.getEmail());
+            usersRepository.save(user);
+            updatedFields.add("Email");
+
+            newToken = jwtService.generateToken(admin.getEmail());
+        }
+        if (admin.getContact() != null && !admin.getContact().trim().isEmpty()) {
+            if (admin1.getContact().equals(admin.getContact())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same contact!"));
+            }
+
+            if (adminRepository.existsByContact(admin.getContact())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
+            }
+            admin1.setContact(admin.getContact());
+            updatedFields.add("Contact");
+        }
+
+        adminRepository.save(admin1);
+
+        String message = "Company " + String.join(",", updatedFields) + " Updated Successfully!";
+        if (newToken != null) {
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", message, newToken));
+        }
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", message));
+    }
+
+    // get all admins
+    public ResponseEntity<?> getAdmins() {
+        List<AdminResponseDTO> adminList = adminRepository.findAll().stream()
+                .map(AdminResponseDTO::new)
+                .collect(Collectors.toList());
+
+        if (adminList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No admins Found!"));
+        }
+        return ResponseEntity.ok(adminList);
+    }
+
+    // get all candidates
+    public ResponseEntity<?> getCandidates() {
+        List<CandidateResponseDTO> candidateList = candidateRepository.findAll().stream().
+                map(CandidateResponseDTO::new).collect(Collectors.toList());
+        if (candidateList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Candidates Found!"));
+        }
+        return ResponseEntity.ok(candidateList);
+    }
+
+    // get all companies
+    public ResponseEntity<?> getCompanies() {
+        List<CompanyDTO> companyList = companyRepository.findAll().stream().
+                map(CompanyDTO::new).collect(Collectors.toList());
+        if (companyList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Companies Found!"));
+        }
+        return ResponseEntity.ok(companyList);
+    }
+
+    // get admin by ID
+    public ResponseEntity<?> getAdmin(Integer id) {
+        try {
+            Admin admin = adminRepository.findById(id).orElseThrow(() -> new NotFoundException("Admin not found with id: " + id));
+            AdminResponseDTO adminDTO = new AdminResponseDTO(admin);
+            return ResponseEntity.ok(adminDTO);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", e.getMessage()));
+        }
+    }
+
+    // get candidate by ID
+    public ResponseEntity<?> getCandidate(Integer id) {
+        try {
+            Candidate candidate = candidateRepository.findById(id).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + id));
+            CandidateResponseDTO candidateDTO = new CandidateResponseDTO(candidate);
+            return ResponseEntity.ok(candidateDTO);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", e.getMessage()));
+        }
+    }
+
+    // get company by ID
+    public ResponseEntity<?> getCompany(Integer id) {
+        try {
+            Company company = companyRepository.findById(id).orElseThrow(() -> new NotFoundException("Company not found with id: " + id));
+            CompanyDTO companyDTO = new CompanyDTO(company);
+            return ResponseEntity.ok(companyDTO);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", e.getMessage()));
+        }
+    }
+
+    // delete candidate by ID
+    public ResponseEntity<?> deleteCandidate(Integer candidateId) {
+        try {
+            Candidate candidate = candidateRepository.findById(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with this id: " + candidateId));
+            candidateRepository.deleteById(candidateId);
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Candidate deleted successfully!"));
+        }
+        catch (NotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure",e.getMessage()));
+        }
+    }
+
+    // delete company by ID
+    public ResponseEntity<?> deleteCompany(Integer companyId) {
+        try {
+            Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException("Company not found with this id: " + companyId));
+            companyRepository.deleteById(companyId);
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Company deleted successfully!"));
+        }
+        catch (NotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure",e.getMessage()));
+        }
+    }
+
+    // Delete admin by ID
+    public ResponseEntity<?> deleteAdmin(Integer adminId, Integer currentAdminId) {
+        try {
+            if (adminId.equals(currentAdminId)) {
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .body(new LoginResponseDTO(
+                                LocalDateTime.now(),
+                                "Failure",
+                                "You cannot delete your own admin account"
+                        ));
+            }
+            Admin admin = adminRepository.findById(adminId).orElseThrow(() -> new NotFoundException("Admin not found with this id " + adminId));
+
+            adminRepository.delete(admin);
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Admin Deleted Successfully"));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", e.getMessage()));
+        }
+    }
+
+    // delete all admins
+    public ResponseEntity<?> deleteAdmins(Integer currentAdminId) {
+            List<Admin> admins= adminRepository.findAll();
+            if(admins.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Admins were found!"));
+            }
+
+            // remove the current logged in admin
+            admins.removeIf(admin->admin.getUser().getUserId().equals(currentAdminId));
+
+            // delete other admins
+            adminRepository.deleteAll(admins);
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Admins deleted successfully"));
+    }
+
+    // delete all candidates
+    public ResponseEntity<?> deleteCandidates() {
+        List<Candidate> candidates = candidateRepository.findAll();
+        if(candidates.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Candidates were found!"));
+        }
+        candidateRepository.deleteAll();
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Candidates deleted successfully"));
+    }
+
+    // delete all companies
+    public ResponseEntity<?> deleteCompanies() {
+        List<Company> companies = companyRepository.findAll();
+        if(companies.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Companies were found!"));
+        }
+        companyRepository.deleteAll();
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Companies deleted successfully"));
+    }
+
+    // pending jobs list
+    public ResponseEntity<?> getPendingJobs() {
+        List<Job> pendingJobs = jobRepository.findByStatus(JobStatus.PENDING);
+
+        if(pendingJobs.isEmpty()){
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were in pending"));
+        }
+
+        List<AdminJobStatusDTO> pendingList = pendingJobs.stream().map(AdminJobStatusDTO::new).toList();
+        return ResponseEntity.ok(pendingList);
+
+    }
+
+    // approved jobs list
+    public ResponseEntity<?> getApprovedJobs() {
+        List<Job> approvedJobs = jobRepository.findByStatus(JobStatus.APPROVED);
+
+        if(approvedJobs.isEmpty()){
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
+        }
+
+        List<AdminJobStatusDTO> approvedList = approvedJobs.stream().map(AdminJobStatusDTO::new).toList();
+        return ResponseEntity.ok(approvedList);
+    }
+
+    // rejected jobs list
+    public ResponseEntity<?> getRejectedJobs() {
+        List<Job> rejectedJobs = jobRepository.findByStatus(JobStatus.REJECTED);
+
+        if(rejectedJobs.isEmpty()){
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
+        }
+
+        List<AdminJobStatusDTO> rejectedList = rejectedJobs.stream().map(AdminJobStatusDTO::new).toList();
+        return ResponseEntity.ok(rejectedList);
+    }
+
+    // approve job
+    public ResponseEntity<?> approveJob(Integer jobId) {
+        Job job =jobRepository.findById(jobId).orElseThrow(()-> new NotFoundException("Job not found with ID: "+jobId));
+
+        job.setStatus(JobStatus.APPROVED);
+        jobRepository.save(job);
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job Approved Successfully"));
+    }
+
+    // reject job
+    public ResponseEntity<?> rejectJob(Integer jobId) {
+        Job job =jobRepository.findById(jobId).orElseThrow(()-> new NotFoundException("Job not found with ID: "+jobId));
+
+        job.setStatus(JobStatus.REJECTED);
+        jobRepository.save(job);
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job Rejected Successfully"));
+    }
+
+    // get applications per job
+    public ResponseEntity<?> getApplicationsPerJob() {
+        List<ApplicationsJobDTO> applications =
+                jobApplicationRepository.getApplicationsPerJob().orElseThrow(()-> new NotFoundException("No Applications found!"));
+
+        return ResponseEntity.ok(applications);
+    }
+
+    // get applications per company
+    public ResponseEntity<?> getApplicationsPerCompany() {
+        List<ApplicationsCompanyDTO> applications = jobApplicationRepository.getApplicationsPerCompany()
+                .orElseThrow(()-> new NotFoundException("No Applications were found"));
+
+        return ResponseEntity.ok(applications);
+    }
+
+    // get total applications
+    public ResponseEntity<?> getTotalApplications() {
+        Long count  = jobApplicationRepository.getTotalApplications();
+
+        if(count==0L){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
+        }
+        return ResponseEntity.ok(count);
+    }
+
+    // get total companies
+    public ResponseEntity<?> getTotalCompanies() {
+        Long count  = companyRepository.getTotalCompanies();
+
+        if(count==0L){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
+        }
+        return ResponseEntity.ok(count);
+    }
+
+    // get total candidates
+    public ResponseEntity<?> getTotalCandidates() {
+        Long count  = candidateRepository.getTotalCandidates();
+
+        if(count==0L){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
+        }
+        return ResponseEntity.ok(count);
+    }
+}
+
