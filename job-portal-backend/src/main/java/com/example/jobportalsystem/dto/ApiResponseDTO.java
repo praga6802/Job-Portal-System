@@ -10,29 +10,22 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponseDTO {
 
+    private String status;
     private String message;
-    private String details;
     private LocalDateTime timestamp;
 
     private JobResponseDTO jobDetailResponse;
 
-    public ApiResponseDTO(LocalDateTime timestamp, String message, String details) {
+    public ApiResponseDTO(LocalDateTime timestamp, String status, String message) {
+        this.status = status;
         this.message = message;
-        this.details = details;
         this.timestamp = timestamp;
     }
 
-//    public ApiResponse(LocalDateTime timestamp, String message, String details, UserDTO userDTO) {
-//        this.timestamp = timestamp;
-//        this.message = message;
-//        this.details = details;
-//        this.userDTO = userDTO;
-//    }
-
-    public ApiResponseDTO(LocalDateTime timestamp, String message, String details, JobResponseDTO jobDetailResponse) {
+    public ApiResponseDTO(LocalDateTime timestamp, String status, String message, JobResponseDTO jobDetailResponse) {
         this.timestamp = timestamp;
+        this.status = status;
         this.message = message;
-        this.details = details;
         this.jobDetailResponse = jobDetailResponse;
     }
 

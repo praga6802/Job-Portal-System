@@ -88,7 +88,7 @@ public class AdminService {
         admin1.setUser(user);
 
         adminRepository.save(admin1);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Admin Registered Successfully"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "SignUp Successfully!"));
     }
 
     // update admin details

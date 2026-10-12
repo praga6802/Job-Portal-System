@@ -1,0 +1,183 @@
+.company-register-page {
+  min-height: 100vh;
+  padding: 48px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #071a3d 0%, #102b59 55%, #1d4ed8 100%);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.company-register-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 36px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.company-register-header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.company-register-header h1 {
+  margin: 0 0 10px;
+  color: #102b59;
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  font-weight: 750;
+}
+
+.company-register-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.company-register-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 22px;
+}
+
+.company-form-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.company-form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.company-form-field label {
+  margin-bottom: 8px;
+  color: #24334d;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.company-form-field input,
+.company-form-field textarea,
+.company-form-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.company-form-field input::placeholder,
+.company-form-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+.company-form-field input:focus,
+.company-form-field textarea:focus,
+.company-form-field select:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.company-form-field input:invalid:not(:placeholder-shown) {
+  border-color: #cbd5e1;
+}
+
+.company-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.company-form-actions button {
+  min-width: 130px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.company-submit-btn {
+  background: #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 5px 12px rgba(29, 78, 216, 0.2);
+}
+
+.company-submit-btn:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+.company-reset-btn {
+  background: #e2e8f0;
+  color: black;
+}
+
+.company-reset-btn:hover {
+  background: yellow;
+  color: navy;
+  transform: translateY(-1px);
+}
+
+.company-form-actions button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+.company-register-message {
+  margin: 22px 0 0;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .company-register-page {
+    padding: 24px 12px;
+    align-items: flex-start;
+  }
+
+  .company-register-card {
+    padding: 24px 18px;
+    border-radius: 14px;
+  }
+
+  .company-register-form {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+
+  .company-form-field.full-width,
+  .company-form-actions {
+    grid-column: auto;
+  }
+
+  .company-form-actions {
+    flex-direction: column;
+  }
+
+  .company-form-actions button {
+    width: 100%;
+  }
+}

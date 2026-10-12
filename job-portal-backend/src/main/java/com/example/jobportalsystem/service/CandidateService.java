@@ -460,7 +460,7 @@ public class CandidateService {
         verifyCandidateRepository.delete(verifyCandidate); // delete temporary candidate details
         verificationRepository.delete(verification);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(LocalDateTime.now(),"Success", "Candidate registered successfully!"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(LocalDateTime.now(),"Success", "SignUp Successfully!"));
     }
 
     // verify otp for email update

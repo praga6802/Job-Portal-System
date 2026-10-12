@@ -39,13 +39,11 @@ public class AuthService {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
             MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
-
             String jwtToken = jwtService.generateToken(user.getEmail());
-            LoginResponseDTO response = new LoginResponseDTO(LocalDateTime.now(),"Success", "Login Successfully", user.getRole(), jwtToken);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success", "Login Successfully", user.getRole(), jwtToken));
         } catch (AuthenticationException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","Invalid Credentials"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","Invalid Credentials!"));
         }
     }
 

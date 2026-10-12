@@ -57,7 +57,7 @@ public class CompanyService {
         }
 
         if (companyRepository.existsByUrl(company.getUrl())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Company URL already exists!"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "URL already exists!"));
         }
 
         if (companyRepository.existsByGst(company.getGst())) {
@@ -116,7 +116,7 @@ public class CompanyService {
 
         companyRepository.save(c1);
 
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Company Registered Successfully"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "SignUp Successfully!"));
     }
 
     // update company details
