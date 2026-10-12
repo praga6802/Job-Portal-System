@@ -11,7 +11,7 @@ const Navbar = () => {
                     alt="Company Logo"
                     className="h-10 w-10 object-contain"
                 />
-                <span className="text-xl font-bold">Job Portal</span>
+                <span className="text-xl font-bold hover:text-yellow-500">Job Portal</span>
             </Link>
 
             <ul className="absolute left-1/2 flex -translate-x-1/2 list-none items-center gap-20 font-bold">
@@ -31,7 +31,7 @@ const Navbar = () => {
                     </Link>
                 </li>
                 <li>
-                    <Link to="/admin/contact" className="hover:text-yellow-400">
+                    <Link to="/contact" className="hover:text-yellow-400">
                         Contact
                     </Link>
                 </li>

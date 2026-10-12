@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import suitcase from "../assets/suitcase.png";
 const Home = () => {
     const categories = [
         { name: "Software Development", icon: "💻", jobs: "60+ Jobs" },
@@ -16,13 +16,15 @@ const Home = () => {
             location: "Chennai",
             type: "Full Time",
             salary: "₹4–8 LPA",
+            experience: "Fresher",
         },
         {
-            title: "Frontend Developer",
+            title: "React Developer",
             company: "Digital Innovations",
             location: "Bengaluru",
             type: "Full Time",
             salary: "₹5–10 LPA",
+            experience: "0-2 yrs",
         },
         {
             title: "Backend Developer",
@@ -30,6 +32,15 @@ const Home = () => {
             location: "Remote",
             type: "Remote",
             salary: "₹6–12 LPA",
+            experience: "3-4 yrs",
+        },
+        {
+            title: "Python Developer",
+            company: "HCL Tech",
+            location: "Chennai",
+            type: "Hybrid",
+            salary: "₹7–12 LPA",
+            experience: "7-10 yrs",
         },
     ];
 
@@ -84,7 +95,7 @@ const Home = () => {
             <section className="mx-auto max-w-5xl px-6 py-16">
                 <div className="mb-8 text-center">
                     <h2 className="text-3xl font-bold text-blue-950">
-                        Explore Job Categories
+                        EXPLORE JOB CATEGORIES
                     </h2>
                     <p className="mt-3 text-slate-500 text-lg">
                         Find opportunities that match your skills.
@@ -130,7 +141,7 @@ const Home = () => {
                         </Link>
                     </div>
 
-                    <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="grid gap-6 lg:grid-cols-2 md:grid-cols-2">
                         {jobs.map((job) => (
                             <article
                                 key={job.title}
@@ -156,6 +167,15 @@ const Home = () => {
                                 <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600">
                                     <span>📍 {job.location}</span>
                                     <span>💰 {job.salary}</span>
+                                    <span className="flex gap-2">
+                                        <img
+                                            src={suitcase}
+                                            alt=""
+                                            height={15}
+                                            width={15}
+                                        />
+                                        {job.experience}
+                                    </span>
                                 </div>
 
                                 <Link

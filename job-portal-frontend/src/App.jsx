@@ -9,6 +9,9 @@ import Navbar from "./components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 import Footer from "./components/Footer";
+import Contact from "./components/Contact";
+import About from "./components/About";
+import CompanyDashboard from "./pages/company/CompanyDashboard";
 
 const App = () => {
     return (
@@ -27,8 +30,14 @@ const App = () => {
                 ></Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="*" element={<Error />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route
+                    path="/company/dashboard"
+                    element={<CompanyDashboard />}
+                />
             </Routes>
-            <Footer/>
+            <Footer />
         </Router>
     );
 };
