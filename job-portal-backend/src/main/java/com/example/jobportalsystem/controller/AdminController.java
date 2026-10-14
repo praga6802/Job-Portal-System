@@ -29,6 +29,11 @@ public class AdminController {
         return adminService.updateAdmin(userDetails.getUserId(),admin);
     }
 
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponseDTO> getCurrentAdmin(@AuthenticationPrincipal MyUserDetails userDetails){
+        return adminService.getCurrentAdmin(userDetails);
+    }
+
     // get all Admins
     @GetMapping("/get-admins")
     public ResponseEntity<?> getAdmins(){

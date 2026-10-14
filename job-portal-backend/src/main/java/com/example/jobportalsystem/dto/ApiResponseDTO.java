@@ -14,7 +14,7 @@ public class ApiResponseDTO {
     private String message;
     private LocalDateTime timestamp;
 
-    private JobResponseDTO jobDetailResponse;
+    private Object data;
 
     public ApiResponseDTO(LocalDateTime timestamp, String status, String message) {
         this.status = status;
@@ -22,11 +22,11 @@ public class ApiResponseDTO {
         this.timestamp = timestamp;
     }
 
-    public ApiResponseDTO(LocalDateTime timestamp, String status, String message, JobResponseDTO jobDetailResponse) {
+    public ApiResponseDTO(LocalDateTime timestamp, String status, String message, Object data) {
         this.timestamp = timestamp;
         this.status = status;
         this.message = message;
-        this.jobDetailResponse = jobDetailResponse;
+        this.data = data;
     }
 
 }

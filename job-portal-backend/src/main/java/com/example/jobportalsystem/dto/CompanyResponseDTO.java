@@ -13,6 +13,7 @@ public class CompanyResponseDTO {
         private String type;
         private String size;
         private String location;
+        private String gst;
 
         public CompanyResponseDTO(Company company) {
             this.description = company.getDescription();
@@ -23,6 +24,7 @@ public class CompanyResponseDTO {
             this.size = company.getSize();
             this.location = company.getLocation();
             this.name=company.getName();
+            this.gst=company.getGst();
         }
 
 }

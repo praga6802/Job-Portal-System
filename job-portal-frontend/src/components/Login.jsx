@@ -1,10 +1,10 @@
-import axios from "axios";
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import loginbg from "../assets/login.jpg";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import apiInstance from "../services/api.js";
 
 const Login = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const initialFormState = {
         email: "",
@@ -13,59 +13,101 @@ const Login = () => {
 
     const [formData, setFormData] = useState(initialFormState);
     const [message, setMessage] = useState("");
+    const [isError, setIsError] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.get("sessionExpired") === "true") {
+            setMessage("Session expired. Please log in again.");
+            setIsError(true);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleReset = () => {
         setFormData(initialFormState);
         setMessage("");
+        setIsError(false);
     };
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setMessage("");
+        setIsError(false);
+        setIsSubmitting(true);
 
         try {
-            const response = await axios.post(
-                "http://localhost:8080/auth/login",
-                formData,
-            );
+            const response = await apiInstance.post("/auth/login", formData);
 
-            setMessage(response?.data?.message || "Login successful!");
+            const result = response.data.data ?? response.data;
+            const token = result.token;
+            const role = result.role;
 
-            if (response.data.token) {
-                localStorage.setItem("token", response.data.token);
+            if (!token || !role) {
+                setMessage("Login response is missing the token or role.");
+                setIsError(true);
+                return;
             }
 
-            setFormData(initialFormState);
-            navigate("/");
+            localStorage.setItem("token", token);
+            localStorage.setItem("role", role);
 
-            console.log("Login successful!");
+            setFormData(initialFormState);
+
+            if (role === "ADMIN") {
+                navigate("/admin/dashboard", { replace: true });
+            } else if (role === "COMPANY") {
+                navigate("/company/dashboard", { replace: true });
+            } else if (role === "CANDIDATE") {
+                navigate("/", { replace: true });
+            } else {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                setMessage("Unknown user role. Please contact support.");
+                setIsError(true);
+            }
         } catch (err) {
             setMessage(
                 err.response?.data?.message ||
-                    "Login failed. Please try again.",
+                    err.response?.data?.data?.message ||
+                    "Login failed. Please check your credentials.",
             );
-            console.error(err);
+            setIsError(true);
+            console.error("Login error:", err.response?.data || err.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="flex min-h-screen items-start justify-around bg-gradient-to-r from-[#0f172a] to-[#1e3a8a]">
-            <div className="text-center w-1/2 pr-12 mt-30">
-                <h1 className="text-7xl font-bold text-yellow-300">Welcome Back!</h1>
+        <div className="flex min-h-screen items-start justify-around bg-gradient-to-r from-[#0f172a] to-[#1e3a8a] px-6 py-12">
+            <div className="mt-20 w-1/2 pr-12 text-center">
+                <h1 className="text-7xl font-bold text-yellow-300">
+                    Welcome Back!
+                </h1>
+
                 <p className="mt-4 text-lg font-bold text-slate-300">
                     Login to continue to your Job Portal account.
                 </p>
-                <p className="mt-6 text-normal text-slate-100">
+
+                <p className="mt-6 text-slate-100">
                     Find your dream job and take the next step in your career.
                 </p>
             </div>
-            <div className="w-1/2 mt-30 max-w-md rounded-2xl bg-white p-8 shadow-xl sm:p-10">
+
+            <div className="mt-20 w-1/2 max-w-md rounded-2xl bg-white p-8 shadow-xl sm:p-10">
                 <form onSubmit={handleLogin} className="space-y-5">
-                    <h1 className="font-bold text-2xl text-center">LOGIN</h1>
+                    <h1 className="text-center text-2xl font-bold">LOGIN</h1>
+
                     <div>
                         <label
                             htmlFor="email"
@@ -108,19 +150,19 @@ const Login = () => {
                         />
                     </div>
 
-                    <div className="flex gap-4 pt-2 justify-center">
+                    <div className="flex justify-center gap-4 pt-2">
                         <button
                             type="submit"
-                            className=" rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            disabled={isSubmitting}
+                            className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            Login
+                            {isSubmitting ? "Logging in..." : "Login"}
                         </button>
 
                         <button
                             type="button"
                             onClick={handleReset}
-                            className="rounded-lg border border-slate-300 px-4 py-3 font-semibold text-white transition bg-blue-600
-                            hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                            className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-yellow-500"
                         >
                             Reset
                         </button>
@@ -129,13 +171,11 @@ const Login = () => {
 
                 {message && (
                     <p
-                        role="status"
-                        className={`mt-5 rounded-lg p-3 text-center text-sm ${
-                            message.toLowerCase().includes("fail") ||
-                            message.toLowerCase().includes("invalid") ||
-                            message.toLowerCase().includes("error")
-                                ? "bg-red-50 text-red-700"
-                                : "bg-green-50 text-green-700"
+                        role="alert"
+                        className={`mt-5 mx-auto w-fit max-w-full rounded-lg border p-3 text-center text-sm ${
+                            isError
+                                ? "border-red-300 bg-red-50 text-red-700"
+                                : "border-green-300 bg-green-50 text-green-700"
                         }`}
                     >
                         {message}

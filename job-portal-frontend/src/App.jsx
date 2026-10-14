@@ -12,6 +12,9 @@ import Footer from "./components/Footer";
 import Contact from "./components/Contact";
 import About from "./components/About";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
+import PostJob from "./pages/company/PostJob";
+import CompanyUpdate from "./pages/company/CompanyUpdate";
+import ManageJobs from "./pages/company/ManageJobs";
 
 const App = () => {
     return (
@@ -36,6 +39,10 @@ const App = () => {
                     path="/company/dashboard"
                     element={<CompanyDashboard />}
                 />
+
+                <Route path="/company/post-job" element={<PostJob />} />
+                <Route path="/company/profile" element={<CompanyUpdate />} />
+                <Route path="/company/manage-jobs" element={<ManageJobs />} />
             </Routes>
             <Footer />
         </Router>

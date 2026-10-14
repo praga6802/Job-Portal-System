@@ -14,24 +14,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ApplicationStatusDTO {
 
-    private String jobTitle;
-    private String companyName;
-    private Double salary;
+    private String title;
+    private String company;
     private String location;
+    private String jobType;
+    private Double minSalary;
+    private Double maxSalary;
     private JobStatus status;
-    private String experience;
+    private String minExperience;
+    private String maxExperience;
     private boolean isActive;
     private LocalDateTime appliedAt;
 
 
     public ApplicationStatusDTO(JobApplication application){
         Job job = application.getJob();
-        this.jobTitle=job.getTitle();
-        this.companyName=job.getCompany().getName();
-        this.salary=job.getSalary();
+        this.title=job.getTitle();
+        this.company=job.getCompany().getName();
+        this.minSalary=job.getMinSalary();
+        this.maxSalary=job.getMaxSalary();
         this.location=job.getLocation();
         this.status=job.getStatus();
-        this.experience=job.getExperience();
+        this.minExperience=job.getMinExperience();
+        this.maxExperience = job.getMaxExperience();
         this.isActive=application.getJob().isActive();
         this.appliedAt=application.getAppliedAt();
     }

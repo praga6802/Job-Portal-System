@@ -38,4 +38,9 @@ public class JobApplication {
     private Resume resume;
 
 
+    @ManyToOne
+    @JoinColumn(name="company_id")
+    private Company company;
+
+
 }

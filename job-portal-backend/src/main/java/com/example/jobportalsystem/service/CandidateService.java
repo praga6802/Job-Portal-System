@@ -4,6 +4,7 @@ import com.example.jobportalsystem.dto.*;
 import com.example.jobportalsystem.entity.*;
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.exception.NotFoundException;
+import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,7 +222,7 @@ public class CandidateService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
         }
 
-        List<CompanyJobResponseDTO> jobList = companyJobList.stream().map(CompanyJobResponseDTO::new).toList();
+        List<JobResponseDTO> jobList = companyJobList.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(jobList);
     }
 
@@ -490,7 +491,7 @@ public class CandidateService {
 
         String token = jwtService.generateToken(verifyCandidate.getEmail());
 
-        // send success after new email updation
+        // send success after new email update
         EmailRequestDTO emailDTO = new EmailRequestDTO();
         emailDTO.setToEmail(verifyCandidate.getEmail());
         emailDTO.setSubject("Email Updation Successful!");
@@ -507,5 +508,10 @@ public class CandidateService {
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Email Updated Successfully",token));
 
 
+    }
+
+    public ResponseEntity<ApiResponseDTO> getCurrentCandidate(MyUserDetails userDetails) {
+        Candidate candidate = candidateRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please try again"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Candidate Fetched Successfully",new CandidateResponseDTO(candidate)));
     }
 }

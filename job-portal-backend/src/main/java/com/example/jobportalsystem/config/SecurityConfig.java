@@ -42,8 +42,7 @@ public class SecurityConfig {
 
         return http.authorizeHttpRequests(req->req.requestMatchers("/auth/company/register","/auth/candidate/register","/auth/candidate/verify-otp",
                                 "/auth/admin/register","/auth/login", "/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                    .requestMatchers("/auth/user/**").hasRole("USER")
+                    .requestMatchers("/auth/candidate/**").hasRole("CANDIDATE")
                     .requestMatchers("/auth/admin/**").hasRole("ADMIN")
                     .requestMatchers("/auth/company/**").hasRole("COMPANY")
                     .anyRequest().authenticated())

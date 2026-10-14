@@ -7,8 +7,10 @@ import com.example.jobportalsystem.entity.JobApplication;
 import com.example.jobportalsystem.entity.Users;
 import com.example.jobportalsystem.enums.ApplicationStatus;
 import com.example.jobportalsystem.enums.JobStatus;
+import com.example.jobportalsystem.enums.JobType;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.exception.UnAuthorizedException;
+import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.CompanyRepository;
 import com.example.jobportalsystem.repository.JobApplicationRepository;
 import com.example.jobportalsystem.repository.JobRepository;
@@ -132,92 +134,84 @@ public class CompanyService {
 
 
         if (company.getName() != null && !company.getName().trim().isEmpty()) {
-            comp.setName(company.getName());
-            updatedFields.add("Name");
+            if(!company.getName().equals(comp.getName())){
+                comp.setName(company.getName());
+                updatedFields.add("Name");
+            }
         }
 
         if (company.getDescription() != null && !company.getDescription().trim().isEmpty()) {
-            if (comp.getDescription().equals(company.getDescription())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same description!"));
+            if (!comp.getDescription().equals(company.getDescription())) {
+                comp.setDescription(company.getDescription());
+                updatedFields.add("Description");
             }
-            comp.setDescription(company.getDescription());
-            updatedFields.add("Description");
         }
 
         if (company.getEmail() != null && !company.getEmail().trim().isEmpty()) {
-            if (company.getEmail().equals(comp.getEmail())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same Email"));
+            if (!company.getEmail().equals(comp.getEmail())) {
+                if (companyRepository.existsByEmail(company.getEmail())) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Email already taken!"));
+                }
+                comp.setEmail(company.getEmail());
+                user.setEmail(company.getEmail());
+                updatedFields.add("Email");
+                newToken = jwtService.generateToken(company.getEmail());
             }
-
-            if (companyRepository.existsByEmail(company.getEmail())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Email already taken!"));
-            }
-            comp.setEmail(company.getEmail());
-            user.setEmail(company.getEmail());
-            usersRepository.save(user);
-            updatedFields.add("Email");
-            newToken = jwtService.generateToken(company.getEmail());
         }
 
         if (company.getContact() != null && !company.getContact().trim().isEmpty()) {
-            if (comp.getContact().equals(company.getContact())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same contact!"));
+            if (!comp.getContact().equals(company.getContact())) {
+                if (companyRepository.existsByContact(company.getContact())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
+                }
+                comp.setContact(company.getContact());
+                updatedFields.add("Contact");
             }
-
-            if (companyRepository.existsByContact(company.getContact())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
-            }
-            comp.setContact(company.getContact());
-            updatedFields.add("Contact");
         }
 
 
         if (company.getUrl() != null && !company.getUrl().trim().isEmpty()) {
-            if (comp.getUrl().equals(company.getUrl())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same URL!"));
+            if (!comp.getUrl().equals(company.getUrl())) {
+                if (companyRepository.existsByUrl(company.getUrl())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "URL already registered!"));
+                }
+                comp.setUrl(company.getUrl());
+                updatedFields.add("URL");
             }
 
-            if (companyRepository.existsByUrl(company.getUrl())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "URL already registered!"));
-            }
-            comp.setUrl(company.getUrl());
-            updatedFields.add("URL");
         }
 
         if (company.getType() != null && !company.getType().trim().isEmpty()) {
-            if (comp.getType().equals(company.getType())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same type!"));
+            if (!comp.getType().equals(company.getType())) {
+                comp.setType(company.getType());
+                updatedFields.add("Type");
             }
-            comp.setType(company.getType());
-            updatedFields.add("Type");
         }
 
         if (company.getSize() != null && !company.getSize().trim().isEmpty()) {
-            if (comp.getSize().equals(company.getSize())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same size!"));
+            if (!comp.getSize().equals(company.getSize())) {
+                comp.setSize(company.getSize());
+                updatedFields.add("Size");
             }
-            comp.setSize(company.getSize());
-            updatedFields.add("Size");
         }
 
         if (company.getLocation() != null && !company.getLocation().trim().isEmpty()) {
-            if (comp.getLocation().equals(company.getLocation())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same location!"));
+            if (!comp.getLocation().equals(company.getLocation())) {
+                comp.setLocation(company.getLocation());
+                updatedFields.add("Location");
             }
-            comp.setLocation(company.getLocation());
-            updatedFields.add("Location");
+
         }
 
         if (company.getGst() != null && !company.getGst().trim().isEmpty()) {
-            if (comp.getGst().equals(company.getGst())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same GST!"));
+            if (!comp.getGst().equals(company.getGst())) {
+                if (companyRepository.existsByGst(company.getGst())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "GST already registered!"));
+                }
+                comp.setGst(company.getGst());
+                updatedFields.add("GST");
             }
 
-            if (companyRepository.existsByGst(company.getGst())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "GST already registered!"));
-            }
-            comp.setGst(company.getGst());
-            updatedFields.add("GST");
         }
 
         companyRepository.save(comp);
@@ -227,7 +221,7 @@ public class CompanyService {
                     new ApiResponseDTO(
                             LocalDateTime.now(),
                             "Success",
-                            "No fields were updated!"
+                            "No changes detected!"
                     )
             );
         }
@@ -245,14 +239,17 @@ public class CompanyService {
         Job j = new Job();
         j.setTitle(job.getTitle());
         j.setDescription(job.getDescription());
-        j.setSalary(job.getSalary());
-        j.setExperience(job.getExperience());
+        j.setMinSalary(job.getMinSalary());
+        j.setMaxSalary(job.getMaxSalary());
+        j.setMinExperience(job.getMinExperience());
+        j.setMaxExperience(job.getMaxExperience());
         j.setLocation(job.getLocation());
-        j.setType(job.getType());
+        j.setJobType(job.getJobType());
         j.setSkills(job.getSkills());
-
+        j.setWorkMode(job.getWorkMode());
+        j.setOpenings(job.getOpenings());
+        j.setCategory(job.getCategory());
         j.setCompany(company);
-
         jobRepository.save(j);
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "New Job has been posted Successfully"));
     }
@@ -284,14 +281,24 @@ public class CompanyService {
             updatedDetails.add("Skills");
         }
 
-        if (jobDTO.getSalary() != null && jobDTO.getSalary() != 0.00) {
-            job.setSalary(jobDTO.getSalary());
-            updatedDetails.add("Salary");
+        if (jobDTO.getMinSalary() != null && jobDTO.getMinSalary() != 0.00) {
+            job.setMinSalary(jobDTO.getMinSalary());
+            updatedDetails.add("Min Salary");
         }
 
-        if (jobDTO.getExperience() != null && !jobDTO.getExperience().isEmpty()) {
-            job.setExperience(jobDTO.getExperience());
-            updatedDetails.add("Experience");
+        if (jobDTO.getMaxSalary() != null && jobDTO.getMaxSalary() != 0.00) {
+            job.setMaxSalary(jobDTO.getMaxSalary());
+            updatedDetails.add("Max Salary");
+        }
+
+        if (jobDTO.getMinExperience() != null && !jobDTO.getMinExperience().isEmpty()) {
+            job.setMinExperience(jobDTO.getMinExperience());
+            updatedDetails.add("Min Experience");
+        }
+
+        if (jobDTO.getMaxExperience() != null && !jobDTO.getMaxExperience().isEmpty()) {
+            job.setMaxExperience(jobDTO.getMaxExperience());
+            updatedDetails.add("Max Experience");
         }
 
         if (jobDTO.getLocation() != null && !jobDTO.getLocation().isEmpty()) {
@@ -299,9 +306,24 @@ public class CompanyService {
             updatedDetails.add("Location");
         }
 
-        if (jobDTO.getType() != null && !jobDTO.getType().isEmpty()) {
-            job.setType(jobDTO.getType());
-            updatedDetails.add("Type");
+        if (jobDTO.getJobType() != null) {
+            job.setJobType(jobDTO.getJobType());
+            updatedDetails.add("Job Type");
+        }
+
+        if (jobDTO.getCategory() != null && !jobDTO.getCategory().isEmpty()) {
+            job.setCategory(jobDTO.getCategory());
+            updatedDetails.add("Category");
+        }
+
+        if (jobDTO.getWorkMode() != null) {
+            job.setWorkMode(jobDTO.getWorkMode());
+            updatedDetails.add("Work Mode");
+        }
+
+        if (jobDTO.getOpenings() != null && !jobDTO.getOpenings().isEmpty()) {
+            job.setOpenings(jobDTO.getOpenings());
+            updatedDetails.add("Openings");
         }
 
         jobRepository.save(job);
@@ -342,12 +364,12 @@ public class CompanyService {
     }
 
     // get all jobs
-    public ResponseEntity<?> getJobs(Integer companyId) {
-        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(() -> new NotFoundException("Company not found"));
+    public ResponseEntity<?> getJobs(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Company not found"));
 
         List<Job> jobs = jobRepository.findByCompany(company);
         if (jobs.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs found!"));
         }
 
         List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
@@ -377,7 +399,7 @@ public class CompanyService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
         }
 
-        List<CompanyJobStatusDTO> statusList = companyJobs.stream().map(CompanyJobStatusDTO::new).toList();
+        List<JobResponseDTO> statusList = companyJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(statusList);
     }
 
@@ -538,13 +560,13 @@ public class CompanyService {
     public ResponseEntity<?> getAllApprovedJobs(Integer companyId) {
         Company company= companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with this ID: "+companyId));
 
-        List<Job> companyJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.APPROVED);
+        List<Job> approvedJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.APPROVED);
 
-        if(companyJobs.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No APPROVED jobs were found!"));
+        if(approvedJobs.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs found!"));
         }
 
-        List<JobStatusDTO> jobList = companyJobs.stream().map(JobStatusDTO::new).toList();
+        List<JobResponseDTO> jobList = approvedJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(jobList);
     }
 
@@ -552,13 +574,13 @@ public class CompanyService {
     public ResponseEntity<?> getAllRejectedJobs(Integer companyId) {
         Company company= companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with this ID: "+companyId));
 
-        List<Job> companyJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.REJECTED);
+        List<Job> rejectedJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.REJECTED);
 
-        if(companyJobs.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No REJECTED jobs were found!"));
+        if(rejectedJobs.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs found!"));
         }
 
-        List<JobStatusDTO> jobList = companyJobs.stream().map(JobStatusDTO::new).toList();
+        List<JobResponseDTO> jobList = rejectedJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(jobList);
     }
 
@@ -566,13 +588,13 @@ public class CompanyService {
     public ResponseEntity<?> getAllPendingJobs(Integer companyId) {
         Company company= companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with this ID: "+companyId));
 
-        List<Job> companyJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.PENDING);
+        List<Job> pendingJobs= jobRepository.findByCompanyAndStatus(company, JobStatus.PENDING);
 
-        if(companyJobs.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No PENDING jobs were found!"));
+        if(pendingJobs.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were pending!"));
         }
 
-        List<JobStatusDTO> jobList = companyJobs.stream().map(JobStatusDTO::new).toList();
+        List<JobResponseDTO> jobList = pendingJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(jobList);
     }
 
@@ -638,6 +660,50 @@ public class CompanyService {
         }
         List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
         return ResponseEntity.ok(jobApplicationList);
+    }
+
+    public ResponseEntity<ApiResponseDTO> getCurrentCompany(MyUserDetails userDetails) {
+        Company company = companyRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please login again"));
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Company Fetched Successfully",new CompanyResponseDTO(company)));
+    }
+
+
+    // company analytics
+    public ResponseEntity<?> getJobCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long jobCount = jobRepository.countByCompany(company);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",jobCount));
+    }
+
+
+    public ResponseEntity<?> getApplicantsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long jobCount = jobApplicationRepository.countByCompany(company);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",jobCount));
+    }
+
+    public ResponseEntity<?> getApprovedJobsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long approvedJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.APPROVED);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",approvedJobsCount));
+    }
+
+    public ResponseEntity<?> getRejectedJobsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long rejectedJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.REJECTED);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",rejectedJobsCount));
+    }
+
+    public ResponseEntity<?> getPendingJobsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long pendingJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.PENDING);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",pendingJobsCount));
     }
 }
 

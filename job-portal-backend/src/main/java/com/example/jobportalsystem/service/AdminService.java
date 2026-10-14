@@ -4,6 +4,7 @@ import com.example.jobportalsystem.dto.*;
 import com.example.jobportalsystem.entity.*;
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.exception.NotFoundException;
+import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -297,7 +298,7 @@ public class AdminService {
             return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were in pending"));
         }
 
-        List<AdminJobStatusDTO> pendingList = pendingJobs.stream().map(AdminJobStatusDTO::new).toList();
+        List<JobResponseDTO> pendingList = pendingJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(pendingList);
 
     }
@@ -310,7 +311,7 @@ public class AdminService {
             return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
         }
 
-        List<AdminJobStatusDTO> approvedList = approvedJobs.stream().map(AdminJobStatusDTO::new).toList();
+        List<JobResponseDTO> approvedList = approvedJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(approvedList);
     }
 
@@ -322,7 +323,7 @@ public class AdminService {
             return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
         }
 
-        List<AdminJobStatusDTO> rejectedList = rejectedJobs.stream().map(AdminJobStatusDTO::new).toList();
+        List<JobResponseDTO> rejectedList = rejectedJobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(rejectedList);
     }
 
@@ -388,6 +389,12 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
         }
         return ResponseEntity.ok(count);
+    }
+
+    //get current admin
+    public ResponseEntity<ApiResponseDTO> getCurrentAdmin(MyUserDetails userDetails) {
+        Admin admin = adminRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please try again"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Admin Fetched Successfully",new AdminResponseDTO(admin)));
     }
 }
 

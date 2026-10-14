@@ -27,12 +27,18 @@ public class CandidateController {
         return candidateService.register(candidate);
     }
 
+    // update candidate
     @PutMapping("/update")
     public  ResponseEntity<?> updateCandidate(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody CandidateRegisterDTO candidate){
         System.out.println("Log in candidate: "+userDetails.getUsername());
         return candidateService.updateCandidate(userDetails.getUserId(),candidate);
     }
 
+    // current candidate
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponseDTO> getCurrentCandidate(@AuthenticationPrincipal MyUserDetails userDetails){
+        return candidateService.getCurrentCandidate(userDetails);
+    }
 
     //  ---- JOB Application Features --------
     // apply job

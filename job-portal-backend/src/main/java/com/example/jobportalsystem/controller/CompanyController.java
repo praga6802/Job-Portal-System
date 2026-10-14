@@ -1,8 +1,7 @@
 package com.example.jobportalsystem.controller;
 
 
-import com.example.jobportalsystem.dto.CompanyRegisterDTO;
-import com.example.jobportalsystem.dto.JobRegisterDTO;
+import com.example.jobportalsystem.dto.*;
 
 import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.service.CompanyService;
@@ -28,6 +27,11 @@ public class CompanyController {
     @PutMapping("/update")
     public ResponseEntity<?> updateCompany(@AuthenticationPrincipal MyUserDetails user, @RequestBody CompanyRegisterDTO company){
         return companyService.updateCompany(user.getUserId(),company);
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponseDTO> getCurrentCompany(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getCurrentCompany(userDetails);
     }
 
     // -------- JOB FEATURES ------------
@@ -59,27 +63,27 @@ public class CompanyController {
 
 
     //get all jobs
-    @GetMapping("/get-jobs")
+    @GetMapping("/jobs")
     public ResponseEntity<?> getJobs(@AuthenticationPrincipal MyUserDetails company){
-        return companyService.getJobs(company.getUserId());
+        return companyService.getJobs(company.getUsername());
     }
 
     //get job by id
-    @GetMapping("/getJobById/{jobId}")
+    @GetMapping("/jobs/{jobId}")
     public ResponseEntity<?> getJobById(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails company){
         return companyService.getJobById(jobId,company.getUserId());
     }
 
 
     // get total applicants by company
-    @GetMapping("/get-applicants")
+    @GetMapping("/applicants")
     public ResponseEntity<?> getAllApplicants(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getAllApplicants(userDetails.getUserId());
     }
 
 
  // get applicants by job ID
-    @GetMapping("/getApplicants/{jobId}")
+    @GetMapping("/applicants/{jobId}")
     public ResponseEntity<?> getApplicantsByJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getApplicantsByJob(jobId,userDetails.getUserId());
     }
@@ -97,7 +101,7 @@ public class CompanyController {
         return companyService.getAllRejectedJobs(userDetails.getUserId());
     }
 
-    @GetMapping("/pendingJobs")
+    @GetMapping("/pending-jobs")
     public ResponseEntity<?> getAllPendingJobs(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getAllPendingJobs(userDetails.getUserId());
     }
@@ -116,14 +120,14 @@ public class CompanyController {
         return companyService.deactivateJob(jobId,userDetails.getUserId());
     }
 
-    // get all activate jobs
-    @GetMapping("/activate-jobs")
+    // get all active jobs
+    @GetMapping("/active-jobs")
     public ResponseEntity<?> getActivateJobs(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getActivateJobs(userDetails.getUserId());
     }
 
-   // get all deactivate jobs
-    @GetMapping("/deactivated-jobs")
+   // get all expired jobs
+    @GetMapping("/expired-jobs")
     public ResponseEntity<?> getDeactivateJobs(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getDeactivateJobs(userDetails.getUserId());
     }
@@ -165,5 +169,33 @@ public class CompanyController {
     public ResponseEntity<?> getRejectedApplications(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getRejectedApplications(userDetails.getUserId());
     }
+
+
+    // company dashboard
+    @GetMapping("/job-count")
+    public ResponseEntity<?> getJobCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getJobCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/applicants-count")
+    public ResponseEntity<?> getApplicantsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getApplicantsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/approved-count")
+    public ResponseEntity<?> getApprovedJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getApprovedJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/rejected-count")
+    public ResponseEntity<?> getRejectedJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getRejectedJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/pending-count")
+    public ResponseEntity<?> getPendingJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getPendingJobsCount(userDetails.getUsername());
+    }
+
 
 }

@@ -2,9 +2,12 @@ package com.example.jobportalsystem.entity;
 
 
 import com.example.jobportalsystem.enums.JobStatus;
+import com.example.jobportalsystem.enums.JobType;
+import com.example.jobportalsystem.enums.WorkMode;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,26 +22,40 @@ public class Job {
     @Column(nullable = false, name = "title")
     private String title;
 
+    @Column(nullable = false,length = 2000, name = "description")
+    private String description;
+
     @Column(nullable = false, name = "skills")
     private String skills;
 
-    @Column(nullable = false,length = 2000, name = "description")
-    private String description;
+    @Column(nullable = false)
+    private String category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobType jobType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private WorkMode workMode;
 
     @Column(nullable = false, name = "location")
     private String location;
 
     @Column(nullable = false)
-    private Double salary;
-
-    @Column(nullable = false, name = "type")
-    private String type;
+    private Double minSalary;
 
     @Column(nullable = false)
-    private String experience;
+    private Double maxSalary;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime postedDate = LocalDateTime.now();
+    @Column(nullable = false)
+    private String minExperience;
+
+    @Column(nullable = false)
+    private String maxExperience;
+
+    @Column(nullable = false)
+    private String openings;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -46,6 +63,12 @@ public class Job {
 
     @Column(name="active")
     private boolean active=false;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDate postedAt = LocalDate.now();
+
+    @Column(nullable = false)
+    private LocalDate deadline;
 
     @ManyToOne
     @JoinColumn(name="company_id",nullable = false)

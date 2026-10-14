@@ -12,6 +12,6 @@ public class ApplicationsJobDTO {
     private Integer jobId;
     private String jobTitle;
     private String companyName;
-    private Long applicationCount;
+    private Long applications;
 
 }
