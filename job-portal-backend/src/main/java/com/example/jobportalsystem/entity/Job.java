@@ -49,10 +49,10 @@ public class Job {
     private Double maxSalary;
 
     @Column(nullable = false)
-    private String minExperience;
+    private Integer minExperience;
 
     @Column(nullable = false)
-    private String maxExperience;
+    private Integer maxExperience;
 
     @Column(nullable = false)
     private String openings;
@@ -64,11 +64,11 @@ public class Job {
     @Column(name="active")
     private boolean active=false;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDate postedAt = LocalDate.now();
-
     @Column(nullable = false)
     private LocalDate deadline;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDate postedAt = LocalDate.now();
 
     @ManyToOne
     @JoinColumn(name="company_id",nullable = false)

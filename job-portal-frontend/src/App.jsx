@@ -15,36 +15,42 @@ import CompanyDashboard from "./pages/company/CompanyDashboard";
 import PostJob from "./pages/company/PostJob";
 import CompanyUpdate from "./pages/company/CompanyUpdate";
 import ManageJobs from "./pages/company/ManageJobs";
+import CompanyLayout from "./components/CompanyLayout";
+import PublicLayout from "./components/PublicLayout";
 
 const App = () => {
     return (
         <Router>
-            <Navbar />
             <Routes>
-                <Route path="/" element={<Home />}></Route>
-                <Route path="/admin/signup" element={<AdminRegister />}></Route>
-                <Route
-                    path="/candidate/signup"
-                    element={<CandidateRegister />}
-                ></Route>
-                <Route
-                    path="/company/signup"
-                    element={<CompanyRegister />}
-                ></Route>
-                <Route path="/login" element={<Login />} />
-                <Route path="*" element={<Error />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/about" element={<About />} />
-                <Route
-                    path="/company/dashboard"
-                    element={<CompanyDashboard />}
-                />
+                {/* public page */}
+                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/admin/signup" element={<AdminRegister />} />
+                    <Route
+                        path="/candidate/signup"
+                        element={<CandidateRegister />}
+                    />
+                    <Route
+                        path="/company/signup"
+                        element={<CompanyRegister />}
+                    />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/about" element={<About />} />
+                </Route>
 
-                <Route path="/company/post-job" element={<PostJob />} />
-                <Route path="/company/profile" element={<CompanyUpdate />} />
-                <Route path="/company/manage-jobs" element={<ManageJobs />} />
+                {/* company page */}
+                <Route path="/company" element={<CompanyLayout />}>
+                    <Route path="dashboard" element={<CompanyDashboard />} />
+                    <Route path="post-job" element={<PostJob />} />
+                    <Route path="profile" element={<CompanyUpdate />} />
+                    <Route path="manage-jobs" element={<ManageJobs />} />
+                </Route>
+
+                {/* Error page */}
+                <Route path="*" element={<Error />} />
+
             </Routes>
-            <Footer />
         </Router>
     );
 };

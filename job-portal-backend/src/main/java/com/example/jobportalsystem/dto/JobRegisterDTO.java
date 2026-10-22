@@ -26,8 +26,8 @@ public class JobRegisterDTO {
     private String location;
     private Double minSalary;
     private Double maxSalary;
-    private String minExperience;
-    private String maxExperience;
+    private Integer minExperience;
+    private Integer maxExperience;
     private String openings;
     private LocalDate deadline;
 

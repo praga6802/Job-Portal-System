@@ -38,6 +38,7 @@ public class CompanyController {
     // post job
     @PostMapping("/post-job")
     public ResponseEntity<?> postJob(@RequestBody JobRegisterDTO job, @AuthenticationPrincipal MyUserDetails user){
+        System.out.println("Reached...");
         return companyService.postJob(job,user.getUserId());
     }
 

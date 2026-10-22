@@ -2,6 +2,8 @@ package com.example.jobportalsystem.filter;
 
 
 import com.example.jobportalsystem.pojo.MyUserDetails;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import com.example.jobportalsystem.service.JWTService;
 import com.example.jobportalsystem.service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
@@ -39,35 +41,54 @@ public class JWTValidationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if(authHeader!=null && authHeader.startsWith("Bearer ")){
-            token =authHeader.substring(7);
-            username=jwtService.extractUsername(token);
+        if(authHeader!=null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+            try {
+                username = jwtService.extractUsername(token);
 
-            if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-                UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                if(jwtService.validateToken(token,userDetails)){
-                    Integer tokenVersion = jwtService.extractTokenVersion(token);
+                    UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
 
-                    MyUserDetails myUserDetails = (MyUserDetails) userDetails;
-                    Integer currentTokenVersion = myUserDetails.getUser().getTokenVersion();
+                    if (jwtService.validateToken(token, userDetails)) {
+                        Integer tokenVersion = jwtService.extractTokenVersion(token);
 
-                    if (!tokenVersion.equals(currentTokenVersion)) {
-                        response.setStatus(HttpServletResponse.SC_CONFLICT);
-                        response.setContentType("application/json");
-                        response.getWriter().write(
-                                "{\"status\":\"Failure\",\"message\":\"Session Expired! Please Log In again!\"}"
-                        );
-                        return;
+                        MyUserDetails myUserDetails = (MyUserDetails) userDetails;
+                        Integer currentTokenVersion = myUserDetails.getUser().getTokenVersion();
+
+                        if (!tokenVersion.equals(currentTokenVersion)) {
+                            response.setStatus(HttpServletResponse.SC_CONFLICT);
+                            response.setContentType("application/json");
+                            response.getWriter().write(
+                                    "{\"status\":\"Failure\",\"message\":\"Session Expired! Please Log In again!\"}"
+                            );
+                            return;
+                        }
+
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        System.out.println("Username: " + userDetails.getUsername());
+                        System.out.println("Authorities: " + userDetails.getAuthorities());
+
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
-
-                    UsernamePasswordAuthenticationToken authToken= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-                    System.out.println("Username: " + userDetails.getUsername());
-                    System.out.println("Authorities: " + userDetails.getAuthorities());
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+            }
+            catch (ExpiredJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(
+                        "{\"message\":\"Token expired. Please log in again.\"}"
+                );
+                return;
+            }
+            catch (JwtException | IllegalArgumentException e) {
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(
+                        "{\"message\":\"Invalid token. Please log in again.\"}"
+                );
+                return;
             }
         }
         filterChain.doFilter(request,response);

@@ -21,8 +21,8 @@ public class ApplicationStatusDTO {
     private Double minSalary;
     private Double maxSalary;
     private JobStatus status;
-    private String minExperience;
-    private String maxExperience;
+    private Integer minExperience;
+    private Integer maxExperience;
     private boolean isActive;
     private LocalDateTime appliedAt;
 

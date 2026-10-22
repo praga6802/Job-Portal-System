@@ -239,19 +239,20 @@ public class CompanyService {
         Job j = new Job();
         j.setTitle(job.getTitle());
         j.setDescription(job.getDescription());
+        j.setSkills(job.getSkills());
+        j.setCategory(job.getCategory());
+        j.setJobType(job.getJobType());
+        j.setWorkMode(job.getWorkMode());
+        j.setLocation(job.getLocation());
         j.setMinSalary(job.getMinSalary());
         j.setMaxSalary(job.getMaxSalary());
         j.setMinExperience(job.getMinExperience());
         j.setMaxExperience(job.getMaxExperience());
-        j.setLocation(job.getLocation());
-        j.setJobType(job.getJobType());
-        j.setSkills(job.getSkills());
-        j.setWorkMode(job.getWorkMode());
         j.setOpenings(job.getOpenings());
-        j.setCategory(job.getCategory());
+        j.setDeadline(job.getDeadline());
         j.setCompany(company);
         jobRepository.save(j);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "New Job has been posted Successfully"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Job Posted Successfully!"));
     }
 
     // update job details
@@ -291,12 +292,12 @@ public class CompanyService {
             updatedDetails.add("Max Salary");
         }
 
-        if (jobDTO.getMinExperience() != null && !jobDTO.getMinExperience().isEmpty()) {
+        if (jobDTO.getMinExperience() != null) {
             job.setMinExperience(jobDTO.getMinExperience());
             updatedDetails.add("Min Experience");
         }
 
-        if (jobDTO.getMaxExperience() != null && !jobDTO.getMaxExperience().isEmpty()) {
+        if (jobDTO.getMaxExperience() != null) {
             job.setMaxExperience(jobDTO.getMaxExperience());
             updatedDetails.add("Max Experience");
         }

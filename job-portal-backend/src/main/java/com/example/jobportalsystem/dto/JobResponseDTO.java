@@ -1,6 +1,7 @@
 package com.example.jobportalsystem.dto;
 
 import com.example.jobportalsystem.entity.Job;
+import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.enums.JobType;
 import com.example.jobportalsystem.enums.WorkMode;
 import lombok.Data;
@@ -16,12 +17,13 @@ public class JobResponseDTO {
     private String title;
     private String description;
     private String skills;
+    private JobStatus status;
     private String location;
     private JobType jobType;
     private Double minSalary;
     private Double maxSalary;
-    private String minExperience;
-    private String maxExperience;
+    private Integer minExperience;
+    private Integer maxExperience;
     private String openings;
     private WorkMode workMode;
     private String category;
@@ -31,6 +33,7 @@ public class JobResponseDTO {
 
     public JobResponseDTO(Job job) {
         this.company=job.getCompany().getName();
+        this.status=job.getStatus();
         this.jobId = job.getJobId();
         this.title = job.getTitle();
         this.description = job.getDescription();

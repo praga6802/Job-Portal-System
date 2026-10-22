@@ -123,7 +123,6 @@ const CompanyUpdate = () => {
                 </p>
             ) : company ? (
                 <>
-                    <CompanySidebar />
                     <div className="mt-16 mx-auto mb-8 w-full max-w-3xl rounded-xl bg-white p-6 shadow-md md:p-7 h-fit">
                         <h1 className="mb-6 text-2xl font-bold text-blue-950 text-center mb-5">
                             UPDATE COMPANY PROFILE
