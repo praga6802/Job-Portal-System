@@ -140,7 +140,8 @@ const CompanyMain = () => {
 
     const statusListStyle =
         "bg-white p-4 w-full border border-1 border-gray-500 rounded-lg flex flex-col items-center";
-    const jobCardStyle = "border border-1 mt-2 w-full h-auto";
+    const jobCardStyle =
+        "border border-1 border-gray-400 rounded-lg p-3 mt-2 w-full h-auto";
 
     const statusMessage =
         "text-sm border border-1 text-center p-2 w-full rounded-lg font-semibold";
@@ -320,7 +321,12 @@ const CompanyMain = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        {job.title}
+                                        <h1>{job.title}</h1>
+                                        <h1>{job.skills}</h1>
+                                        <h1>{job.location}</h1>
+                                        <h1>{job.jobType}</h1>
+                                        <h1>{job.workMode}</h1>
+                                        <h1>{job.postedAt}</h1>
                                     </div>
                                 ))
                             ) : (
@@ -346,7 +352,12 @@ const CompanyMain = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        {job.title}
+                                        <h1>{job.title}</h1>
+                                        <h1>{job.skills}</h1>
+                                        <h1>{job.location}</h1>
+                                        <h1>{job.jobType}</h1>
+                                        <h1>{job.workMode}</h1>
+                                        <h1>{job.postedAt}</h1>
                                     </div>
                                 ))
                             ) : (
@@ -372,7 +383,28 @@ const CompanyMain = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        {job.title}
+                                        <div className="flex justify-between">
+                                            <h1 className="font-bold text-lg">
+                                                {job.title}
+                                            </h1>
+                                            <p className="p-1 text-xs border border-1 border-green-500 rounded-xl bg-green-100 text-green-600 font-semibold">
+                                                {job.jobType}
+                                            </p>
+                                        </div>
+                                        <h1 className="text-normal">
+                                            <span className="font-semibold">
+                                                Skills:
+                                            </span>{" "}
+                                            {job.skills}
+                                        </h1>
+                                        <div className="flex gap-3">
+                                            <h1>{job.location}</h1> |
+                                            <h1>{job.workMode}</h1>
+                                        </div>
+                                        <h1 className="bg-yellow-200">
+                                            <span className="font-semibold">Posted At:</span>{" "}
+                                            {job.postedAt}
+                                        </h1>
                                     </div>
                                 ))
                             ) : (
