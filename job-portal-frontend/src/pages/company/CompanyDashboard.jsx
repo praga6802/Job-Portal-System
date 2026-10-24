@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import axiosInstance from "../../services/api.js";
 
-const CompanyMain = () => {
+const CompanyDashboard = () => {
     const [jobCount, setJobCount] = useState(0);
     const [applicantsCount, setApplicantsCount] = useState(0);
     const [approvedCount, setApprovedCount] = useState(0);
@@ -207,7 +207,7 @@ const CompanyMain = () => {
 
                                 <h2 className="font-bold text-lg">Rejected</h2>
                                 <h6 className="font-bold text-5xl">
-                                    {approvedCount}
+                                    {rejectedCount}
                                 </h6>
                             </div>
 
@@ -333,7 +333,7 @@ const CompanyMain = () => {
                                 <p
                                     className={`${statusMessage} text-green-600 border-green-500 bg-green-50`}
                                 >
-                                    No approved jobs!
+                                    No Approved jobs!
                                 </p>
                             )}
                         </div>
@@ -364,7 +364,7 @@ const CompanyMain = () => {
                                 <p
                                     className={`${statusMessage} text-red-500 border-red-500 bg-red-50`}
                                 >
-                                    No rejected jobs!
+                                    No Rejected jobs!
                                 </p>
                             )}
                         </div>
@@ -398,11 +398,18 @@ const CompanyMain = () => {
                                             {job.skills}
                                         </h1>
                                         <div className="flex gap-3">
-                                            <h1>{job.location}</h1> |
-                                            <h1>{job.workMode}</h1>
+                                            <h1>
+                                                <span className="text-blue-600">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                </span>{" "}
+                                                {job.location}
+                                            </h1>{" "}
+                                            |<h1>{job.workMode}</h1>
                                         </div>
-                                        <h1 className="bg-yellow-200">
-                                            <span className="font-semibold">Posted At:</span>{" "}
+                                        <h1 className="bg-red-100 p-1">
+                                            <span className="font-semibold">
+                                                Posted At:
+                                            </span>{" "}
                                             {job.postedAt}
                                         </h1>
                                     </div>
@@ -411,7 +418,7 @@ const CompanyMain = () => {
                                 <p
                                     className={`${statusMessage} text-yellow-600 border-yellow-500 bg-yellow-50`}
                                 >
-                                    No pending jobs!
+                                    No Pending jobs!
                                 </p>
                             )}
                         </div>
@@ -422,4 +429,4 @@ const CompanyMain = () => {
     );
 };
 
-export default CompanyMain;
+export default CompanyDashboard;

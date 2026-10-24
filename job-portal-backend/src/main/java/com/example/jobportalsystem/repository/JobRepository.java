@@ -28,4 +28,6 @@ public interface JobRepository extends JpaRepository<Job,Integer> {
     Long countByCompany(Company company);
 
     Long countByCompanyAndStatus(Company company, JobStatus jobStatus);
+
+    Long countByStatus(JobStatus status);
 }

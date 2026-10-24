@@ -47,19 +47,14 @@ public class CandidateController {
         return candidateService.applyJob(jobId, userDetails.getUserId());
     }
 
+
+
+
     // get job by company
-    @GetMapping("/get-job-by-company")
+    @GetMapping("/job-by-company")
     public ResponseEntity<?> getJobsByCompany(@RequestParam String companyName) {
         return candidateService.getJobsByCompany(companyName);
     }
-
-
-    // get all jobs
-    @GetMapping("/get-jobs")
-    public ResponseEntity<?> getJobs() {
-        return candidateService.getJobs();
-    }
-
 
     // view application status
     @GetMapping("/application-status")

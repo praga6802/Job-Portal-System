@@ -114,6 +114,12 @@ public class AdminController {
     }
 
     // Pending Jobs
+    @GetMapping("/jobs")
+    public ResponseEntity<?> getJobs(){
+        return adminService.getJobs();
+    }
+
+    // Pending Jobs
     @GetMapping("/pending-jobs")
     public ResponseEntity<?> getPendingJobs(){
         return adminService.getPendingJobs();
@@ -153,28 +159,61 @@ public class AdminController {
         return adminService.getApplicationsPerJob();
     }
 
-    //Applications per company
+    // get applications count per company
     @GetMapping("/applications-per-company")
     public ResponseEntity<?> getApplicationsPerCompany(){
         return adminService.getApplicationsPerCompany();
     }
 
-    // total number of applications
-    @GetMapping("/total-applications")
+    // get applications count
+    @GetMapping("/applications-count")
     public ResponseEntity<?> getTotalApplications(){
         return adminService.getTotalApplications();
     }
 
-    // total number of companies
-    @GetMapping("/total-companies")
+    // get companies count
+    @GetMapping("/companies-count")
     public ResponseEntity<?> getTotalCompanies(){
+        System.out.println("reached..");
         return adminService.getTotalCompanies();
     }
 
-    // total number of candidates
-    @GetMapping("/total-candidates")
+    // get candidates count
+    @GetMapping("/candidates-count")
     public ResponseEntity<?> getTotalCandidates(){
         return adminService.getTotalCandidates();
     }
 
+    // get admins count
+    @GetMapping("/admins-count")
+    public ResponseEntity<?> getAdminsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return adminService.getAdminsCount(userDetails.getUsername());
+    }
+
+    // get jobs count
+    @GetMapping("/jobs-count")
+    public ResponseEntity<?> getJobsCount(){
+        return adminService.getJobsCount();
+    }
+
+
+    // get approved jobs count
+    @GetMapping("/approved-count")
+    public ResponseEntity<?> getApprovedJobsCount(){
+        return adminService.getApprovedJobsCount();
+    }
+
+
+    // get rejected jobs count
+    @GetMapping("/rejected-count")
+    public ResponseEntity<?> getRejectedJobsCount(){
+        return adminService.getRejectedJobsCount();
+    }
+
+
+    // get pending jobs count
+    @GetMapping("/pending-count")
+    public ResponseEntity<?> getPendingJobsCount(){
+        return adminService.getPendingJobsCount();
+    }
 }

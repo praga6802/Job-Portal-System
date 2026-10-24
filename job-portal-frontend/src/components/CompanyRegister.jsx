@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import "../CompanyRegister.css";
+import "../styles/CompanyRegister.css";
 
 const CompanyRegister = () => {
     const initialFormState = {

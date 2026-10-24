@@ -2,10 +2,13 @@ package com.example.jobportalsystem.service;
 
 
 import com.example.jobportalsystem.dto.*;
+import com.example.jobportalsystem.entity.Job;
 import com.example.jobportalsystem.entity.Users;
 
+import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
+import com.example.jobportalsystem.repository.JobRepository;
 import com.example.jobportalsystem.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -32,6 +36,9 @@ public class AuthService {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private JobRepository jobRepository;
 
 
     //login feature
@@ -77,6 +84,18 @@ public class AuthService {
         user.setTokenVersion(user.getTokenVersion()+1);
         usersRepository.save(user);
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Your password has been reset successfully! Please login again."));
+    }
+
+
+    // get all approved jobs
+    public ResponseEntity<?> getJobs() {
+        List<Job> jobs = jobRepository.findByStatusAndActive(JobStatus.APPROVED, true);
+        if (jobs.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
+        }
+        List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
+
+        return ResponseEntity.ok(jobList);
     }
 
 

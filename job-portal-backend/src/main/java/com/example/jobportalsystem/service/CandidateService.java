@@ -213,6 +213,7 @@ public class CandidateService {
     }
 
 
+
     // get job by company
     public ResponseEntity<?> getJobsByCompany(String companyName) {
         Company company = companyRepository.findByName(companyName).orElseThrow(() -> new NotFoundException("Company not found"));
@@ -226,16 +227,7 @@ public class CandidateService {
         return ResponseEntity.ok(jobList);
     }
 
-    // get all jobs
-    public ResponseEntity<?> getJobs() {
-        List<Job> jobs = jobRepository.findByStatusAndActive(JobStatus.APPROVED, true);
-        if (jobs.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
-        }
-        List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
 
-        return ResponseEntity.ok(jobList);
-    }
 
     // view application status
     public ResponseEntity<?> viewApplicationStatus(Integer candidateId) {

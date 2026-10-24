@@ -34,4 +34,10 @@ public class AuthController {
         return authService.forgotPassword(password.getNewPassword(),password.getConfirmPassword(),userDetails.getUserId());
     }
 
+    // get all approved jobs
+    @GetMapping("/jobs")
+    public ResponseEntity<?> getJobs() {
+        return authService.getJobs();
+    }
+
 }

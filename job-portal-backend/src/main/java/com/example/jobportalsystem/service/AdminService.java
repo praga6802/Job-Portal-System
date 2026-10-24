@@ -8,6 +8,7 @@ import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -363,38 +364,66 @@ public class AdminService {
 
     // get total applications
     public ResponseEntity<?> getTotalApplications() {
-        Long count  = jobApplicationRepository.getTotalApplications();
+        Long count  = jobApplicationRepository.count();
 
-        if(count==0L){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
-        }
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applications Fetched Successfully",count));
     }
 
     // get total companies
     public ResponseEntity<?> getTotalCompanies() {
-        Long count  = companyRepository.getTotalCompanies();
-
-        if(count==0L){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
-        }
-        return ResponseEntity.ok(count);
+        Long count  = companyRepository.count();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Companies Fetched Successfully",count));
     }
 
     // get total candidates
     public ResponseEntity<?> getTotalCandidates() {
-        Long count  = candidateRepository.getTotalCandidates();
-
-        if(count==0L){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No Applications found"));
-        }
-        return ResponseEntity.ok(count);
+        Long count  = candidateRepository.count();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Candidates Fetched Successfully",count));
     }
 
     //get current admin
     public ResponseEntity<ApiResponseDTO> getCurrentAdmin(MyUserDetails userDetails) {
         Admin admin = adminRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please try again"));
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Admin Fetched Successfully",new AdminResponseDTO(admin)));
+    }
+
+    // get admin count
+    public ResponseEntity<?> getAdminsCount(String email) {
+        Admin admin = adminRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("No admins were found!"));
+
+        Long adminCount = adminRepository.count();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",adminCount));
+    }
+
+    public ResponseEntity<?> getJobsCount() {
+        Long jobCount = jobRepository.count();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",jobCount));
+    }
+
+    public ResponseEntity<?> getApprovedJobsCount() {
+        Long approvedJobsCount = jobRepository.countByStatus(JobStatus.APPROVED);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Approved job count Fetched Successfully",approvedJobsCount));
+    }
+
+    public ResponseEntity<?> getRejectedJobsCount() {
+        Long rejectedJobsCount = jobRepository.countByStatus(JobStatus.REJECTED);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Rejected job count Fetched Successfully",rejectedJobsCount));
+    }
+
+    public ResponseEntity<?> getPendingJobsCount() {
+        Long pendingJobsCount = jobRepository.countByStatus(JobStatus.PENDING);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Pending Job Count Fetched Successfully",pendingJobsCount));
+    }
+
+    // get all jobs
+    public ResponseEntity<?> getJobs() {
+        List<Job> jobs = jobRepository.findAll();
+
+        if (jobs.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were found!"));
+        }
+        List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
+        return ResponseEntity.ok(jobList);
     }
 }
 
