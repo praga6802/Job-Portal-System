@@ -17,6 +17,8 @@ import CompanyUpdate from "./pages/company/CompanyUpdate";
 import ManageJobs from "./pages/company/ManageJobs";
 import CompanyLayout from "./components/CompanyLayout";
 import PublicLayout from "./components/PublicLayout";
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const App = () => {
     return (
@@ -47,9 +49,12 @@ const App = () => {
                     <Route path="manage-jobs" element={<ManageJobs />} />
                 </Route>
 
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                </Route>
+
                 {/* Error page */}
                 <Route path="*" element={<Error />} />
-
             </Routes>
         </Router>
     );

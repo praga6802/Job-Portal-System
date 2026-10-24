@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png";
-import "../../styles/company-sidebar.css";
+import "../../styles/sidebar.css";
 
 const CompanySidebar = () => {
     const navigate = useNavigate();
@@ -22,37 +21,37 @@ const CompanySidebar = () => {
 
                     </div>
 
-                    <div className="company-sidebar">
+                    <div className="sidebar">
                         <ul className="bg-black p-4 w-full">
-                            <li className="company-sidebar-link">
+                            <li className="sidebar-link">
                                 <Link to="/company/dashboard">
                                     <i className="fa-solid fa-border-all"></i>
                                     Dashboard
                                 </Link>
                             </li>
 
-                            <li className="company-sidebar-link">
+                            <li className="sidebar-link">
                                 <Link to="/company/profile">
                                     <i className="fa-regular fa-building"></i>
                                     Company Profile
                                 </Link>
                             </li>
 
-                            <li className="company-sidebar-link">
+                            <li className="sidebar-link">
                                 <Link to="/company/post-job">
                                     <i className="fa-solid fa-circle-plus"></i>{" "}
                                     Post Job
                                 </Link>
                             </li>
 
-                            <li className="company-sidebar-link">
+                            <li className="sidebar-link">
                                 <Link to="/company/manage-jobs">
                                     <i className="fa-solid fa-chart-gantt"></i>{" "}
                                     Manage Jobs
                                 </Link>
                             </li>
 
-                            <li className="company-sidebar-link">
+                            <li className="sidebar-link">
                                 <Link to="/company/applicants">
                                     <i className="fa-solid fa-user"></i>{" "}
                                     Applicants
@@ -69,7 +68,7 @@ const CompanySidebar = () => {
                             handleLogout();
                         }}
                     >
-                        Logout <i className="fa-solid fa-power-off"></i>{" "}
+                        Logout <i className="fa-solid fa-power-off"></i>
                     </button>
                 </div>
             </aside>

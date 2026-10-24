@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 const CompanyNavbar = ({ company }) => {
     const navigate = useNavigate();
+
     const handleMenuChange = (e) => {
         if (e.target.value === "logout") {
             localStorage.removeItem("token");
@@ -12,14 +13,15 @@ const CompanyNavbar = ({ company }) => {
             navigate("/login", { replace: true });
         }
     };
+    
     return (
         <>
             <div className="flex justify-between bg-blue-950 items-center py-2 px-5 text-white">
                 <div>
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link to="/company/dashboard" className="flex items-center gap-2">
                         <img
                             src={logo}
-                            alt="Company Logo"
+                            alt="Logo"
                             className="h-10 w-10 object-contain"
                         />
                         <span className="text-xl font-bold hover:text-yellow-500">

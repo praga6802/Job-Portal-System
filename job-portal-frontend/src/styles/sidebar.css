@@ -1,12 +1,12 @@
-.company-sidebar ul {
+.sidebar ul {
     margin: 0;
     padding: 0;
-    list-style: none;
+    list-style-type: none;
 
 }
 
 
-.company-sidebar-link {
+.sidebar-link {
     background-color: #162556;
     padding: 15px 20px;
     font-size: 14px;
@@ -15,11 +15,11 @@
 
 }
 
-.company-sidebar-link a {
+.sidebar-link a {
     color: white;
     width: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: flexstart;
     align-items: center;
     gap: 12px;
     text-decoration: none;
@@ -28,12 +28,13 @@
     border-bottom: 1px solid rgb(185, 182, 182);
 }
 
-.company-sidebar-link i {
-    color: white;
-    font-size: 18px;
+.sidebar-link i {
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 13px;
 }
 
-.company-sidebar-link a:hover,
-.company-sidebar-link i:hover {
+.sidebar-link a:hover,
+.sidebar-link i:hover {
     color: goldenrod;
 }
