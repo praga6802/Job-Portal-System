@@ -133,6 +133,12 @@ public class CompanyController {
         return companyService.getExpiredJobs(userDetails.getUserId());
     }
 
+    // get all expired jobs
+    @GetMapping("/awaiting-review-jobs")
+    public ResponseEntity<?> getAwaitingReviewJobs(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getAwaitingReviewJobs(userDetails.getUserId());
+    }
+
     // ---- Application status features ---
 
     // Shortlist Application
@@ -206,6 +212,11 @@ public class CompanyController {
     @GetMapping("/expired-jobs-count")
     public ResponseEntity<?> getExpiredJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getExpiredJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/awaiting-review-jobs-count")
+    public ResponseEntity<?> getAwaitingReviewJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getAwaitingReviewJobsCount(userDetails.getUsername());
     }
 
 

@@ -12,11 +12,13 @@ const ManageJobs = () => {
     const [jobCount, setJobCount] = useState(0);
     const [activeCount, setActiveCount] = useState(0);
     const [expiredCount, setExpiredCount] = useState(0);
+    const [awaitingReviewJobsCount, setAwaitingReviewJobsCount] = useState(0);
 
     const tabs = [
         { label: "All Jobs", value: "All" },
         { label: "Active Jobs", value: "Active" },
         { label: "Expired Jobs", value: "Expired" },
+        { label: "Awaiting Review Jobs", value: "AwaitingReview" },
     ];
 
     const fetchJobs = async () => {
@@ -27,6 +29,7 @@ const ManageJobs = () => {
             All: `/auth/company/jobs`,
             Active: `/auth/company/active-jobs`,
             Expired: `/auth/company/expired-jobs`,
+            AwaitingReview: `/auth/company/awaiting-review-jobs`,
         };
 
         try {
@@ -84,6 +87,25 @@ const ManageJobs = () => {
             }
         };
         fetchExpiredCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchAwaitingReviewJobCount = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    "/auth/company/awaiting-review-jobs-count",
+                );
+                setAwaitingReviewJobsCount(response?.data?.data);
+                console.log(response?.data?.message);
+            } catch (err) {
+                console.error("Failed to fetch Expired Jobs Count");
+                console.error(`status: ${err.response?.status}`);
+            } finally {
+                setIsLoading(false);
+                return;
+            }
+        };
+        fetchAwaitingReviewJobCount();
     }, []);
 
     useEffect(() => {
@@ -150,9 +172,9 @@ const ManageJobs = () => {
     }, []);
 
     const cardStyle =
-        "border border-2 border-gray-200 p-6 w-50 rounded-xl flex items-center flex-col justify-center";
+        "border border-2 border-gray-200 p-6 w-fit rounded-xl flex items-center flex-col justify-center";
 
-    const cardHead = "font-bold text-xl";
+    const cardHead = "font-bold text-lg";
     const cardCount = "font-bold text-4xl";
 
     const status = "rounded-xl bg-black py-1 px-2 text-white";
@@ -228,6 +250,20 @@ const ManageJobs = () => {
                                     {expiredCount}
                                 </h4>
                             </div>
+
+                            <div className={cardStyle}>
+                                <div className="flex gap-3 items-center justify-center">
+                                    <p className="text-2xl text-yellow-500">
+                                        <i class="fa-regular fa-clock"></i>
+                                    </p>
+                                    <h2 className={cardHead}>
+                                        Awaiting Review
+                                    </h2>
+                                </div>
+                                <h4 className={`${cardCount} text-yellow-500`}>
+                                    {awaitingReviewJobsCount}
+                                </h4>
+                            </div>
                         </div>
 
                         <div className="flex gap-5 mt-5 ms-5">
@@ -243,7 +279,9 @@ const ManageJobs = () => {
                                                 ? "border border-1 text-white bg-black rounded"
                                                 : tab.value === "Active"
                                                   ? "border-1 border-green-500 text-green-500 bg-green-50"
-                                                  : "border-1 border-red-500 text-red-500 bg-red-50"
+                                                  : tab.value === "Expired"
+                                                    ? "border-1 border-red-500 text-red-500 bg-red-50"
+                                                    : "border-1 border-yellow-500 text-yellow-500 bg-yellow-50"
                                             : "bg-transparent text-slate-400 hover:text-yellow-600"
                                     }`}
                                 >
@@ -305,19 +343,29 @@ const ManageJobs = () => {
                                                             <h2
                                                                 className={
                                                                     job.active ===
-                                                                        true ||
+                                                                        true &&
                                                                     job.status ===
-                                                                        "PENDING"
+                                                                        "APPROVED"
                                                                         ? "font-semibold px-2 py-1 rounded-lg bg-green-100 text-green-600"
-                                                                        : "font-semibold px-2 py-1 rounded-lg bg-red-100 text-red-600"
+                                                                        : job.active ===
+                                                                                false &&
+                                                                            job.status ===
+                                                                                "PENDING"
+                                                                          ? "font-semibold px-2 py-1 rounded-lg bg-yellow-100 text-yellow-600"
+                                                                          : "font-semibold px-2 py-1 rounded-lg bg-red-100 text-red-600"
                                                                 }
                                                             >
                                                                 {job.active ===
-                                                                    true ||
+                                                                    true &&
                                                                 job.status ==
-                                                                    "PENDING"
+                                                                    "APPROVED"
                                                                     ? "Active"
-                                                                    : "Expired"}
+                                                                    : job.active ===
+                                                                            false &&
+                                                                        job.status ===
+                                                                            "PENDING"
+                                                                      ? "Awaiting Review"
+                                                                      : "Expired"}
                                                             </h2>
                                                             <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
                                                                 {job.jobType}
