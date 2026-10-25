@@ -321,12 +321,35 @@ const CompanyDashboard = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        <h1>{job.title}</h1>
-                                        <h1>{job.skills}</h1>
-                                        <h1>{job.location}</h1>
-                                        <h1>{job.jobType}</h1>
-                                        <h1>{job.workMode}</h1>
-                                        <h1>{job.postedAt}</h1>
+                                        <div className="flex justify-between">
+                                            <h1 className="font-bold text-lg">
+                                                {job.title}
+                                            </h1>
+                                            <p className="p-1 text-xs border border-1 border-green-500 rounded-xl bg-green-100 text-green-600 font-semibold">
+                                                {job.jobType}
+                                            </p>
+                                        </div>
+                                        <h1 className="text-normal">
+                                            <span className="font-semibold">
+                                                Skills:
+                                            </span>{" "}
+                                            {job.skills}
+                                        </h1>
+                                        <div className="flex gap-3">
+                                            <h1>
+                                                <span className="text-blue-600">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                </span>{" "}
+                                                {job.location}
+                                            </h1>{" "}
+                                            |<h1>{job.workMode}</h1>
+                                        </div>
+                                        <h1 className="bg-red-100 p-1">
+                                            <span className="font-semibold">
+                                                Posted At:
+                                            </span>{" "}
+                                            {job.postedAt}
+                                        </h1>
                                     </div>
                                 ))
                             ) : (
@@ -352,12 +375,35 @@ const CompanyDashboard = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        <h1>{job.title}</h1>
-                                        <h1>{job.skills}</h1>
-                                        <h1>{job.location}</h1>
-                                        <h1>{job.jobType}</h1>
-                                        <h1>{job.workMode}</h1>
-                                        <h1>{job.postedAt}</h1>
+                                        <div className="flex justify-between">
+                                            <h1 className="font-bold text-lg">
+                                                {job.title}
+                                            </h1>
+                                            <p className="p-1 text-xs border border-1 border-green-500 rounded-xl bg-green-100 text-green-600 font-semibold">
+                                                {job.jobType}
+                                            </p>
+                                        </div>
+                                        <h1 className="text-normal">
+                                            <span className="font-semibold">
+                                                Skills:
+                                            </span>{" "}
+                                            {job.skills}
+                                        </h1>
+                                        <div className="flex gap-3">
+                                            <h1>
+                                                <span className="text-blue-600">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                </span>{" "}
+                                                {job.location}
+                                            </h1>{" "}
+                                            |<h1>{job.workMode}</h1>
+                                        </div>
+                                        <h1 className="bg-red-100 p-1">
+                                            <span className="font-semibold">
+                                                Posted At:
+                                            </span>{" "}
+                                            {job.postedAt}
+                                        </h1>
                                     </div>
                                 ))
                             ) : (

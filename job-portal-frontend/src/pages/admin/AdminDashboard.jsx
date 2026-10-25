@@ -203,7 +203,7 @@ const AdminDashboard = () => {
     const cardLabel = "font-bold text-lg text-gray-500";
     const cardValue = "text-4xl font-bold";
 
-    const cardHead = "text-center font-bold text-lg";
+    const cardHead = "font-bold text-lg";
 
     const statusListStyle =
         "bg-white p-4 w-full border border-1 border-gray-500 rounded-lg flex flex-col items-center";
@@ -212,6 +212,8 @@ const AdminDashboard = () => {
 
     const statusMessage =
         "text-sm border border-1 text-center p-2 w-full rounded-lg font-semibold";
+
+    const statusBadge = "border-1 p-1 rounded-lg";
 
     return (
         <>
@@ -404,9 +406,16 @@ const AdminDashboard = () => {
                 <div className="mx-2 my-5 rounded-xl flex justify-between gap-5 items-start bg-white border-2 border-gray-300 p-2">
                     {/* APPROVED JOBS */}
                     <div className={statusListStyle}>
-                        <h1 className={`${cardHead} text-green-600`}>
-                            APPROVED Jobs
-                        </h1>
+                        <div className="flex justify-between items-center gap-10 w-full ps-2">
+                            <h1 className={`${cardHead} text-green-600`}>
+                                APPROVED Jobs
+                            </h1>
+                            <p
+                                className={`${statusBadge} text-green-600 border-green-600 bg-green-50`}
+                            >
+                                {approvedCount} Jobs
+                            </p>
+                        </div>
 
                         <div className="max-h-64 overflow-y-auto space-y-2 w-full">
                             {approvedJobs.length > 0 ? (
@@ -415,12 +424,49 @@ const AdminDashboard = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        <h1>{job.title}</h1>
-                                        <h1>{job.skills}</h1>
-                                        <h1>{job.location}</h1>
-                                        <h1>{job.jobType}</h1>
-                                        <h1>{job.workMode}</h1>
-                                        <h1>{job.postedAt}</h1>
+                                        <h1 className="text-normal font-semibold mb-1 text-white ps-1 bg-blue-400 rounded-sm">
+                                            <span className="pe-3">
+                                                <i class="fa-regular fa-building"></i>
+                                            </span>
+                                            {job.company}
+                                        </h1>
+
+                                        <div className="flex justify-between">
+                                            <h1 className="font-semibold text-normal">
+                                                <span>Job Title: </span>
+                                                {job.title}
+                                            </h1>
+                                            <p className="p-1 text-xs border border-1 border-green-500 rounded-xl bg-green-100 text-green-600 font-semibold">
+                                                {job.jobType}
+                                            </p>
+                                        </div>
+                                        <h1 className="text-normal">
+                                            <span className="font-semibold">
+                                                Skills:
+                                            </span>{" "}
+                                            {job.skills}
+                                        </h1>
+                                        <div className="flex gap-3 text-sm">
+                                            <h1>
+                                                <span className="font-semibold text-blue-600">
+                                                    <i className="fa-solid fa-location-dot"></i>{" "}
+                                                </span>
+                                                {job.location}
+                                            </h1>{" "}
+                                            |
+                                            <h1>
+                                                <span className="font-semibold">
+                                                    Work Mode:
+                                                </span>{" "}
+                                                {job.workMode}
+                                            </h1>
+                                        </div>
+                                        <h1 className="bg-blue-100 p-1 text-sm">
+                                            <span className="font-semibold">
+                                                Posted At:
+                                            </span>{" "}
+                                            {job.postedAt}
+                                        </h1>
                                     </div>
                                 ))
                             ) : (
@@ -435,9 +481,16 @@ const AdminDashboard = () => {
 
                     {/* REJECTED JOBS */}
                     <div className={statusListStyle}>
-                        <h1 className={`${cardHead} text-red-600`}>
-                            REJECTED Jobs
-                        </h1>
+                        <div className="flex justify-between items-center gap-10 w-full ps-2">
+                            <h1 className={`${cardHead} text-red-600`}>
+                                REJECTED Jobs
+                            </h1>
+                            <p
+                                className={`${statusBadge} text-red-600 border-red-600 bg-red-50`}
+                            >
+                                {rejectedCount} Jobs
+                            </p>
+                        </div>
 
                         <div className="max-h-64 overflow-y-auto space-y-2 w-full">
                             {rejectedJobs.length > 0 ? (
@@ -446,38 +499,10 @@ const AdminDashboard = () => {
                                         key={job.jobId}
                                         className={jobCardStyle}
                                     >
-                                        <h1>{job.title}</h1>
-                                        <h1>{job.skills}</h1>
-                                        <h1>{job.location}</h1>
-                                        <h1>{job.jobType}</h1>
-                                        <h1>{job.workMode}</h1>
-                                        <h1>{job.postedAt}</h1>
-                                    </div>
-                                ))
-                            ) : (
-                                <p
-                                    className={`${statusMessage} text-red-500 border-red-500 bg-red-50`}
-                                >
-                                    No Rejected jobs!
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* PENDING JOBS */}
-                    <div className={statusListStyle}>
-                        <h1 className={`${cardHead} text-yellow-600`}>
-                            PENDING Jobs
-                        </h1>
-
-                        <div className="max-h-64 overflow-y-auto space-y-2 w-full">
-                            {pendingJobs.length > 0 ? (
-                                pendingJobs.map((job) => (
-                                    <div
-                                        key={job.jobId}
-                                        className={jobCardStyle}
-                                    >
-                                        <h1 className="text-lg font-bold text-yellow-400 text-center bg-blue-950">
+                                        <h1 className="text-normal font-semibold mb-1 text-white ps-1 bg-blue-400 rounded-sm">
+                                            <span className="pe-3">
+                                                <i class="fa-regular fa-building"></i>
+                                            </span>
                                             {job.company}
                                         </h1>
 
@@ -498,7 +523,7 @@ const AdminDashboard = () => {
                                         <div className="flex gap-3 text-sm">
                                             <h1>
                                                 <span className="font-semibold text-blue-600">
-                                                    <i class="fa-solid fa-location-dot"></i>{" "}
+                                                    <i className="fa-solid fa-location-dot"></i>{" "}
                                                 </span>
                                                 {job.location}
                                             </h1>{" "}
@@ -510,7 +535,81 @@ const AdminDashboard = () => {
                                                 {job.workMode}
                                             </h1>
                                         </div>
-                                        <h1 className="bg-red-100 p-1 text-sm">
+                                        <h1 className="bg-blue-100 p-1 text-sm">
+                                            <span className="font-semibold">
+                                                Posted At:
+                                            </span>{" "}
+                                            {job.postedAt}
+                                        </h1>
+                                    </div>
+                                ))
+                            ) : (
+                                <p
+                                    className={`${statusMessage} text-red-500 border-red-500 bg-red-50`}
+                                >
+                                    No Rejected jobs!
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* PENDING JOBS */}
+                    <div className={statusListStyle}>
+                        <div className="flex justify-between items-center gap-10 w-full ps-2">
+                            <h1 className={`${cardHead} text-yellow-600`}>
+                                PENDING Jobs
+                            </h1>
+                            <p
+                                className={`${statusBadge} text-yellow-600 border-yellow-600 bg-yellow-50`}
+                            >
+                                {pendingCount} Jobs
+                            </p>
+                        </div>
+
+                        <div className="max-h-64 overflow-y-auto space-y-2 w-full">
+                            {pendingJobs.length > 0 ? (
+                                pendingJobs.map((job) => (
+                                    <div
+                                        key={job.jobId}
+                                        className={jobCardStyle}
+                                    >
+                                        <h1 className="text-normal font-semibold mb-1 text-white ps-1 bg-blue-400 rounded-sm">
+                                            <span className="pe-3">
+                                                <i class="fa-regular fa-building"></i>
+                                            </span>
+                                            {job.company}
+                                        </h1>
+
+                                        <div className="flex justify-between">
+                                            <h1 className="font-semibold text-normal">
+                                                Role: {job.title}
+                                            </h1>
+                                            <p className="p-1 text-xs border border-1 border-green-500 rounded-xl bg-green-100 text-green-600 font-semibold">
+                                                {job.jobType}
+                                            </p>
+                                        </div>
+                                        <h1 className="text-normal">
+                                            <span className="font-semibold">
+                                                Skills:
+                                            </span>{" "}
+                                            {job.skills}
+                                        </h1>
+                                        <div className="flex gap-3 text-sm">
+                                            <h1>
+                                                <span className="font-semibold text-blue-600">
+                                                    <i className="fa-solid fa-location-dot"></i>{" "}
+                                                </span>
+                                                {job.location}
+                                            </h1>{" "}
+                                            |
+                                            <h1>
+                                                <span className="font-semibold">
+                                                    Work Mode:
+                                                </span>{" "}
+                                                {job.workMode}
+                                            </h1>
+                                        </div>
+                                        <h1 className="bg-blue-100 p-1 text-sm">
                                             <span className="font-semibold">
                                                 Posted At:
                                             </span>{" "}

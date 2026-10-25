@@ -296,11 +296,11 @@ public class AdminService {
         List<Job> pendingJobs = jobRepository.findByStatus(JobStatus.PENDING);
 
         if(pendingJobs.isEmpty()){
-            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were in pending"));
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Failure","No pending jobs found!"));
         }
 
         List<JobResponseDTO> pendingList = pendingJobs.stream().map(JobResponseDTO::new).toList();
-        return ResponseEntity.ok(pendingList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Fetched Successfully",pendingList));
 
     }
 
@@ -309,11 +309,11 @@ public class AdminService {
         List<Job> approvedJobs = jobRepository.findByStatus(JobStatus.APPROVED);
 
         if(approvedJobs.isEmpty()){
-            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Failure","No approved jobs found!"));
         }
 
         List<JobResponseDTO> approvedList = approvedJobs.stream().map(JobResponseDTO::new).toList();
-        return ResponseEntity.ok(approvedList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Fetched Successfully",approvedList));
     }
 
     // rejected jobs list
@@ -321,11 +321,11 @@ public class AdminService {
         List<Job> rejectedJobs = jobRepository.findByStatus(JobStatus.REJECTED);
 
         if(rejectedJobs.isEmpty()){
-            return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were found!"));
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Failure","No rejected jobs found!"));
         }
 
         List<JobResponseDTO> rejectedList = rejectedJobs.stream().map(JobResponseDTO::new).toList();
-        return ResponseEntity.ok(rejectedList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Fetched Successfully",rejectedList));
     }
 
     // approve job
@@ -424,6 +424,14 @@ public class AdminService {
         }
         List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
         return ResponseEntity.ok(jobList);
+    }
+
+    public ResponseEntity<?> pendingJob(Integer jobId) {
+        Job job =jobRepository.findById(jobId).orElseThrow(()-> new NotFoundException("Job not found with ID: "+jobId));
+
+        job.setStatus(JobStatus.PENDING);
+        jobRepository.save(job);
+        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job has been moved back to Pending for review!"));
     }
 }
 

@@ -15,6 +15,7 @@ import CompanyDashboard from "./pages/company/CompanyDashboard";
 import PostJob from "./pages/company/PostJob";
 import CompanyUpdate from "./pages/company/CompanyUpdate";
 import ManageJobs from "./pages/company/ManageJobs";
+import ManageJob from "./pages/admin/ManageJob";
 import CompanyLayout from "./components/CompanyLayout";
 import PublicLayout from "./components/PublicLayout";
 import AdminLayout from "./components/AdminLayout";
@@ -51,6 +52,7 @@ const App = () => {
 
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="manage-jobs" element={<ManageJob />} />
                 </Route>
 
                 {/* Error page */}

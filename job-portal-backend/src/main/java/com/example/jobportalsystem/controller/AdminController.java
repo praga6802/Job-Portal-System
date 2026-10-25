@@ -139,17 +139,23 @@ public class AdminController {
 
 
     // Approve Job
-    @PutMapping("/approveJob/{jobId}")
+    @PutMapping("/approve-job/{jobId}")
     public ResponseEntity<?> approveJob(@PathVariable Integer jobId){
         return adminService.approveJob(jobId);
     }
 
 
     //reject job by id
-   @PutMapping("/rejectJob/{jobId}")
+   @PutMapping("/reject-job/{jobId}")
    public ResponseEntity<?> rejectJob(@PathVariable Integer jobId){
        return adminService.rejectJob(jobId);
    }
+
+    //reject job by id
+    @PutMapping("/pending-job/{jobId}")
+    public ResponseEntity<?> pendingJob(@PathVariable Integer jobId){
+        return adminService.pendingJob(jobId);
+    }
 
 
    // --- ADMIN STATISTICS ---
