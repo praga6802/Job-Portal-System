@@ -123,7 +123,6 @@ const ManageJob = () => {
                 ))}
             </div>
 
-            {/* Success/error message */}
             {message && (
                 <div
                     className="rounded-lg border border-red-400 text-center bg-red-50 font-semibold
@@ -134,14 +133,8 @@ const ManageJob = () => {
             )}
 
             {/* Jobs status table */}
-            <div
-                className="overflow-hidden rounded-xl border border-slate-200
-                            bg-white shadow-sm"
-            >
-                <div
-                    className="flex items-center justify-between border-b
-                                border-slate-200 px-5 py-4"
-                >
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                     <h2
                         className={`font-semibold rounded-lg p-1 transition 
                         ${

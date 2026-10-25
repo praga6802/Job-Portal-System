@@ -5,12 +5,86 @@ import CompanyNavbar from "./CompanyNavbar";
 import axiosInstance from "../../services/api.js";
 const ManageJobs = () => {
     const [company, setCompany] = useState("");
+    const [activeTab, setActiveTab] = useState("All");
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState("");
-
+    const [jobs, setJobs] = useState([]);
     const [jobCount, setJobCount] = useState(0);
     const [activeCount, setActiveCount] = useState(0);
     const [expiredCount, setExpiredCount] = useState(0);
+
+    const tabs = [
+        { label: "All Jobs", value: "All" },
+        { label: "Active Jobs", value: "Active" },
+        { label: "Expired Jobs", value: "Expired" },
+    ];
+
+    const fetchJobs = async () => {
+        setIsLoading(true);
+        setMessage("");
+
+        const endpoints = {
+            All: `/auth/company/jobs`,
+            Active: `/auth/company/active-jobs`,
+            Expired: `/auth/company/expired-jobs`,
+        };
+
+        try {
+            const response = await axiosInstance.get(endpoints[activeTab], {
+                withCredentials: true,
+            });
+            setJobs(response?.data?.data);
+            console.log(`${activeTab}`, response?.data?.data);
+        } catch (err) {
+            setJobs([]);
+            setMessage(err?.response?.data?.message || "Failed to fetch Jobs");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchJobs();
+    }, [activeTab]);
+
+    useEffect(() => {
+        const fetchActiveCount = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    "/auth/company/active-jobs-count",
+                );
+                setActiveCount(response?.data?.data);
+                console.log(response?.data?.message);
+            } catch (err) {
+                console.error("Failed to fetch Active Jobs Count");
+                console.error(`status: ${err.response?.status}`);
+            } finally {
+                setIsLoading(false);
+                return;
+            }
+        };
+        fetchActiveCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchExpiredCount = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    "/auth/company/expired-jobs-count",
+                );
+                setExpiredCount(response?.data?.data);
+                console.log(response?.data?.message);
+            } catch (err) {
+                console.error("Failed to fetch Expired Jobs Count");
+                console.error(`status: ${err.response?.status}`);
+            } finally {
+                setIsLoading(false);
+                return;
+            }
+        };
+        fetchExpiredCount();
+    }, []);
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -107,7 +181,7 @@ const ManageJobs = () => {
                             <div>
                                 <Link
                                     to="/company/post-job"
-                                    className="border border-3 border-green-600 text-green-500 bg-green-50 font-bold p-3 rounded-lg hover:bg-green-600 hover:text-white"
+                                    className="text-white font-bold p-3 rounded-lg bg-green-700 hover:text-white hover:bg-green-600"
                                 >
                                     <i className="fa-solid fa-circle-plus"></i>{" "}
                                     Post New Job
@@ -157,65 +231,170 @@ const ManageJobs = () => {
                         </div>
 
                         <div className="flex gap-5 mt-5 ms-5">
-                            <div className={status}>
-                                <Link to="/company/jobs">All</Link>
-                            </div>
-                            <div className={status}>
-                                <Link to="/company/jobs">Active</Link>
-                            </div>
-                            <div className={status}>
-                                <Link to="/company/jobs">Expired</Link>
-                            </div>
+                            {tabs.map((tab) => (
+                                <button
+                                    onClick={() => {
+                                        setActiveTab(tab.value);
+                                    }}
+                                    className={`p-2 font-semibold text-normal rounded-lg cursor-pointer
+                                    transition ${
+                                        activeTab === tab.value
+                                            ? tab.value === "All"
+                                                ? "border border-1 text-white bg-black rounded"
+                                                : tab.value === "Active"
+                                                  ? "border-1 border-green-500 text-green-500 bg-green-50"
+                                                  : "border-1 border-red-500 text-red-500 bg-red-50"
+                                            : "bg-transparent text-slate-400 hover:text-yellow-600"
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
 
-                        {/* job list */}
-                        <div className="card-container m-5">
-                            <div className="job-card border border-gray-500 rounded-lg">
-                                <div className="flex justify-between mx-auto p-10 rounded-lg">
-                                    <div className="flex  gap-3 items-start">
-                                        <p className="mt-2 text-xl">
-                                            <i className="fa-solid fa-suitcase"></i>
-                                        </p>
-                                        <div>
-                                            <h1 className="font-bold text-lg">
-                                                Java Full Stack Developer
-                                            </h1>
-                                            <h4 className="font-semibold ">
-                                                Full-time - Chennai
-                                            </h4>
-                                            <div className="flex gap-2 items-center mt-1">
-                                                <p className="bg-green-100 px-2 py-0 border border-1 border-green-100 rounded-lg text-green-600">
-                                                    Active
-                                                </p>
-                                                <h4 className="text-slate-500">
-                                                    28 applicants
-                                                </h4>
+                        {message && (
+                            <div
+                                className="rounded-lg border border-red-400 text-center bg-red-50 font-semibold
+                                p-2 text-sm text-red-600"
+                            >
+                                {message}
+                            </div>
+                        )}
+
+                        {isLoading ? (
+                            <p className="p-8 text-center text-slate-500">
+                                Loading jobs...
+                            </p>
+                        ) : jobs.length === 0 ? (
+                            <p
+                                className={`p-2 w-fit rounded-lg mx-auto text-center transition mt-3 ${
+                                    activeTab === "Active"
+                                        ? "border border-green-500 text-green-600"
+                                        : activeTab === "Expired"
+                                          ? "border border-red-500 text-red-500"
+                                          : "border border-red-500 text-red-500"
+                                }`}
+                            >
+                                {activeTab === "All"
+                                    ? `No Jobs found!`
+                                    : `No ${activeTab} jobs found!`}
+                            </p>
+                        ) : (
+                            jobs.map((job) => {
+                                return (
+                                    <div
+                                        className="card-container m-5"
+                                        key={job.jobId}
+                                    >
+                                        <div className="job-card border border-gray-500 rounded-lg">
+                                            <div className="flex justify-between mx-auto px-4 py-3 rounded-lg">
+                                                <div className="flex  gap-3 items-start">
+                                                    <p className="mt-2 text-xl">
+                                                        <i className="fa-solid fa-suitcase"></i>
+                                                    </p>
+                                                    <div>
+                                                        <h1 className="text-lg font-bold">
+                                                            {job.company}
+                                                        </h1>
+                                                        <h1 className="font-semibold text-sm">
+                                                            {job.title} {"|"}{" "}
+                                                            {job.location}
+                                                        </h1>
+
+                                                        <div className="flex gap-3 text-xs items-center mt-1">
+                                                            <h2
+                                                                className={
+                                                                    job.active ===
+                                                                        true ||
+                                                                    job.status ===
+                                                                        "PENDING"
+                                                                        ? "font-semibold px-2 py-1 rounded-lg bg-green-100 text-green-600"
+                                                                        : "font-semibold px-2 py-1 rounded-lg bg-red-100 text-red-600"
+                                                                }
+                                                            >
+                                                                {job.active ===
+                                                                    true ||
+                                                                job.status ==
+                                                                    "PENDING"
+                                                                    ? "Active"
+                                                                    : "Expired"}
+                                                            </h2>
+                                                            <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
+                                                                {job.jobType}
+                                                            </h2>
+                                                            <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
+                                                                {job.workMode}
+                                                            </h2>
+                                                        </div>
+
+                                                        <div className="flex gap-2 items-center mt-1">
+                                                            <h4>
+                                                                <span className="text-yellow-500">
+                                                                    <i class="fa-solid fa-sack-dollar"></i>{" "}
+                                                                </span>
+                                                                <span>
+                                                                    {
+                                                                        job.minSalary
+                                                                    }{" "}
+                                                                    -{" "}
+                                                                    {
+                                                                        job.maxSalary
+                                                                    }
+                                                                </span>{" "}
+                                                                LPA
+                                                            </h4>
+                                                            {"|"}
+                                                            <h4>
+                                                                <span className="font-semibold text-blue-900">
+                                                                    <i class="fa-solid fa-suitcase"></i>{" "}
+                                                                </span>
+                                                                <span>
+                                                                    {
+                                                                        job.minExperience
+                                                                    }{" "}
+                                                                    -{" "}
+                                                                    {
+                                                                        job.maxExperience
+                                                                    }
+                                                                </span>
+                                                                {" years"}
+                                                            </h4>
+                                                        </div>
+
+                                                        <div className="bg-blue-200 text-blue-900 text-sm mt-1 font-semibold rounded-lg w-fit py-1 px-2">
+                                                            <h2>
+                                                                {job.openings}{" "}
+                                                                positions
+                                                            </h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <Link to="/company/update-job">
+                                                        <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
+                                                            <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                                            Edit
+                                                        </div>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
+                                                <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
+                                                    <Link to="/company/jobs">
+                                                        View Details
+                                                    </Link>
+                                                </div>
+                                                <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
+                                                    <Link to="/company/deleteJob">
+                                                        Delete
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <Link to="/company/update-job">
-                                            <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
-                                                <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                                Edit
-                                            </div>
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
-                                    <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
-                                        <Link to="/company/jobs">
-                                            View Details
-                                        </Link>
-                                    </div>
-                                    <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
-                                        <Link to="/company/deleteJob">
-                                            Delete
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                );
+                            })
+                        )}
                     </div>
                 </>
             ) : null}

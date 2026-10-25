@@ -3,6 +3,7 @@ package com.example.jobportalsystem.service;
 import com.example.jobportalsystem.dto.*;
 import com.example.jobportalsystem.entity.*;
 import com.example.jobportalsystem.enums.JobStatus;
+import com.example.jobportalsystem.exception.BusinessException;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.*;
@@ -332,7 +333,15 @@ public class AdminService {
     public ResponseEntity<?> approveJob(Integer jobId) {
         Job job =jobRepository.findById(jobId).orElseThrow(()-> new NotFoundException("Job not found with ID: "+jobId));
 
+        if(job.getDeadline().isBefore(LocalDateTime.now())){
+            throw new BusinessException("Cannot approve this job because its deadline has passed");
+        }
+
+        if(job.getStatus()!=JobStatus.PENDING){
+            throw new BusinessException("Only Pending Jobs can be approved!");
+        }
         job.setStatus(JobStatus.APPROVED);
+        job.setActive(true);
         jobRepository.save(job);
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job Approved Successfully"));
     }
@@ -340,8 +349,15 @@ public class AdminService {
     // reject job
     public ResponseEntity<?> rejectJob(Integer jobId) {
         Job job =jobRepository.findById(jobId).orElseThrow(()-> new NotFoundException("Job not found with ID: "+jobId));
+        if(job.getDeadline().isBefore(LocalDateTime.now())){
+            throw new BusinessException("Cannot reject this job because its deadline has passed");
+        }
 
+        if(job.getStatus()!=JobStatus.PENDING){
+            throw new BusinessException("Only Pending Jobs can be rejected!");
+        }
         job.setStatus(JobStatus.REJECTED);
+        job.setActive(false);
         jobRepository.save(job);
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job Rejected Successfully"));
     }

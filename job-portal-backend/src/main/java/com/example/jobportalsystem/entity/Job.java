@@ -65,7 +65,7 @@ public class Job {
     private boolean active=false;
 
     @Column(nullable = false)
-    private LocalDate deadline;
+    private LocalDateTime deadline;
 
     @Column(nullable = false, updatable = false)
     private LocalDate postedAt = LocalDate.now();

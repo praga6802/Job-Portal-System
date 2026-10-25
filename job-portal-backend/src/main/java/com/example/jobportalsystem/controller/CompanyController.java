@@ -123,14 +123,14 @@ public class CompanyController {
 
     // get all active jobs
     @GetMapping("/active-jobs")
-    public ResponseEntity<?> getActivateJobs(@AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getActivateJobs(userDetails.getUserId());
+    public ResponseEntity<?> getActiveJobs(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getActiveJobs(userDetails.getUserId());
     }
 
    // get all expired jobs
     @GetMapping("/expired-jobs")
-    public ResponseEntity<?> getDeactivateJobs(@AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getDeactivateJobs(userDetails.getUserId());
+    public ResponseEntity<?> getExpiredJobs(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getExpiredJobs(userDetails.getUserId());
     }
 
     // ---- Application status features ---
@@ -196,6 +196,16 @@ public class CompanyController {
     @GetMapping("/pending-count")
     public ResponseEntity<?> getPendingJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getPendingJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/active-jobs-count")
+    public ResponseEntity<?> getActiveJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getActiveJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/expired-jobs-count")
+    public ResponseEntity<?> getExpiredJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getExpiredJobsCount(userDetails.getUsername());
     }
 
 

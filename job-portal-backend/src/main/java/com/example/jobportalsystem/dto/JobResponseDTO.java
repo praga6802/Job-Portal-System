@@ -7,6 +7,7 @@ import com.example.jobportalsystem.enums.WorkMode;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class JobResponseDTO {
@@ -28,7 +29,8 @@ public class JobResponseDTO {
     private WorkMode workMode;
     private String category;
     private LocalDate postedAt;
-    private LocalDate deadline;
+    private LocalDateTime deadline;
+    private boolean active;
 
 
     public JobResponseDTO(Job job) {
@@ -49,6 +51,7 @@ public class JobResponseDTO {
         this.category=job.getCategory();
         this.postedAt=job.getPostedAt();
         this.deadline=job.getDeadline();
+        this.active=job.isActive();
 
     }
 

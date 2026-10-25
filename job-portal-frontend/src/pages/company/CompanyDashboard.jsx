@@ -10,7 +10,7 @@ const CompanyDashboard = () => {
     const [pendingCount, setPendingCount] = useState(0);
     const [rejectedCount, setRejectedCount] = useState(0);
     const [loading, setLoading] = useState(true);
-
+    const [jobs, setJobs] = useState([]);
     const { company } = useOutletContext();
 
     useEffect(() => {
@@ -107,13 +107,12 @@ const CompanyDashboard = () => {
         };
         fetchPendingCount();
     }, []);
-    const [jobs, setJobs] = useState([]);
 
     useEffect(() => {
         const fetchJobs = async () => {
             try {
                 const response = await axiosInstance.get("/auth/company/jobs");
-                setJobs(response?.data);
+                setJobs(response?.data?.data);
                 console.log(response?.data);
             } catch (err) {
                 console.error("Failed to fetch jobs");
@@ -338,7 +337,7 @@ const CompanyDashboard = () => {
                                         <div className="flex gap-3">
                                             <h1>
                                                 <span className="text-blue-600">
-                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    <i className="fa-solid fa-location-dot"></i>
                                                 </span>{" "}
                                                 {job.location}
                                             </h1>{" "}
@@ -392,7 +391,7 @@ const CompanyDashboard = () => {
                                         <div className="flex gap-3">
                                             <h1>
                                                 <span className="text-blue-600">
-                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    <i className="fa-solid fa-location-dot"></i>
                                                 </span>{" "}
                                                 {job.location}
                                             </h1>{" "}
@@ -446,7 +445,7 @@ const CompanyDashboard = () => {
                                         <div className="flex gap-3">
                                             <h1>
                                                 <span className="text-blue-600">
-                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    <i className="fa-solid fa-location-dot"></i>
                                                 </span>{" "}
                                                 {job.location}
                                             </h1>{" "}

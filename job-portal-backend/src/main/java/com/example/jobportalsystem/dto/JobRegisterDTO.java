@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.jdbc.Work;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,7 +30,7 @@ public class JobRegisterDTO {
     private Integer minExperience;
     private Integer maxExperience;
     private String openings;
-    private LocalDate deadline;
+    private LocalDateTime deadline;
 
     public JobRegisterDTO(Job job) {
         this.title = job.getTitle();

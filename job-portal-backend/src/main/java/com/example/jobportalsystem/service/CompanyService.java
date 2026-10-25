@@ -375,7 +375,7 @@ public class CompanyService {
 
         List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
 
-        return ResponseEntity.ok(jobList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Jobs Fetched Successfully",jobList));
     }
 
     // get job by ID
@@ -492,6 +492,7 @@ public class CompanyService {
             if (!job.isActive()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Already it is deactivated!"));
             }
+
             job.setActive(false);
             jobRepository.save(job);
             return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Job Deactivated Successfully"));
@@ -568,7 +569,7 @@ public class CompanyService {
         }
 
         List<JobResponseDTO> jobList = approvedJobs.stream().map(JobResponseDTO::new).toList();
-        return ResponseEntity.ok(jobList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Approved Jobs Fetched Successfully",jobList));
     }
 
     // get all rejected status jobs by admin
@@ -582,7 +583,7 @@ public class CompanyService {
         }
 
         List<JobResponseDTO> jobList = rejectedJobs.stream().map(JobResponseDTO::new).toList();
-        return ResponseEntity.ok(jobList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Rejected Jobs Fetched Successfully",jobList));
     }
 
     // get all pending status jobs by admin
@@ -601,30 +602,30 @@ public class CompanyService {
 
 
     // all activate jobs
-    public ResponseEntity<?> getActivateJobs(Integer companyId) {
+    public ResponseEntity<?> getActiveJobs(Integer companyId) {
         Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with this ID: "+companyId));
         List<Job> jobs = jobRepository.findByCompanyAndActive(company,true);
 
         if(jobs.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were active"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were Active"));
         }
 
-        List<ActiveJobsDTO> jobList = jobs.stream().map(ActiveJobsDTO::new).toList();
-        return ResponseEntity.ok(jobList);
+        List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Active Jobs Fetched Successfully",jobList));
     }
 
 
     // all deactivate jobs
-    public ResponseEntity<?> getDeactivateJobs(Integer companyId) {
+    public ResponseEntity<?> getExpiredJobs(Integer companyId) {
         Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with this ID: "+companyId));
         List<Job> jobs = jobRepository.findByCompanyAndActive(company,false);
 
         if(jobs.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were deactivate"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No jobs were Expired"));
         }
 
-        List<ActiveJobsDTO> jobList = jobs.stream().map(ActiveJobsDTO::new).toList();
-        return ResponseEntity.ok(jobList);
+        List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Expired Jobs Fetched Successfully",jobList));
     }
 
     // get shortlisted applications
@@ -705,6 +706,20 @@ public class CompanyService {
 
         Long pendingJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.PENDING);
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",pendingJobsCount));
+    }
+
+    public ResponseEntity<?> getActiveJobsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long activeJobsCount = jobRepository.countByCompanyAndActive(company, true);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Active Jobs count Fetched Successfully",activeJobsCount));
+    }
+
+    public ResponseEntity<?> getExpiredJobsCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long expiredJobsCount = jobRepository.countByCompanyAndActive(company, false);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Expired Jobs count Fetched Successfully",expiredJobsCount));
     }
 }
 

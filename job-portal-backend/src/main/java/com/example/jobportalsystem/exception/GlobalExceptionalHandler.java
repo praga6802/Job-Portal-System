@@ -52,5 +52,11 @@ public class GlobalExceptionalHandler {
         return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<?> handleBusinessException(BusinessException e){
+        ApiResponseDTO apiResponse =new ApiResponseDTO(LocalDateTime.now(),"Failure",e.getMessage());
+        return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
+    }
+
 
 }
