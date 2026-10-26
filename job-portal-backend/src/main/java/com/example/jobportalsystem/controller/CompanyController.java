@@ -76,20 +76,6 @@ public class CompanyController {
     }
 
 
-    // get total applicants by company
-    @GetMapping("/applicants")
-    public ResponseEntity<?> getAllApplicants(@AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getAllApplicants(userDetails.getUserId());
-    }
-
-
- // get applicants by job ID
-    @GetMapping("/applicants/{jobId}")
-    public ResponseEntity<?> getApplicantsByJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getApplicantsByJob(jobId,userDetails.getUserId());
-    }
-
-
 
     // ------ JOB STATUS FEATURES ----
     @GetMapping("/approved-jobs")
@@ -110,13 +96,13 @@ public class CompanyController {
 
     // ------- JOB ACTIVATE OR INACTIVATE FEATURES -------
     // activate the job
-    @PutMapping("/jobs/activate/{jobId}")
+    @PatchMapping("/jobs/activate/{jobId}")
     public ResponseEntity<?> activateJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails) {
         return companyService.activateJob(jobId, userDetails.getUserId());
     }
 
     // deactivate the job
-    @PutMapping("/jobs/deactivate/{jobId}")
+    @PatchMapping("/jobs/deactivate/{jobId}")
     public ResponseEntity<?> deactivateJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails) {
         return companyService.deactivateJob(jobId,userDetails.getUserId());
     }
@@ -139,7 +125,20 @@ public class CompanyController {
         return companyService.getAwaitingReviewJobs(userDetails.getUserId());
     }
 
-    // ---- Application status features ---
+    // ---- Application features ---
+
+    // get total applicants by company
+    @GetMapping("/applicants")
+    public ResponseEntity<?> getAllApplicants(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getAllApplicants(userDetails.getUserId());
+    }
+
+
+    // get applicants by job ID
+    @GetMapping("/applicants/{jobId}")
+    public ResponseEntity<?> getApplicantsByJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getApplicantsByJob(jobId,userDetails.getUserId());
+    }
 
     // Shortlist Application
     @PutMapping("/applications/shortlistApplication/{applicationId}")

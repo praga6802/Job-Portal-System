@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CompanySidebar from "./CompanySidebar";
-import { Link } from "react-router-dom";
+import { Await, Link } from "react-router-dom";
 import CompanyNavbar from "./CompanyNavbar";
 import axiosInstance from "../../services/api.js";
 const ManageJobs = () => {
@@ -51,60 +51,66 @@ const ManageJobs = () => {
         fetchJobs();
     }, [activeTab]);
 
+    // fetch active jobs count
+    const fetchActiveCount = async () => {
+        try {
+            const response = await axiosInstance.get(
+                "/auth/company/active-jobs-count",
+            );
+            setActiveCount(response?.data?.data);
+            console.log(response?.data?.message);
+        } catch (err) {
+            console.error("Failed to fetch Active Jobs Count");
+            console.error(`status: ${err.response?.status}`);
+        } finally {
+            setIsLoading(false);
+            return;
+        }
+    };
+
     useEffect(() => {
-        const fetchActiveCount = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    "/auth/company/active-jobs-count",
-                );
-                setActiveCount(response?.data?.data);
-                console.log(response?.data?.message);
-            } catch (err) {
-                console.error("Failed to fetch Active Jobs Count");
-                console.error(`status: ${err.response?.status}`);
-            } finally {
-                setIsLoading(false);
-                return;
-            }
-        };
         fetchActiveCount();
     }, []);
 
+    //fetch expired jobs
+    const fetchExpiredCount = async () => {
+        try {
+            const response = await axiosInstance.get(
+                "/auth/company/expired-jobs-count",
+            );
+            setExpiredCount(response?.data?.data);
+            console.log(response?.data?.message);
+        } catch (err) {
+            console.error("Failed to fetch Expired Jobs Count");
+            console.error(`status: ${err.response?.status}`);
+        } finally {
+            setIsLoading(false);
+            return;
+        }
+    };
+
     useEffect(() => {
-        const fetchExpiredCount = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    "/auth/company/expired-jobs-count",
-                );
-                setExpiredCount(response?.data?.data);
-                console.log(response?.data?.message);
-            } catch (err) {
-                console.error("Failed to fetch Expired Jobs Count");
-                console.error(`status: ${err.response?.status}`);
-            } finally {
-                setIsLoading(false);
-                return;
-            }
-        };
         fetchExpiredCount();
     }, []);
 
+    // fetch awaiting review count of jobs
+    const fetchAwaitingReviewJobCount = async () => {
+        try {
+            const response = await axiosInstance.get(
+                "/auth/company/awaiting-review-jobs-count",
+            );
+            setAwaitingReviewJobsCount(response?.data?.data);
+            console.log(response?.data?.message);
+        } catch (err) {
+            console.error("Failed to fetch Expired Jobs Count");
+            console.error(`status: ${err.response?.status}`);
+        } finally {
+            setIsLoading(false);
+            return;
+        }
+    };
+
     useEffect(() => {
-        const fetchAwaitingReviewJobCount = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    "/auth/company/awaiting-review-jobs-count",
-                );
-                setAwaitingReviewJobsCount(response?.data?.data);
-                console.log(response?.data?.message);
-            } catch (err) {
-                console.error("Failed to fetch Expired Jobs Count");
-                console.error(`status: ${err.response?.status}`);
-            } finally {
-                setIsLoading(false);
-                return;
-            }
-        };
         fetchAwaitingReviewJobCount();
     }, []);
 
@@ -170,6 +176,31 @@ const ManageJobs = () => {
         };
         totalJobs();
     }, []);
+
+    const toggleJob = async (job) => {
+        try {
+            if (job.active) {
+                await axiosInstance.patch(
+                    `/auth/company/jobs/deactivate/${job.jobId}`,
+                );
+                await fetchExpiredCount();
+                await fetchActiveCount();
+            } else {
+                await axiosInstance.patch(
+                    `/auth/company/jobs/activate/${job.jobId}`,
+                );
+                await fetchExpiredCount();
+                await fetchActiveCount();
+            }
+            setJobs((prev) =>
+                prev.map((j) =>
+                    j.jobId === job.jobId ? { ...j, active: !job.active } : j,
+                ),
+            );
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const cardStyle =
         "border border-2 border-gray-200 p-6 w-fit rounded-xl flex items-center flex-col justify-center";
@@ -326,13 +357,21 @@ const ManageJobs = () => {
                                     >
                                         <div className="job-card border border-gray-500 rounded-lg">
                                             <div className="flex justify-between mx-auto px-4 py-3 rounded-lg">
-                                                <div className="flex  gap-3 items-start">
+                                                <div className="flex gap-3 items-start">
                                                     <p className="mt-2 text-xl">
                                                         <i className="fa-solid fa-suitcase"></i>
                                                     </p>
                                                     <div>
-                                                        <h1 className="text-lg font-bold">
-                                                            {job.company}
+                                                        <h1 className="text-lg font-bold items-center flex gap-3">
+                                                            <span>
+                                                                {job.company}
+                                                            </span>
+                                                            {"  "}
+                                                            <span
+                                                                className={`font-semibold text-xs rounded-lg p-1 ${job.status === "APPROVED" ? "text-green-500 bg-green-100" : job.status === "PENDING" ? "text-yellow-500 bg-yellow-100" : "text-red-500 bg-red-100"}`}
+                                                            >
+                                                                {job.status}
+                                                            </span>
                                                         </h1>
                                                         <h1 className="font-semibold text-sm">
                                                             {job.title} {"|"}{" "}
@@ -417,6 +456,45 @@ const ManageJobs = () => {
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div
+                                                    hidden={
+                                                        job.status != "APPROVED"
+                                                    }
+                                                    className={`flex gap-1 h-fit font-semibold items-center px-2 py-1 rounded-full ${job.active ? "text-green-500 bg-green-100" : "text-red-500 bg-gray-200"}`}
+                                                >
+                                                    <h1 className="text-sm">
+                                                        {job.active
+                                                            ? "ACTIVE"
+                                                            : "INACTIVE"}
+                                                    </h1>
+                                                    <button
+                                                        hidden={
+                                                            job.status !==
+                                                            "APPROVED"
+                                                        }
+                                                        onClick={() =>
+                                                            toggleJob(job)
+                                                        }
+                                                        className={`relative h-6 w-11 rounded-full text-white font-semibold cursor-pointer transition
+                                                            ${job.active ? "bg-green-600" : "bg-gray-400"}`}
+                                                        title={
+                                                            job.active
+                                                                ? "Deactivate job"
+                                                                : "Activate Job"
+                                                        }
+                                                    >
+                                                        <span
+                                                            className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                                                                job.active
+                                                                    ? "translate-x-5"
+                                                                    : "translate-x-0"
+                                                            }`}
+                                                        />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
                                                 <div>
                                                     <Link to="/company/update-job">
                                                         <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
@@ -425,8 +503,6 @@ const ManageJobs = () => {
                                                         </div>
                                                     </Link>
                                                 </div>
-                                            </div>
-                                            <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
                                                 <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
                                                     <Link to="/company/jobs">
                                                         View Details

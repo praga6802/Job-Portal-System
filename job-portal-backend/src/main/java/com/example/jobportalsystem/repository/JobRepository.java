@@ -31,9 +31,13 @@ public interface JobRepository extends JpaRepository<Job,Integer> {
 
     Long countByStatus(JobStatus status);
 
-    Long countByCompanyAndActive(Company company, Boolean i);
 
     List<Job> findByCompanyAndActiveAndStatus(Company company, boolean b, JobStatus jobStatus);
 
     Long countByCompanyAndActiveAndStatus(Company company, boolean b, JobStatus jobStatus);
+
+
+    List<Job> findByCompanyAndActiveFalseAndStatusIn(Company company, List<JobStatus> rejected);
+
+    Long countByCompanyAndActiveFalseAndStatusIn(Company company, List<JobStatus> rejected);
 }
