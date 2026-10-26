@@ -207,6 +207,7 @@ public class CandidateService {
         jobApplication.setCandidate(candidate);
         jobApplication.setJob(job);
         jobApplication.setResume(resume);
+        jobApplication.setCompany(job.getCompany());
         jobApplicationRepository.save(jobApplication);
 
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Job Applied Successfully"));

@@ -51,7 +51,7 @@ const CompanySidebar = () => {
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/company/applicants">
+                                <Link to="/company/manage-applicants">
                                     <i className="fa-solid fa-users !text-green-500 bg-green-50 border border-2 border-green-600"></i>{" "}
                                     Applicants
                                 </Link>

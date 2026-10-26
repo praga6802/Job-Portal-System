@@ -133,7 +133,6 @@ public class CompanyController {
         return companyService.getAllApplicants(userDetails.getUserId());
     }
 
-
     // get applicants by job ID
     @GetMapping("/applicants/{jobId}")
     public ResponseEntity<?> getApplicantsByJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails){
@@ -165,18 +164,31 @@ public class CompanyController {
     }
 
     // get selected applications
-    @GetMapping("/selected-applications")
+    @GetMapping("/applicants/selected")
     public ResponseEntity<?> getSelectedApplications(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getSelectedApplications(userDetails.getUserId());
     }
 
     // get rejected applications
-    @GetMapping("/rejected-applications")
+    @GetMapping("/applicants/rejected")
     public ResponseEntity<?> getRejectedApplications(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getRejectedApplications(userDetails.getUserId());
     }
 
+    // get rejected applications
+    @GetMapping("/candidates/shortlisted")
+    public ResponseEntity<?> getShortlistedCandidates(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getShortlistedCandidates(userDetails.getUserId());
+    }
 
+    // get rejected applications
+    @GetMapping("/applicants/under-review")
+    public ResponseEntity<?> getUnderReviewCandidates(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getUnderReviewCandidates(userDetails.getUserId());
+    }
+
+
+    // company analytics
     // company dashboard
     @GetMapping("/job-count")
     public ResponseEntity<?> getJobCount(@AuthenticationPrincipal MyUserDetails userDetails){
@@ -216,6 +228,26 @@ public class CompanyController {
     @GetMapping("/awaiting-review-jobs-count")
     public ResponseEntity<?> getAwaitingReviewJobsCount(@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.getAwaitingReviewJobsCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/applicants/selected-count")
+    public ResponseEntity<?> getSelectedCandidatesCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getSelectedCandidatesCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/applicants/rejected-count")
+    public ResponseEntity<?> getRejectedCandidatesCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getRejectedCandidatesCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/applicants/shortlisted-count")
+    public ResponseEntity<?> getShortlistedCandidatesCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getShortlistedCandidatesCount(userDetails.getUsername());
+    }
+
+    @GetMapping("/applicants/under-review-count")
+    public ResponseEntity<?> getUnderReviewCandidatesCount(@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.getUnderReviewCandidatesCount(userDetails.getUsername());
     }
 
 

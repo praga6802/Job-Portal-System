@@ -170,7 +170,7 @@ const CompanyDashboard = () => {
                                 <p className="text-3xl text-blue-400">
                                     <i className="fa-solid fa-suitcase"></i>
                                 </p>
-                                <h2 className="font-bold text-lg">Jobs</h2>
+                                <h2 className="font-bold text-lg">Total Jobs</h2>
                                 <h6 className="text-5xl font-bold">
                                     {jobCount}
                                 </h6>
@@ -181,7 +181,7 @@ const CompanyDashboard = () => {
                                     <i className="fa-solid fa-users"></i>
                                 </p>
                                 <h2 className="font-bold text-lg">
-                                    Applicants
+                                    Total Applicants
                                 </h2>
                                 <h6 className="text-5xl font-bold">
                                     {applicantsCount}

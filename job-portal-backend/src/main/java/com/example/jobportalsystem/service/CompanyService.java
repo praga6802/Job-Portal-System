@@ -8,6 +8,7 @@ import com.example.jobportalsystem.entity.Users;
 import com.example.jobportalsystem.enums.ApplicationStatus;
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.enums.JobType;
+import com.example.jobportalsystem.exception.BusinessException;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.exception.UnAuthorizedException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
@@ -413,14 +414,9 @@ public class CompanyService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Applicants were found!"));
         }
 
-        List<JobApplicationResponseDTO> applicantsList = jobApplications.stream().map(application -> {
-            return new JobApplicationResponseDTO(application.getAppliedAt(), application.getCandidate().getFirstname(),
-                    application.getCandidate().getLastname(), application.getCandidate().getEmail(),
-                    application.getCandidate().getContact(), application.getCandidate().getSkills(), application.getCandidate().getExperience(),
-                    application.getJob().getJobId(), application.getJob().getTitle());
-        }).toList();
+        List<JobApplicationResponseDTO> applicantsList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
 
-        return ResponseEntity.ok(applicantsList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applicants fetched Successfully",applicantsList));
     }
 
 
@@ -438,20 +434,8 @@ public class CompanyService {
         if (jobApplications.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Applicants were found!"));
         }
-        List<JobApplicationResponseDTO> applicantsList = jobApplications.stream().map(application -> {
-            return new JobApplicationResponseDTO(
-                    application.getAppliedAt(),
-                    application.getCandidate().getFirstname(),
-                    application.getCandidate().getLastname(),
-                    application.getCandidate().getEmail(),
-                    application.getCandidate().getContact(),
-                    application.getCandidate().getSkills(),
-                    application.getCandidate().getExperience());
-        }).toList();
-
-        return ResponseEntity.ok(applicantsList);
-
-
+        List<JobApplicationResponseDTO> applicantsList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applicants fetched Successfully",applicantsList));
     }
 
 
@@ -661,7 +645,7 @@ public class CompanyService {
         List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SELECTED,company);
 
         if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applications were selected!"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were selected!"));
         }
         List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
         return ResponseEntity.ok(jobApplicationList);
@@ -673,7 +657,7 @@ public class CompanyService {
         List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.REJECTED,company);
 
         if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applications were rejected!"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were rejected!"));
         }
         List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
         return ResponseEntity.ok(jobApplicationList);
@@ -691,35 +675,51 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long jobCount = jobRepository.countByCompany(company);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",jobCount));
+        if(jobCount==0){
+            throw new BusinessException("No Jobs found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Job Count Fetched Successfully",jobCount));
     }
 
 
     public ResponseEntity<?> getApplicantsCount(String email) {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
-        Long jobCount = jobApplicationRepository.countByCompany(company);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",jobCount));
+        Long applicantsCount = jobApplicationRepository.countByCompany(company);
+
+        if(applicantsCount==0){
+            throw new BusinessException("No Applicants found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Applicants Count Fetched Successfully",applicantsCount));
     }
 
     public ResponseEntity<?> getApprovedJobsCount(String email) {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long approvedJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.APPROVED);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",approvedJobsCount));
+        if(approvedJobsCount==0){
+            throw new BusinessException("No Approved Jobs found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Approved Jobs Count Fetched Successfully",approvedJobsCount));
     }
 
     public ResponseEntity<?> getRejectedJobsCount(String email) {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long rejectedJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.REJECTED);
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",rejectedJobsCount));
+        if(rejectedJobsCount==0){
+            throw new BusinessException("No Rejected Jobs found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Rejected Jobs Count Fetched Successfully",rejectedJobsCount));
     }
 
     public ResponseEntity<?> getPendingJobsCount(String email) {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long pendingJobsCount = jobRepository.countByCompanyAndStatus(company, JobStatus.PENDING);
+        if(pendingJobsCount==0){
+            throw new BusinessException("No Pending Jobs found!",0);
+        }
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Fetched Successfully",pendingJobsCount));
     }
 
@@ -727,6 +727,9 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long activeJobsCount = jobRepository.countByCompanyAndActiveAndStatus(company, true, JobStatus.APPROVED);
+        if(activeJobsCount==0){
+            throw  new BusinessException("No active jobs found!",0);
+        }
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Active Jobs count Fetched Successfully",activeJobsCount));
     }
 
@@ -734,6 +737,9 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long expiredJobsCount = jobRepository.countByCompanyAndActiveFalseAndStatusIn(company, List.of(JobStatus.REJECTED,JobStatus.APPROVED));
+        if(expiredJobsCount==0){
+            throw  new BusinessException("No Expired jobs found!",0);
+        }
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Expired Jobs count Fetched Successfully",expiredJobsCount));
     }
 
@@ -741,7 +747,73 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long awaitingJobsCount = jobRepository.countByCompanyAndActiveAndStatus(company, false, JobStatus.PENDING);
+        if(awaitingJobsCount==0){
+            throw  new BusinessException("No Awaiting Review jobs found!",0);
+        }
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Awaiting Jobs count Fetched Successfully",awaitingJobsCount));
+    }
+
+    public ResponseEntity<?> getSelectedCandidatesCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long selectedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.SELECTED);
+        if(selectedCandidatesCount==0){
+            throw  new BusinessException("No Selected Candidates found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Selected Candidates count fetched successfully",selectedCandidatesCount));
+    }
+
+    public ResponseEntity<?> getRejectedCandidatesCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long rejectedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.REJECTED);
+        if(rejectedCandidatesCount==0){
+            throw  new BusinessException("No Rejected Candidates found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Rejected Candidates count fetched successfully",rejectedCandidatesCount));
+
+    }
+
+    public ResponseEntity<?> getShortlistedCandidatesCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long shortListedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.SHORTLISTED);
+        if(shortListedCandidatesCount==0){
+            throw new BusinessException("No Shortlisted Candidates found!",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Shortlisted Candidates count fetched successfully",shortListedCandidatesCount));
+    }
+
+    public ResponseEntity<?> getUnderReviewCandidatesCount(String email) {
+        Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
+
+        Long underReviewCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.UNDER_REVIEW);
+        if(underReviewCandidatesCount==0){
+            throw new BusinessException("No Candidates found in Under Review",0);
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Under-Review Candidates count fetched successfully",underReviewCandidatesCount));
+    }
+
+    public ResponseEntity<?> getShortlistedCandidates(Integer companyId) {
+        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
+        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SHORTLISTED,company);
+
+        if(jobApplications.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were shortlisted!"));
+        }
+        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(jobApplicationList);
+    }
+
+    public ResponseEntity<?> getUnderReviewCandidates(Integer companyId) {
+        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
+        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.UNDER_REVIEW,company);
+
+        if(jobApplications.isEmpty()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants in Under Review!"));
+        }
+        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(jobApplicationList);
     }
 }
 

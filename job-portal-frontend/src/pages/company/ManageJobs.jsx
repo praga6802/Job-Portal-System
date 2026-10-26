@@ -398,13 +398,13 @@ const ManageJobs = () => {
                                                                     true &&
                                                                 job.status ==
                                                                     "APPROVED"
-                                                                    ? "Active"
+                                                                    ? "ACTIVE"
                                                                     : job.active ===
                                                                             false &&
                                                                         job.status ===
                                                                             "PENDING"
-                                                                      ? "Awaiting Review"
-                                                                      : "Expired"}
+                                                                      ? "AWAITING REVIEW"
+                                                                      : "EXPIRED"}
                                                             </h2>
                                                             <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
                                                                 {job.jobType}

@@ -20,6 +20,7 @@ import CompanyLayout from "./components/CompanyLayout";
 import PublicLayout from "./components/PublicLayout";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageApplicants from "./pages/company/ManageApplicants";
 
 const App = () => {
     return (
@@ -48,6 +49,10 @@ const App = () => {
                     <Route path="post-job" element={<PostJob />} />
                     <Route path="profile" element={<CompanyUpdate />} />
                     <Route path="manage-jobs" element={<ManageJobs />} />
+                    <Route
+                        path="manage-applicants"
+                        element={<ManageApplicants />}
+                    />
                 </Route>
 
                 <Route path="/admin" element={<AdminLayout />}>
