@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -411,7 +413,7 @@ public class CompanyService {
         List<JobApplication> jobApplications = jobApplicationRepository.findByJob_Company(company);
 
         if (jobApplications.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Applicants were found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "No Applicants were found!"));
         }
 
         List<JobApplicationResponseDTO> applicantsList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
@@ -495,16 +497,12 @@ public class CompanyService {
         Company company =companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with ID: ",companyId));
 
         if(!jobApplication.getJob().getCompany().getCompanyId().equals(company.getCompanyId())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","You cannot SHORTLIST this application"));
-        }
-
-        if(jobApplication.getStatus()!=ApplicationStatus.APPLIED){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","Only with Status:Applied can be shortlisted!"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(LocalDateTime.now(),"Failure","You cannot SHORTLIST this application"));
         }
 
         jobApplication.setStatus(ApplicationStatus.SHORTLISTED);
         jobApplicationRepository.save(jobApplication);
-        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Application with ID: "+applicationId+" has been SHORTLISTED Successfully!"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to SHORTLISTED Successfully!"));
     }
 
 
@@ -514,16 +512,12 @@ public class CompanyService {
         Company company =companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with ID: ",companyId));
 
         if(!jobApplication.getJob().getCompany().getCompanyId().equals(company.getCompanyId())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","You cannot SELECT this application"));
-        }
-
-        if(jobApplication.getStatus()!=ApplicationStatus.SHORTLISTED){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","Only with Status:Shortlisted can be Selected!"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(LocalDateTime.now(),"Failure","You cannot SELECT this application"));
         }
 
         jobApplication.setStatus(ApplicationStatus.SELECTED);
         jobApplicationRepository.save(jobApplication);
-        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Application with ID: "+applicationId+" has been SELECTED Successfully!"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to SELECTED Successfully!"));
     }
 
     // reject application
@@ -532,17 +526,25 @@ public class CompanyService {
         Company company =companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with ID: ",companyId));
 
         if(!jobApplication.getJob().getCompany().getCompanyId().equals(company.getCompanyId())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","You cannot REJECT this application"));
-        }
-
-        if(jobApplication.getStatus()==ApplicationStatus.SELECTED || jobApplication.getStatus()==ApplicationStatus.REJECTED){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new LoginResponseDTO(LocalDateTime.now(),"Failure","Application cannot be rejected when status is: "+jobApplication.getStatus()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(LocalDateTime.now(),"Failure","You cannot REJECT this application"));
         }
 
         jobApplication.setStatus(ApplicationStatus.REJECTED);
         jobApplicationRepository.save(jobApplication);
-        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Application with ID: "+applicationId+" has been REJECTED Successfully!"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to REJECTED Successfully!"));
+    }
+
+    public ResponseEntity<?> underReviewApplication(Integer applicationId, Integer companyId) {
+        JobApplication jobApplication =jobApplicationRepository.findById(applicationId).orElseThrow(()-> new NotFoundException("Application not found with ID: "+applicationId));
+        Company company =companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found with ID: ",companyId));
+
+        if(!jobApplication.getJob().getCompany().getCompanyId().equals(company.getCompanyId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(LocalDateTime.now(),"Failure","You cannot UnderReview this application"));
+        }
+
+        jobApplication.setStatus(ApplicationStatus.UNDER_REVIEW);
+        jobApplicationRepository.save(jobApplication);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to UNDER-REVIEW Successfully!"));
     }
 
     // get all approved jobs by admin
@@ -627,28 +629,16 @@ public class CompanyService {
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Awaiting Review Jobs Fetched Successfully",jobList));
     }
 
-    // get shortlisted applications
-    public ResponseEntity<?> getShortlistedApplications(Integer companyId) {
-        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
-        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SHORTLISTED,company);
-
-        if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applications were shortlisted!"));
-        }
-        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(jobApplicationList);
-    }
-
     // get selected applications
     public ResponseEntity<?> getSelectedApplications(Integer companyId) {
         Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
         List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SELECTED,company);
 
         if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were selected!"));
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No applicants were selected!", Collections.emptyList()));
         }
-        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(jobApplicationList);
+        List<JobApplicationResponseDTO> jobApplicationList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Selected Application Fetched Successfully",jobApplicationList));
     }
 
     // get rejected applications
@@ -657,10 +647,32 @@ public class CompanyService {
         List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.REJECTED,company);
 
         if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were rejected!"));
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No applicants were rejected!", Collections.emptyList()));
         }
-        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(jobApplicationList);
+        List<JobApplicationResponseDTO> jobApplicationList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Rejected Application Fetched Successfully",jobApplicationList));
+    }
+
+    public ResponseEntity<?> getShortlistedApplications(Integer companyId) {
+        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
+        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SHORTLISTED,company);
+
+        if(jobApplications.isEmpty()){
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No applicants were shortlisted!", Collections.emptyList()));
+        }
+        List<JobApplicationResponseDTO> jobApplicationList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Shortlisted Applications Fetched Successfully",jobApplicationList));
+    }
+
+    public ResponseEntity<?> getUnderReviewApplications(Integer companyId) {
+        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
+        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.UNDER_REVIEW,company);
+
+        if(jobApplications.isEmpty()){
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No applicants were in Under Review!", Collections.emptyList()));
+        }
+        List<JobApplicationResponseDTO> jobApplicationList = jobApplications.stream().map(JobApplicationResponseDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","UnderReview Applications Fetched Successfully",jobApplicationList));
     }
 
     public ResponseEntity<ApiResponseDTO> getCurrentCompany(MyUserDetails userDetails) {
@@ -794,26 +806,5 @@ public class CompanyService {
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Under-Review Candidates count fetched successfully",underReviewCandidatesCount));
     }
 
-    public ResponseEntity<?> getShortlistedCandidates(Integer companyId) {
-        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
-        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.SHORTLISTED,company);
-
-        if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants were shortlisted!"));
-        }
-        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(jobApplicationList);
-    }
-
-    public ResponseEntity<?> getUnderReviewCandidates(Integer companyId) {
-        Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(()-> new NotFoundException("Company not found!"));
-        List<JobApplication> jobApplications = jobApplicationRepository.findByStatusAndJob_Company(ApplicationStatus.UNDER_REVIEW,company);
-
-        if(jobApplications.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","No applicants in Under Review!"));
-        }
-        List<JobApplicationStatusDTO> jobApplicationList = jobApplications.stream().map(JobApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(jobApplicationList);
-    }
 }
 

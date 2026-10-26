@@ -28,6 +28,7 @@ public class JobApplicationResponseDTO {
     private String contact;
     private String skills;
     private String experience;
+    private String location;
     private ApplicationStatus status;
 
     private LocalDateTime appliedAt;
@@ -46,5 +47,6 @@ public class JobApplicationResponseDTO {
         this.jobId=jobApplication.getJob().getJobId();
         this.jobTitle=jobApplication.getJob().getTitle();
         this.status= jobApplication.getStatus();
+        this.location=jobApplication.getCandidate().getLocation();
     }
 }

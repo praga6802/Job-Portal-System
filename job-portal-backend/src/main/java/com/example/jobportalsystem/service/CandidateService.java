@@ -94,6 +94,10 @@ public class CandidateService {
             verifyCandidate.setContact(candidate.getContact().trim());
         }
 
+        if (candidate.getLocation() != null && !candidate.getLocation().isBlank()) {
+            verifyCandidate.setLocation(candidate.getLocation().trim());
+        }
+
         if (candidate.getDob() != null && !candidate.getDob().isBlank()) {
             verifyCandidate.setDateOfBirth(candidate.getDob().trim());
         }

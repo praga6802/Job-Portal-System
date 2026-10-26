@@ -140,21 +140,27 @@ public class CompanyController {
     }
 
     // Shortlist Application
-    @PutMapping("/applications/shortlistApplication/{applicationId}")
+    @PutMapping("/applicant/shortlist/{applicationId}")
     public ResponseEntity<?> shortlistApplication(@PathVariable Integer applicationId,@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.shortlistApplication(applicationId,userDetails.getUserId());
     }
 
     // Select Application
-    @PutMapping("/applications/selectApplication/{applicationId}")
+    @PutMapping("/applicant/select/{applicationId}")
     public ResponseEntity<?> selectApplication(@PathVariable Integer applicationId,@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.selectApplication(applicationId,userDetails.getUserId());
     }
 
     // Reject Application
-    @PutMapping("/applications/rejectApplication/{applicationId}")
+    @PutMapping("/applicant/reject/{applicationId}")
     public ResponseEntity<?> rejectApplication(@PathVariable Integer applicationId,@AuthenticationPrincipal MyUserDetails userDetails){
         return companyService.rejectApplication(applicationId,userDetails.getUserId());
+    }
+
+    // Reject Application
+    @PutMapping("/applicant/under-review/{applicationId}")
+    public ResponseEntity<?> underReviewApplication(@PathVariable Integer applicationId,@AuthenticationPrincipal MyUserDetails userDetails){
+        return companyService.underReviewApplication(applicationId,userDetails.getUserId());
     }
 
     // get shortlisted applications
@@ -176,15 +182,15 @@ public class CompanyController {
     }
 
     // get rejected applications
-    @GetMapping("/candidates/shortlisted")
+    @GetMapping("/applicants/shortlisted")
     public ResponseEntity<?> getShortlistedCandidates(@AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getShortlistedCandidates(userDetails.getUserId());
+        return companyService.getShortlistedApplications(userDetails.getUserId());
     }
 
     // get rejected applications
     @GetMapping("/applicants/under-review")
     public ResponseEntity<?> getUnderReviewCandidates(@AuthenticationPrincipal MyUserDetails userDetails){
-        return companyService.getUnderReviewCandidates(userDetails.getUserId());
+        return companyService.getUnderReviewApplications(userDetails.getUserId());
     }
 
 

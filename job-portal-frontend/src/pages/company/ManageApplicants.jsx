@@ -10,7 +10,6 @@ const ManageApplicants = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState("");
     const [applicants, setApplicants] = useState([]);
-
     const [applicantsCount, setApplicantsCount] = useState(0);
     const [selectedCount, setSelectedCount] = useState(0);
     const [rejectedCount, setRejectedCount] = useState(0);
@@ -25,6 +24,39 @@ const ManageApplicants = () => {
         { label: "UnderReview", value: "UnderReview" },
     ];
 
+    const applicant_status = [
+        "APPLIED",
+        "SELECTED",
+        "REJECTED",
+        "SHORTLISTED",
+        "UNDER_REVIEW",
+    ];
+
+    const handleStatusChange = async (applicationId, status) => {
+        setIsLoading(true);
+        setMessage("");
+
+        const endPoints = {
+            SELECTED: `/auth/company/applicant/select/${applicationId}`,
+            REJECTED: `/auth/company/applicant/reject/${applicationId}`,
+            SHORTLISTED: `/auth/company/applicant/shortlist/${applicationId}`,
+            UNDER_REVIEW: `/auth/company/applicant/under-review/${applicationId}`,
+        };
+
+        try {
+            const response = await axiosInstance.put(endPoints[status]);
+
+            setMessage(
+                response?.data?.message || "Status updated successfully!",
+            );
+
+            await refreshApplicantCounts();
+            await fetchApplicants();
+        } catch (err) {
+            console.error(err?.response?.data?.message || err);
+        }
+    };
+
     const fetchApplicants = async () => {
         setIsLoading(true);
         setMessage("");
@@ -32,7 +64,7 @@ const ManageApplicants = () => {
         const endpoints = {
             Applicants: `/auth/company/applicants`,
             Selected: `/auth/company/applicants/selected`,
-            Expired: `/auth/company/applicants/rejected`,
+            Rejected: `/auth/company/applicants/rejected`,
             Shortlisted: `/auth/company/applicants/shortlisted`,
             UnderReview: `/auth/company/applicants/under-review`,
         };
@@ -41,13 +73,14 @@ const ManageApplicants = () => {
             const response = await axiosInstance.get(endpoints[activeTab], {
                 withCredentials: true,
             });
+            const data = response?.data?.data ?? [];
             setApplicants(response?.data?.data);
+
+            setMessage(data.length === 0 ? response?.data?.message : "");
             console.log(`${activeTab}`, response?.data?.data);
         } catch (err) {
             setApplicants([]);
-            setMessage(
-                err?.response?.data?.message || "Failed to fetch Applicants",
-            );
+            setMessage(err?.response?.data?.message || "Something went wrong");
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -58,79 +91,71 @@ const ManageApplicants = () => {
         fetchApplicants();
     }, [activeTab]);
 
-    // fetch selected candidates count
+    useEffect(() => {
+        refreshApplicantCounts();
+    }, []);
+
+    // fetch selected applicants count
     const fetchSelectedApplicantsCount = async () => {
         try {
             const response = await axiosInstance.get(
-                "/auth/company/candidates/selected-count",
+                "/auth/company/applicants/selected-count",
             );
             setSelectedCount(response?.data?.data);
             console.log(response?.data?.message);
         } catch (err) {
-            console.error("Failed to fetch selected candidates Count");
+            console.error("Failed to fetch selected applicants Count");
             console.error(`status: ${err.response?.status}`);
             console.error(err?.response?.data?.message);
-        } finally {
-            setIsLoading(false);
-            return;
         }
     };
 
-    //fetch rejected candidates count
-    const fetchRejectedCandidatesCount = async () => {
+    //fetch rejected applicants count
+    const fetchRejectedapplicantsCount = async () => {
         try {
             const response = await axiosInstance.get(
-                "/auth/company/candidates/rejected-count",
+                "/auth/company/applicants/rejected-count",
             );
             setRejectedCount(response?.data?.data);
             console.log(response?.data?.message);
         } catch (err) {
-            console.error("Failed to fetch rejected candidates Count");
+            console.error("Failed to fetch rejected applicants Count");
             console.error(`status: ${err.response?.status}`);
             console.error(err?.response?.data?.message);
-        } finally {
-            setIsLoading(false);
-            return;
         }
     };
 
-    // fetch shortlisted candidates count
-    const fetchShortlistedCandidatesCount = async () => {
+    // fetch shortlisted applicants count
+    const fetchShortlistedapplicantsCount = async () => {
         try {
             const response = await axiosInstance.get(
-                "/auth/company/candidates/shortlisted-count",
+                "/auth/company/applicants/shortlisted-count",
             );
             setShortlistedCount(response?.data?.data);
             console.log(response?.data?.message);
         } catch (err) {
-            console.error("Failed to fetch shortlisted candidates Count");
+            console.error("Failed to fetch shortlisted applicants Count");
             console.error(`status: ${err.response?.status}`);
             console.error(err?.response?.data?.message);
-        } finally {
-            setIsLoading(false);
-            return;
         }
     };
 
-    // fetch under-review candidates count
-    const fetchUnderReviewCandidatesCount = async () => {
+    // fetch under-review applicants count
+    const fetchUnderReviewapplicantsCount = async () => {
         try {
             const response = await axiosInstance.get(
-                "/auth/company/candidates/under-review-count",
+                "/auth/company/applicants/under-review-count",
             );
             setUnderReviewCount(response?.data?.data);
             console.log(response?.data?.message);
         } catch (err) {
-            console.error("Failed to fetch under-review candidates Count");
+            console.error("Failed to fetch under-review applicants Count");
             console.error(`status: ${err.response?.status}`);
             console.error(err?.response?.data?.message);
-        } finally {
-            setIsLoading(false);
-            return;
         }
     };
 
-    // fetch under-review candidates count
+    // fetch under-review applicants count
     const fetchApplicantsCount = async () => {
         try {
             const response = await axiosInstance.get(
@@ -142,19 +167,18 @@ const ManageApplicants = () => {
             console.error("Failed to fetch Applicants Count");
             console.error(`status: ${err.response?.status}`);
             console.error(err?.response?.data?.message);
-        } finally {
-            setIsLoading(false);
-            return;
         }
     };
 
-    useEffect(() => {
-        fetchSelectedApplicantsCount();
-        fetchRejectedCandidatesCount();
-        fetchShortlistedCandidatesCount();
-        fetchUnderReviewCandidatesCount();
-        fetchApplicantsCount();
-    }, []);
+    const refreshApplicantCounts = async () => {
+        await Promise.all([
+            fetchSelectedApplicantsCount(),
+            fetchRejectedapplicantsCount(),
+            fetchShortlistedapplicantsCount(),
+            fetchUnderReviewapplicantsCount(),
+            fetchApplicantsCount(),
+        ]);
+    };
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -199,11 +223,7 @@ const ManageApplicants = () => {
     return (
         <div className="flex justify-between min-h-screen">
             {isLoading ? (
-                <p>Fetching Applicant Details...</p>
-            ) : message ? (
-                <p className="m-5 h-fit w-fit mx-auto p-2 rounded-lg text-center border border-1 border-red-500 text-red-600 font-semibold">
-                    {message}
-                </p>
+                <p>Loading Applicant Details...</p>
             ) : company ? (
                 <>
                     <div className="m-1 rounded-lg w-full bg-white">
@@ -213,7 +233,7 @@ const ManageApplicants = () => {
                             </h1>
                             <h5 className="font-semibold text-blue-100 ">
                                 Track, review, and manage applications from
-                                candidates for your job openings!
+                                applicants for your job openings!
                             </h5>
                         </div>
 
@@ -308,11 +328,12 @@ const ManageApplicants = () => {
                                 </button>
                             ))}
                         </div>
+                        <hr className="my-3 text-slate-400 mx-4" />
 
                         {message && (
                             <div
-                                className="rounded-lg border border-red-400 text-center bg-red-50 font-semibold
-                                p-2 text-sm text-red-600"
+                                className={`mt-2 rounded-lg border-1 text-center font-semibold
+                                p-2 text-sm w-fit mx-auto ${activeTab === "Selected" ? "border-green-500 text-green-500 bg-green-50" : activeTab === "Rejected" ? "border-red-500 text-red-500 bg-red-50" : activeTab === "Shortlisted" ? "border-purple-500 text-purple-500 bg-purple-50" : "border-yellow-500 text-yellow-500 bg-yellow-50"}`}
                             >
                                 {message}
                             </div>
@@ -322,55 +343,23 @@ const ManageApplicants = () => {
                             <p className="p-8 text-center text-slate-500">
                                 Loading Applicants...
                             </p>
-                        ) : applicants.length === 0 ? (
-                            <p
-                                className={`p-2 w-fit rounded-lg mx-auto text-center transition mt-3 ${
-                                    activeTab === "Selected"
-                                        ? "border border-green-500 text-green-600"
-                                        : activeTab === "Rejected"
-                                          ? "border border-green-500 text-green-600"
-                                          : activeTab === "Shortlisted"
-                                            ? "border border-purple-500 text-purple-500"
-                                            : "border border-yellow-500 text-yellow-500"
-                                }`}
-                            >
-                                {activeTab === "Applicants"
-                                    ? `No Applicants found!`
-                                    : `No ${activeTab} Applicants found!`}
-                            </p>
                         ) : (
                             applicants.map((applicant) => {
                                 return (
-                                    <div
-                                        className="card-container m-5"
-                                        key={applicant.applicationId}
-                                    >
-                                        <div className="job-card border border-gray-500 rounded-lg">
+                                    <div className="card-container m-5">
+                                        <div
+                                            className="job-card border border-gray-500 rounded-lg"
+                                            key={applicant.applicationId}
+                                        >
                                             {/* applicant data */}
-                                            <div>
-                                                {/*upper */}
-                                                <div className="flex justify-between px-4 py-2">
-                                                    <div>
-                                                        <h1 className="font-bold text-lg">
-                                                            {
-                                                                applicant.firstname
-                                                            }{" "}
-                                                            {applicant.lastname}
-                                                        </h1>
-                                                        <p className="text-normal font-semibold">
-                                                            <span className="text-red-500">
-                                                                <i class="fa-regular fa-envelope"></i>
-                                                            </span>{" "}
-                                                            {applicant.email}
-                                                        </p>
-                                                        <p className="text-normal font-semibold">
-                                                            <span className="text-green-500">
-                                                                <i class="fa-solid fa-phone"></i>
-                                                            </span>{" "}
-                                                            {applicant.contact}
-                                                        </p>
-                                                        <p
-                                                            className={`rounded-lg border-1 w-fit px-1 mt-1 ${
+
+                                            <div className="flex justify-between px-4 py-2">
+                                                <div className="w-full">
+                                                    <h1 className="font-bold text-lg flex gap-3">
+                                                        {applicant.firstname}{" "}
+                                                        {applicant.lastname}
+                                                        <span
+                                                            className={`rounded-lg border-1 font-semibold text-sm w-fit px-1 mt-1 ${
                                                                 applicant.experience ===
                                                                 "Fresher"
                                                                     ? "border-green-500 text-green-500 bg-green-50"
@@ -380,67 +369,151 @@ const ManageApplicants = () => {
                                                             {
                                                                 applicant.experience
                                                             }
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="bg-yellow-100 p-2 rounded-lg w-fit">
-                                                        <p
-                                                            className={`font-semibold w-fit px-2 ms-4 rounded-lg border-1 text-center mb-1 text-sm ${
-                                                                applicant.status ===
-                                                                "APPLIED"
-                                                                    ? "border-blue-500 text-blue-500 bg-blue-50"
-                                                                    : applicant.status ===
-                                                                        "SELECTED"
-                                                                      ? "border-green-500 text-green-500 bg-green-50"
-                                                                      : applicant.status ===
-                                                                          "REJECTED"
-                                                                        ? "border-red-500 text-red-500 bg-red-50"
-                                                                        : applicant.status ===
-                                                                            "SHORTLISTED"
-                                                                          ? "border-purple-500 text-purple-500 bg-purple-50"
-                                                                          : "border-yellow-500 text-yellow-500 bg-yellow-50"
-                                                            }`}
-                                                        >
-                                                            {applicant.status}
-                                                        </p>
-                                                        <p className="flex gap-2">
-                                                            <span className="text-orange-400">
-                                                                <i class="fa-regular fa-calendar"></i>
-                                                            </span>
-                                                            <span className="font-semibold">
-                                                                Applied At
-                                                            </span>
-                                                        </p>
-                                                        <p className="text-center">
-                                                            {new Date(
-                                                                applicant.appliedAt,
-                                                            )
-                                                                .toLocaleDateString(
-                                                                    "en-IN",
-                                                                )
-                                                                .replaceAll(
-                                                                    "/",
-                                                                    "-",
-                                                                )}
-                                                        </p>
-                                                    </div>
+                                                        </span>
+                                                    </h1>
+                                                    <p className="text-normal">
+                                                        <span className="text-red-500">
+                                                            <i className="fa-regular fa-envelope"></i>
+                                                        </span>{" "}
+                                                        {applicant.email}
+                                                    </p>
+                                                    <p className="text-normal">
+                                                        <span className="text-green-500">
+                                                            <i className="fa-solid fa-phone"></i>
+                                                        </span>{" "}
+                                                        {applicant.contact}
+                                                    </p>
+                                                    <p>
+                                                        <span className="text-blue-500">
+                                                            <i className="fa-solid fa-location-dot"></i>
+                                                        </span>{" "}
+                                                        {applicant.location
+                                                            ? String(
+                                                                  applicant.location,
+                                                              )
+                                                                  .charAt(0)
+                                                                  .toUpperCase() +
+                                                              String(
+                                                                  applicant.location,
+                                                              )
+                                                                  .slice(1)
+                                                                  .toLowerCase()
+                                                            : "N/A"}
+                                                    </p>
                                                 </div>
-                                                {/* down tech and other items */}
+
+                                                <div className="bg-yellow-100 p-2 rounded-lg w-100 flex flex-col items-center justify-center">
+                                                    <p
+                                                        className={`font-semibold w-fit px-2 ms-4 rounded-lg border-1 text-center mb-1 text-sm ${
+                                                            applicant.status ===
+                                                            "APPLIED"
+                                                                ? "border-blue-500 text-blue-500 bg-blue-50"
+                                                                : applicant.status ===
+                                                                    "SELECTED"
+                                                                  ? "border-green-500 text-green-500 bg-green-50"
+                                                                  : applicant.status ===
+                                                                      "REJECTED"
+                                                                    ? "border-red-500 text-red-500 bg-red-50"
+                                                                    : applicant.status ===
+                                                                        "SHORTLISTED"
+                                                                      ? "border-purple-500 text-purple-500 bg-purple-50"
+                                                                      : "border-yellow-500 text-yellow-500 bg-yellow-50"
+                                                        }`}
+                                                    >
+                                                        {applicant.status}
+                                                    </p>
+                                                    <p className="flex gap-2">
+                                                        <span className="text-orange-400">
+                                                            <i className="fa-regular fa-calendar"></i>
+                                                        </span>
+                                                        <span className="font-semibold">
+                                                            Applied At
+                                                        </span>
+                                                    </p>
+                                                    <p className="text-center">
+                                                        {new Date(
+                                                            applicant.appliedAt,
+                                                        )
+                                                            .toLocaleDateString(
+                                                                "en-IN",
+                                                            )
+                                                            .replaceAll(
+                                                                "/",
+                                                                "-",
+                                                            )}
+                                                    </p>
+                                                </div>
                                                 <hr className="text-gray-400 mx-5 my-1" />
-                                                <div></div>
                                             </div>
 
                                             {/* applicant manipuation */}
-                                            <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
-                                                <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
-                                                    <Link to="/company/jobs">
-                                                        View Details
-                                                    </Link>
+                                            <div className="flex justify-between bg-gray-100 rounded-lg">
+                                                <div className="h-fit w-fit my-2 mx-5 rounded-lg px-2 py-1">
+                                                    <select
+                                                        name="applicant-status"
+                                                        id={
+                                                            applicant.applicationId
+                                                        }
+                                                        value={applicant.status}
+                                                        onChange={(e) => {
+                                                            handleStatusChange(
+                                                                applicant.applicationId,
+                                                                e.target.value,
+                                                            );
+                                                        }}
+                                                        className={`font-semibold border-1 rounded-lg px-2 py-1 ${
+                                                            applicant.status ===
+                                                            "REJECTED"
+                                                                ? "border-red-500 text-red-500 bg-red-50"
+                                                                : applicant.status ===
+                                                                    "SELECTED"
+                                                                  ? "border-green-500 text-green-500 bg-green-50"
+                                                                  : applicant.status ===
+                                                                      "SHORTLISTED"
+                                                                    ? "border-purple-500 text-purple-500 bg-purple-50"
+                                                                    : applicant.status ===
+                                                                        "UNDER_REVIEW"
+                                                                      ? "border-yellow-500 text-yellow-500 bg-yellow-50"
+                                                                      : "border-blue-500 text-blue-500 bg-blue-100"
+                                                        }`}
+                                                    >
+                                                        {applicant_status.map(
+                                                            (status) => {
+                                                                return (
+                                                                    <option
+                                                                        hidden={
+                                                                            status ===
+                                                                            "APPLIED"
+                                                                        }
+                                                                        key={
+                                                                            status
+                                                                        }
+                                                                        value={
+                                                                            status
+                                                                        }
+                                                                    >
+                                                                        {status.replaceAll(
+                                                                            "_",
+                                                                            " ",
+                                                                        )}
+                                                                    </option>
+                                                                );
+                                                            },
+                                                        )}
+                                                    </select>
                                                 </div>
-                                                <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
-                                                    <Link to="/company/deleteJob">
-                                                        Delete
-                                                    </Link>
+
+                                                <div className="flex justify-end gap-4 p-2 rounded-lg">
+                                                    <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
+                                                        <Link to="/company/jobs">
+                                                            View Details
+                                                        </Link>
+                                                    </div>
+                                                    <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
+                                                        <Link to="/company/deleteJob">
+                                                            Delete
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

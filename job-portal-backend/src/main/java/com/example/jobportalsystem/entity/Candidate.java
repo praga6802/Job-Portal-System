@@ -16,9 +16,12 @@ public class Candidate {
     private String lastname;
     private String email;
     private String contact;
+
+
     private String dateOfBirth;
     private String skills;
     private String experience;
+    private String location;
 
     @Column(name = "email_verified")
     private boolean isVerified;
@@ -27,6 +30,13 @@ public class Candidate {
     @JoinColumn(name = "user_id")
     private Users user;
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public Candidate(){}
 

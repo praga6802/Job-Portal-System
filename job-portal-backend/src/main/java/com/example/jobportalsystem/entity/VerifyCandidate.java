@@ -24,10 +24,10 @@ public class VerifyCandidate {
     private String email;
 
     private String contact;
-
     private String password;
 
     private String dateOfBirth;
+    private String location;
 
     private String experience;
 

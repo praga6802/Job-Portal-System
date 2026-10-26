@@ -15,6 +15,7 @@ public class CandidateRegisterDTO {
     private String email;
     private String password;
     private String contact;
+    private String location;
     private String dob;
     private String skills;
     private String experience;
