@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import CompanySidebar from "./CompanySidebar.jsx";
 import { Await, Link } from "react-router-dom";
 import CompanyNavbar from "./CompanyNavbar.jsx";
 import axiosInstance from "../../services/api.js";
+import SearchButton from "./SearchButton.jsx";
 
 const ManageApplicants = () => {
     const [company, setCompany] = useState("");
@@ -15,6 +16,9 @@ const ManageApplicants = () => {
     const [rejectedCount, setRejectedCount] = useState(0);
     const [shortlistedCount, setShortlistedCount] = useState(0);
     const [underReviewCount, setUnderReviewCount] = useState(0);
+    const [searchJobId, setSearchJobId] = useState("");
+    const [searchApplicants, setSearchApplicants] = useState([]);
+    const [jobId, setJobId] = useState("");
 
     const tabs = [
         { label: "Applicants", value: "Applicants" },
@@ -221,7 +225,59 @@ const ManageApplicants = () => {
     const cardHead = "font-bold text-lg";
     const cardCount = "font-bold text-4xl";
 
-    const status = "rounded-xl bg-black py-1 px-2 text-white";
+    const fetchJobById = async () => {
+        const id = jobId.trim();
+
+        if (!id) {
+            setMessage("Please enter Job ID");
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage("");
+
+        try {
+            const response = await axiosInstance.get(
+                `/auth/company/applicants/${id}`,
+                { withCredentials: true },
+            );
+
+            const data = response?.data?.data;
+
+            const results =
+                data == null ? [] : Array.isArray(data) ? data : [data];
+            console.log(results);
+
+            setSearchApplicants(results);
+            setSearchJobId(id);
+
+            if (results.length === 0) {
+                setMessage(
+                    response?.data?.message ||
+                        "No applicants found for this Job ID.",
+                );
+            }
+        } catch (err) {
+            setSearchApplicants([]);
+            setSearchJobId(id);
+            setMessage(
+                err?.response?.data?.message ||
+                    "No applicants found for this Job ID.",
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleClear = () => {
+        setJobId("");
+        setSearchJobId("");
+        searchApplicants([]);
+        setMessage("");
+        fetchJobs();
+    };
+
+    const displayApplicants = searchJobId ? searchApplicants : applicants;
 
     return (
         <div className="flex justify-between min-h-screen">
@@ -333,6 +389,13 @@ const ManageApplicants = () => {
                         </div>
                         <hr className="my-3 text-slate-400 mx-4" />
 
+                        <SearchButton
+                            jobId={jobId}
+                            setJobId={setJobId}
+                            fetchJobById={fetchJobById}
+                            handleClear={handleClear}
+                        />
+
                         {message && (
                             <div
                                 className={`mt-2 rounded-lg border-1 text-center font-semibold
@@ -347,11 +410,13 @@ const ManageApplicants = () => {
                                 Loading Applicants...
                             </p>
                         ) : (
-                            applicants.map((applicant) => {
+                            displayApplicants.map((applicant) => {
                                 return (
-                                    <div className="card-container m-5">
-                                        <div className="job-card border border-gray-500 rounded-lg" key={applicant.applicationId}>
-
+                                    <div
+                                        className="card-container m-5"
+                                        key={applicant.applicationId}
+                                    >
+                                        <div className="job-card border border-gray-500 rounded-lg">
                                             {/* job information */}
                                             <div className="flex gap-5 font-semibold text-lg bg-blue-200 w-full mb-2 rounded-lg px-2 py-1">
                                                 <p>JOB ID #{applicant.jobId}</p>

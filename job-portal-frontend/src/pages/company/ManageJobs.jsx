@@ -3,6 +3,7 @@ import CompanySidebar from "./CompanySidebar";
 import { Await, Link } from "react-router-dom";
 import CompanyNavbar from "./CompanyNavbar";
 import axiosInstance from "../../services/api.js";
+import SearchButton from "./SearchButton.jsx";
 const ManageJobs = () => {
     const [company, setCompany] = useState("");
     const [activeTab, setActiveTab] = useState("All");
@@ -10,7 +11,10 @@ const ManageJobs = () => {
     const [message, setMessage] = useState("");
     const [jobs, setJobs] = useState([]);
     const [jobCount, setJobCount] = useState(0);
+    const [jobId, setJobId] = useState("");
+    const [searchedJob, setSearchedJob] = useState(null);
     const [activeCount, setActiveCount] = useState(0);
+    const [searchJobId, setSearchJobId] = useState("");
     const [expiredCount, setExpiredCount] = useState(0);
     const [awaitingReviewJobsCount, setAwaitingReviewJobsCount] = useState(0);
 
@@ -177,6 +181,44 @@ const ManageJobs = () => {
         totalJobs();
     }, []);
 
+    {
+        /* fetch job by Job ID*/
+    }
+
+    const fetchJobById = async () => {
+        if (!jobId.trim()) {
+            setMessage("Please Enter Job ID");
+            return;
+        }
+        setIsLoading(true);
+        setMessage("");
+        try {
+            const response = await axiosInstance.get(
+                `/auth/company/jobs/${jobId}`,
+            );
+            const data = response?.data?.data;
+            setSearchedJob(data);
+            setSearchJobId(jobId);
+
+            console.log(response?.data?.message);
+        } catch (err) {
+            console.error("Error fetching job:", err?.response?.data?.message);
+            console.error(err);
+            setSearchedJob(null);
+            setJobId("");
+            setSearchJobId(jobId.trim());
+            setMessage(err?.response?.data?.message || "Job not found!");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const displayedJobs = searchJobId
+        ? searchedJob
+            ? [searchedJob]
+            : []
+        : jobs;
+
     const toggleJob = async (job) => {
         try {
             if (job.active) {
@@ -209,15 +251,18 @@ const ManageJobs = () => {
     const cardCount = "font-bold text-4xl";
 
     const status = "rounded-xl bg-black py-1 px-2 text-white";
+    const handleClear = () => {
+        setJobId("");
+        setSearchJobId("");
+        setSearchedJob(null);
+        setMessage("");
+        fetchJobs();
+    };
 
     return (
         <div className="flex justify-between min-h-screen">
             {isLoading ? (
                 <p>Fetching Company Details...</p>
-            ) : message ? (
-                <p className="m-5 h-fit w-fit mx-auto p-2 rounded-lg text-center border border-1 border-red-500 text-red-600 font-semibold">
-                    {message}
-                </p>
             ) : company ? (
                 <>
                     <div className="m-1 rounded-lg w-full bg-white">
@@ -320,11 +365,19 @@ const ManageJobs = () => {
                                 </button>
                             ))}
                         </div>
+                        <hr className="mx-5 my-2 text-gray-500" />
+
+                        <SearchButton
+                            jobId={jobId}
+                            setJobId={setJobId}
+                            fetchJobById={fetchJobById}
+                            handleClear={handleClear}
+                        />
 
                         {message && (
                             <div
                                 className="rounded-lg border border-red-400 text-center bg-red-50 font-semibold
-                                p-2 text-sm text-red-600"
+                                p-2 mt-2 w-fit mx-auto text-normal text-red-600"
                             >
                                 {message}
                             </div>
@@ -334,13 +387,13 @@ const ManageJobs = () => {
                             <p className="p-8 text-center text-slate-500">
                                 Loading jobs...
                             </p>
-                        ) : jobs.length === 0 ? (
+                        ) : displayedJobs.length === 0 && !message ? (
                             <p
                                 className={`p-2 w-fit rounded-lg mx-auto text-center transition mt-3 ${
                                     activeTab === "Active"
                                         ? "border border-green-500 text-green-600"
-                                        : activeTab === "Expired"
-                                          ? "border border-red-500 text-red-500"
+                                        : activeTab === "AwaitingReview"
+                                          ? "border border-yellow-500 text-yellow-500"
                                           : "border border-red-500 text-red-500"
                                 }`}
                             >
@@ -349,178 +402,211 @@ const ManageJobs = () => {
                                     : `No ${activeTab} jobs found!`}
                             </p>
                         ) : (
-                            jobs.map((job) => {
-                                return (
-                                    <div
-                                        className="card-container m-5"
-                                        key={job.jobId}
-                                    >
-                                        <div className="job-card border border-gray-500 rounded-lg">
-                                            <div className="flex justify-between mx-auto px-4 py-3 rounded-lg">
-                                                <div className="flex gap-3 items-start">
-                                                    <p className="mt-2 text-xl">
-                                                        <i className="fa-solid fa-suitcase"></i>
-                                                    </p>
-                                                    <div>
-                                                        <h1 className="text-lg font-bold items-center flex gap-3">
-                                                            <span>
-                                                                {job.company}
-                                                            </span>
-                                                            {"  "}
-                                                            <span
-                                                                className={`font-semibold text-xs rounded-lg p-1 ${job.status === "APPROVED" ? "text-green-500 bg-green-100" : job.status === "PENDING" ? "text-yellow-500 bg-yellow-100" : "text-red-500 bg-red-100"}`}
-                                                            >
-                                                                {job.status}
-                                                            </span>
-                                                        </h1>
-                                                        <h1 className="font-semibold text-sm">
-                                                            {job.title} {"|"}{" "}
-                                                            {job.location}
-                                                        </h1>
+                            <>
+                                {displayedJobs.map((job) => {
+                                    return (
+                                        <>
+                                            <div
+                                                className="card-container m-5"
+                                                key={job.jobId}
+                                            >
+                                                <div className="job-card border border-gray-500 rounded-lg">
+                                                    <div className="flex justify-between mx-auto px-4 py-3 rounded-lg">
+                                                        <div className="flex gap-3 items-start">
+                                                            <p className="mt-2 text-xl">
+                                                                <i className="fa-solid fa-suitcase"></i>
+                                                            </p>
+                                                            <div>
+                                                                <h1 className="text-lg font-bold items-center flex gap-3">
+                                                                    <span>
+                                                                        JOB ID #
+                                                                        {
+                                                                            job.jobId
+                                                                        }
+                                                                    </span>
+                                                                    {"  "}
+                                                                    <span>
+                                                                        {
+                                                                            job.company
+                                                                        }
+                                                                    </span>
+                                                                    {"  "}
+                                                                    <span
+                                                                        className={`font-semibold text-xs rounded-lg p-1 ${job.status === "APPROVED" ? "text-green-500 bg-green-100" : job.status === "PENDING" ? "text-yellow-500 bg-yellow-100" : "text-red-500 bg-red-100"}`}
+                                                                    >
+                                                                        {
+                                                                            job.status
+                                                                        }
+                                                                    </span>
+                                                                </h1>
+                                                                <h1 className="font-semibold text-sm">
+                                                                    {job.title}{" "}
+                                                                    {"|"}{" "}
+                                                                    {
+                                                                        job.location
+                                                                    }
+                                                                </h1>
 
-                                                        <div className="flex gap-3 text-xs items-center mt-1">
-                                                            <h2
-                                                                className={
-                                                                    job.active ===
-                                                                        true &&
-                                                                    job.status ===
-                                                                        "APPROVED"
-                                                                        ? "font-semibold px-2 py-1 rounded-lg bg-green-100 text-green-600"
-                                                                        : job.active ===
-                                                                                false &&
+                                                                <div className="flex gap-3 text-xs items-center mt-1">
+                                                                    <h2
+                                                                        className={
+                                                                            job.active ===
+                                                                                true &&
                                                                             job.status ===
-                                                                                "PENDING"
-                                                                          ? "font-semibold px-2 py-1 rounded-lg bg-yellow-100 text-yellow-600"
-                                                                          : "font-semibold px-2 py-1 rounded-lg bg-red-100 text-red-600"
+                                                                                "APPROVED"
+                                                                                ? "font-semibold px-2 py-1 rounded-lg bg-green-100 text-green-600"
+                                                                                : job.active ===
+                                                                                        false &&
+                                                                                    job.status ===
+                                                                                        "PENDING"
+                                                                                  ? "font-semibold px-2 py-1 rounded-lg bg-yellow-100 text-yellow-600"
+                                                                                  : "font-semibold px-2 py-1 rounded-lg bg-red-100 text-red-600"
+                                                                        }
+                                                                    >
+                                                                        {job.active ===
+                                                                            true &&
+                                                                        job.status ==
+                                                                            "APPROVED"
+                                                                            ? "ACTIVE"
+                                                                            : job.active ===
+                                                                                    false &&
+                                                                                job.status ===
+                                                                                    "PENDING"
+                                                                              ? "AWAITING REVIEW"
+                                                                              : "EXPIRED"}
+                                                                    </h2>
+                                                                    <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
+                                                                        {
+                                                                            job.jobType
+                                                                        }
+                                                                    </h2>
+                                                                    <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
+                                                                        {
+                                                                            job.workMode
+                                                                        }
+                                                                    </h2>
+                                                                </div>
+
+                                                                <div className="flex gap-2 items-center mt-1">
+                                                                    <h4>
+                                                                        <span className="text-yellow-500">
+                                                                            <i class="fa-solid fa-sack-dollar"></i>{" "}
+                                                                        </span>
+                                                                        <span>
+                                                                            {
+                                                                                job.minSalary
+                                                                            }{" "}
+                                                                            -{" "}
+                                                                            {
+                                                                                job.maxSalary
+                                                                            }
+                                                                        </span>{" "}
+                                                                        LPA
+                                                                    </h4>
+                                                                    {"|"}
+                                                                    <h4>
+                                                                        <span className="font-semibold text-blue-900">
+                                                                            <i class="fa-solid fa-suitcase"></i>{" "}
+                                                                        </span>
+                                                                        <span>
+                                                                            {
+                                                                                job.minExperience
+                                                                            }{" "}
+                                                                            -{" "}
+                                                                            {
+                                                                                job.maxExperience
+                                                                            }
+                                                                        </span>
+                                                                        {
+                                                                            " years"
+                                                                        }
+                                                                    </h4>
+                                                                </div>
+
+                                                                <div className="bg-blue-200 text-blue-900 text-sm mt-1 font-semibold rounded-lg w-fit py-1 px-2">
+                                                                    <h2>
+                                                                        {
+                                                                            job.openings
+                                                                        }{" "}
+                                                                        positions
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            hidden={
+                                                                job.status !=
+                                                                "APPROVED"
+                                                            }
+                                                            className={`flex gap-1 h-fit font-semibold items-center px-2 py-1 rounded-full ${job.active ? "text-green-500 bg-green-100" : "text-red-500 bg-gray-200"}`}
+                                                        >
+                                                            <h1 className="text-sm">
+                                                                {job.active
+                                                                    ? "ACTIVE"
+                                                                    : "INACTIVE"}
+                                                            </h1>
+                                                            <button
+                                                                hidden={
+                                                                    job.status !==
+                                                                    "APPROVED"
+                                                                }
+                                                                onClick={() =>
+                                                                    toggleJob(
+                                                                        job,
+                                                                    )
+                                                                }
+                                                                className={`relative h-6 w-11 rounded-full text-white font-semibold cursor-pointer transition
+                                                                        ${job.active ? "bg-green-600" : "bg-gray-400"}`}
+                                                                title={
+                                                                    job.active
+                                                                        ? "Deactivate job"
+                                                                        : "Activate Job"
                                                                 }
                                                             >
-                                                                {job.active ===
-                                                                    true &&
-                                                                job.status ==
-                                                                    "APPROVED"
-                                                                    ? "ACTIVE"
-                                                                    : job.active ===
-                                                                            false &&
-                                                                        job.status ===
-                                                                            "PENDING"
-                                                                      ? "AWAITING REVIEW"
-                                                                      : "EXPIRED"}
-                                                            </h2>
-                                                            <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
-                                                                {job.jobType}
-                                                            </h2>
-                                                            <h2 className="bg-gray-200 font-semibold rounded-full py-1 px-2">
-                                                                {job.workMode}
-                                                            </h2>
+                                                                <span
+                                                                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                                                                        job.active
+                                                                            ? "translate-x-5"
+                                                                            : "translate-x-0"
+                                                                    }`}
+                                                                />
+                                                            </button>
                                                         </div>
-
-                                                        <div className="flex gap-2 items-center mt-1">
-                                                            <h4>
-                                                                <span className="text-yellow-500">
-                                                                    <i class="fa-solid fa-sack-dollar"></i>{" "}
-                                                                </span>
-                                                                <span>
-                                                                    {
-                                                                        job.minSalary
-                                                                    }{" "}
-                                                                    -{" "}
-                                                                    {
-                                                                        job.maxSalary
-                                                                    }
-                                                                </span>{" "}
-                                                                LPA
-                                                            </h4>
-                                                            {"|"}
-                                                            <h4>
-                                                                <span className="font-semibold text-blue-900">
-                                                                    <i class="fa-solid fa-suitcase"></i>{" "}
-                                                                </span>
-                                                                <span>
-                                                                    {
-                                                                        job.minExperience
-                                                                    }{" "}
-                                                                    -{" "}
-                                                                    {
-                                                                        job.maxExperience
-                                                                    }
-                                                                </span>
-                                                                {" years"}
-                                                            </h4>
+                                                    </div>
+                                                    <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
+                                                        <div>
+                                                            <Link to="/company/update-job">
+                                                                <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
+                                                                    <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                                                    Edit
+                                                                </div>
+                                                            </Link>
                                                         </div>
-
-                                                        <div className="bg-blue-200 text-blue-900 text-sm mt-1 font-semibold rounded-lg w-fit py-1 px-2">
-                                                            <h2>
-                                                                {job.openings}{" "}
-                                                                positions
-                                                            </h2>
+                                                        <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
+                                                            <Link to="/company/jobs">
+                                                                View Details
+                                                            </Link>
+                                                        </div>
+                                                        <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
+                                                            <Link to="/company/deleteJob">
+                                                                Delete
+                                                            </Link>
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <div
-                                                    hidden={
-                                                        job.status != "APPROVED"
-                                                    }
-                                                    className={`flex gap-1 h-fit font-semibold items-center px-2 py-1 rounded-full ${job.active ? "text-green-500 bg-green-100" : "text-red-500 bg-gray-200"}`}
-                                                >
-                                                    <h1 className="text-sm">
-                                                        {job.active
-                                                            ? "ACTIVE"
-                                                            : "INACTIVE"}
-                                                    </h1>
-                                                    <button
-                                                        hidden={
-                                                            job.status !==
-                                                            "APPROVED"
-                                                        }
-                                                        onClick={() =>
-                                                            toggleJob(job)
-                                                        }
-                                                        className={`relative h-6 w-11 rounded-full text-white font-semibold cursor-pointer transition
-                                                            ${job.active ? "bg-green-600" : "bg-gray-400"}`}
-                                                        title={
-                                                            job.active
-                                                                ? "Deactivate job"
-                                                                : "Activate Job"
-                                                        }
-                                                    >
-                                                        <span
-                                                            className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${
-                                                                job.active
-                                                                    ? "translate-x-5"
-                                                                    : "translate-x-0"
-                                                            }`}
-                                                        />
-                                                    </button>
-                                                </div>
                                             </div>
-                                            <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
-                                                <div>
-                                                    <Link to="/company/update-job">
-                                                        <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
-                                                            <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                                            Edit
-                                                        </div>
-                                                    </Link>
-                                                </div>
-                                                <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
-                                                    <Link to="/company/jobs">
-                                                        View Details
-                                                    </Link>
-                                                </div>
-                                                <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
-                                                    <Link to="/company/deleteJob">
-                                                        Delete
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })
+                                        </>
+                                    );
+                                })}
+                            </>
                         )}
                     </div>
                 </>
+            ) : message ? (
+                <p className="m-5 h-fit w-fit mx-auto p-2 rounded-lg text-center border border-1 border-red-500 text-red-600 font-semibold">
+                    {message}
+                </p>
             ) : null}
         </div>
     );

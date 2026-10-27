@@ -385,13 +385,13 @@ public class CompanyService {
     public ResponseEntity<?> getJobById(Integer jobId, Integer companyId) {
         Company company = companyRepository.findByUser_UserId(companyId).orElseThrow(() -> new NotFoundException("Company not found with id: " + companyId));
 
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new NotFoundException("Job not found with id: " + jobId));
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> new NotFoundException("Job not found with ID: " + jobId));
 
         if (!job.getCompany().getCompanyId().equals(company.getCompanyId())) {
             throw new UnAuthorizedException(company.getEmail(), job.getTitle());
         }
 
-        return ResponseEntity.ok(new JobResponseDTO(job));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Job Fetched successfully with ID: "+jobId,new JobResponseDTO(job)));
     }
 
     //get status of job posted by company
