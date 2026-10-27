@@ -50,7 +50,7 @@ public class CompanyController {
 
 
     // delete job by ID
-    @DeleteMapping("/deleteJob/{jobid}")
+    @DeleteMapping("/deleteJob/{jobId}")
     public ResponseEntity<?> deleteJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails company){
         return companyService.deleteJob(jobId,company.getUserId());
     }

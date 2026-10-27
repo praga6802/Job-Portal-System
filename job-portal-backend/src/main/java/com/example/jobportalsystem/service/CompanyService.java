@@ -330,6 +330,11 @@ public class CompanyService {
             updatedDetails.add("Openings");
         }
 
+        if (jobDTO.getDeadline() != null) {
+            job.setDeadline(jobDTO.getDeadline());
+            updatedDetails.add("Deadline");
+        }
+
         jobRepository.save(job);
 
         String message = "Job " + String.join(",", updatedDetails) + " updated Successfully!";

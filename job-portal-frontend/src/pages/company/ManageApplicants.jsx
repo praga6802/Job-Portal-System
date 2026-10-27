@@ -576,15 +576,10 @@ const ManageApplicants = () => {
                                                     </select>
                                                 </div>
 
-                                                <div className="flex justify-end gap-4 p-2 rounded-lg">
+                                                <div className="flex justify-end items-center gap-4 p-2 rounded-lg me-3">
                                                     <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
                                                         <Link to="/company/jobs">
                                                             View Details
-                                                        </Link>
-                                                    </div>
-                                                    <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
-                                                        <Link to="/company/deleteJob">
-                                                            Delete
                                                         </Link>
                                                     </div>
                                                 </div>

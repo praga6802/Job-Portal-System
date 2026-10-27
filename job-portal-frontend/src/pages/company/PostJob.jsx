@@ -96,6 +96,9 @@ const PostJob = () => {
                 "/auth/company/post-job",
                 {
                     ...job,
+                    deadline: job.deadline
+                        ? `${job.deadline.split("T")[0]}T00:00:00`
+                        : null,
                     minSalary: Number(job.minSalary),
                     maxSalary: Number(job.maxSalary),
                     minExperience: Number(job.minExperience),

@@ -51,6 +51,26 @@ const ManageJobs = () => {
         }
     };
 
+    const handleDeleteJob = async (jobId) => {
+        try {
+            const response = await axiosInstance.delete(
+                `/auth/company/deleteJob/${jobId}`,
+            );
+            setMessage(response?.data?.message);
+            setTimeout(() => {
+                setMessage("");
+            }, 2000);
+            fetchJobs();
+        } catch (error) {
+            console.error("Error deleting job:", error);
+            setMessage(error.response?.data?.message || "Failed to delete job");
+
+            setTimeout(() => {
+                setMessage("");
+            }, 2000);
+        }
+    };
+
     useEffect(() => {
         fetchJobs();
     }, [activeTab]);
@@ -330,7 +350,7 @@ const ManageJobs = () => {
                             <div className={cardStyle}>
                                 <div className="flex gap-3 items-center justify-center">
                                     <p className="text-2xl text-yellow-500">
-                                        <i class="fa-regular fa-clock"></i>
+                                        <i className="fa-regular fa-clock"></i>
                                     </p>
                                     <h2 className={cardHead}>
                                         Awaiting Review
@@ -490,7 +510,7 @@ const ManageJobs = () => {
                                                                 <div className="flex gap-2 items-center mt-1">
                                                                     <h4>
                                                                         <span className="text-yellow-500">
-                                                                            <i class="fa-solid fa-sack-dollar"></i>{" "}
+                                                                            <i className="fa-solid fa-sack-dollar"></i>{" "}
                                                                         </span>
                                                                         <span>
                                                                             {
@@ -506,7 +526,7 @@ const ManageJobs = () => {
                                                                     {"|"}
                                                                     <h4>
                                                                         <span className="font-semibold text-blue-900">
-                                                                            <i class="fa-solid fa-suitcase"></i>{" "}
+                                                                            <i className="fa-solid fa-suitcase"></i>{" "}
                                                                         </span>
                                                                         <span>
                                                                             {
@@ -576,22 +596,27 @@ const ManageJobs = () => {
                                                     </div>
                                                     <div className="flex justify-end gap-4 bg-gray-100 p-2 rounded-lg">
                                                         <div>
-                                                            <Link to="/company/update-job">
+                                                            <Link
+                                                                key={job.jobId}
+                                                                to={`/company/update-job/${job.jobId}`}
+                                                            >
                                                                 <div className="font-semibold text-blue-500 border border-1 border-blue-300 px-3 py-1 rounded-lg">
                                                                     <i className="fa-solid fa-pen-to-square"></i>{" "}
                                                                     Edit
                                                                 </div>
                                                             </Link>
                                                         </div>
-                                                        <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
-                                                            <Link to="/company/jobs">
-                                                                View Details
-                                                            </Link>
-                                                        </div>
-                                                        <div className="bg-red-50 border border-1 border-red-400 text-red-600 p-1 rounded-lg">
-                                                            <Link to="/company/deleteJob">
-                                                                Delete
-                                                            </Link>
+
+                                                        <div
+                                                            className="bg-red-50 border border-1 cursor-pointer hover:bg-red-600 hover:text-white border-red-400 text-red-600 p-1 rounded-lg"
+                                                            key={job.jobId}
+                                                            onClick={() => {
+                                                                handleDeleteJob(
+                                                                    job.jobId,
+                                                                );
+                                                            }}
+                                                        >
+                                                            Delete
                                                         </div>
                                                     </div>
                                                 </div>
