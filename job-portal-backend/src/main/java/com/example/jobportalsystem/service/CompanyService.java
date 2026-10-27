@@ -769,9 +769,7 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long selectedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.SELECTED);
-        if(selectedCandidatesCount==0){
-            throw  new BusinessException("No Selected Candidates found!",0);
-        }
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Selected Candidates count fetched successfully",selectedCandidatesCount));
     }
 
@@ -779,9 +777,7 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long rejectedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.REJECTED);
-        if(rejectedCandidatesCount==0){
-            throw  new BusinessException("No Rejected Candidates found!",0);
-        }
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Rejected Candidates count fetched successfully",rejectedCandidatesCount));
 
     }
@@ -790,9 +786,7 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long shortListedCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.SHORTLISTED);
-        if(shortListedCandidatesCount==0){
-            throw new BusinessException("No Shortlisted Candidates found!",0);
-        }
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Shortlisted Candidates count fetched successfully",shortListedCandidatesCount));
     }
 
@@ -800,9 +794,7 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Company Not found"));
 
         Long underReviewCandidatesCount = jobApplicationRepository.countByCompany_CompanyIdAndStatus(company.getCompanyId(),ApplicationStatus.UNDER_REVIEW);
-        if(underReviewCandidatesCount==0){
-            throw new BusinessException("No Candidates found in Under Review",0);
-        }
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Under-Review Candidates count fetched successfully",underReviewCandidatesCount));
     }
 

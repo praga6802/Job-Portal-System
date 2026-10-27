@@ -193,7 +193,7 @@ const CompanyDashboard = () => {
                                     <i className="fa-regular fa-circle-check"></i>
                                 </p>
 
-                                <h2 className="font-bold text-lg">Approved</h2>
+                                <h2 className="font-bold text-lg">Approved Jobs</h2>
                                 <h6 className="font-bold text-5xl">
                                     {approvedCount}
                                 </h6>
@@ -204,7 +204,7 @@ const CompanyDashboard = () => {
                                     <i className="fa-regular fa-circle-xmark"></i>
                                 </p>
 
-                                <h2 className="font-bold text-lg">Rejected</h2>
+                                <h2 className="font-bold text-lg">Rejected Jobs</h2>
                                 <h6 className="font-bold text-5xl">
                                     {rejectedCount}
                                 </h6>
@@ -214,7 +214,7 @@ const CompanyDashboard = () => {
                                 <p className="text-3xl text-yellow-500">
                                     <i className="fa-regular fa-clock"></i>
                                 </p>
-                                <h2 className="font-bold text-lg">Pending</h2>
+                                <h2 className="font-bold text-lg">Pending Jobs</h2>
                                 <h6 className="text-5xl font-bold">
                                     {pendingCount}
                                 </h6>

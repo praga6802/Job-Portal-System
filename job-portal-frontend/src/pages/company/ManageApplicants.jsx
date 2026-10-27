@@ -132,6 +132,7 @@ const ManageApplicants = () => {
                 "/auth/company/applicants/shortlisted-count",
             );
             setShortlistedCount(response?.data?.data);
+
             console.log(response?.data?.message);
         } catch (err) {
             console.error("Failed to fetch shortlisted applicants Count");
@@ -147,6 +148,7 @@ const ManageApplicants = () => {
                 "/auth/company/applicants/under-review-count",
             );
             setUnderReviewCount(response?.data?.data);
+
             console.log(response?.data?.message);
         } catch (err) {
             console.error("Failed to fetch under-review applicants Count");
@@ -171,6 +173,7 @@ const ManageApplicants = () => {
     };
 
     const refreshApplicantCounts = async () => {
+        console.log("reaching refresh counts");
         await Promise.all([
             fetchSelectedApplicantsCount(),
             fetchRejectedapplicantsCount(),
@@ -347,13 +350,16 @@ const ManageApplicants = () => {
                             applicants.map((applicant) => {
                                 return (
                                     <div className="card-container m-5">
-                                        <div
-                                            className="job-card border border-gray-500 rounded-lg"
-                                            key={applicant.applicationId}
-                                        >
-                                            {/* applicant data */}
+                                        <div className="job-card border border-gray-500 rounded-lg" key={applicant.applicationId}>
 
-                                            <div className="flex justify-between px-4 py-2">
+                                            {/* job information */}
+                                            <div className="flex gap-5 font-semibold text-lg bg-blue-200 w-full mb-2 rounded-lg px-2 py-1">
+                                                <p>JOB ID #{applicant.jobId}</p>
+                                                <p>{applicant.jobTitle}</p>
+                                            </div>
+
+                                            {/* applicant data */}
+                                            <div className="flex items-center justify-between px-4 py-2">
                                                 <div className="w-full">
                                                     <h1 className="font-bold text-lg flex gap-3">
                                                         {applicant.firstname}{" "}
@@ -366,9 +372,10 @@ const ManageApplicants = () => {
                                                                     : "border-blue-500 text-blue-500 bg-blue-50"
                                                             }`}
                                                         >
-                                                            {
-                                                                applicant.experience
-                                                            }
+                                                            {applicant.experience ===
+                                                            "Fresher"
+                                                                ? `${applicant.experience}`
+                                                                : `${applicant.experience} years`}
                                                         </span>
                                                     </h1>
                                                     <p className="text-normal">
@@ -402,6 +409,7 @@ const ManageApplicants = () => {
                                                     </p>
                                                 </div>
 
+                                                {/* manipulation down*/}
                                                 <div className="bg-yellow-100 p-2 rounded-lg w-100 flex flex-col items-center justify-center">
                                                     <p
                                                         className={`font-semibold w-fit px-2 ms-4 rounded-lg border-1 text-center mb-1 text-sm ${
