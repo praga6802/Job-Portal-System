@@ -27,39 +27,39 @@ public class CandidateController {
         return candidateService.register(candidate);
     }
 
-    // update candidate
-    @PutMapping("/update")
-    public  ResponseEntity<?> updateCandidate(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody CandidateRegisterDTO candidate){
-        System.out.println("Log in candidate: "+userDetails.getUsername());
-        return candidateService.updateCandidate(userDetails.getUserId(),candidate);
-    }
-
     // current candidate
     @GetMapping("/current")
     public ResponseEntity<ApiResponseDTO> getCurrentCandidate(@AuthenticationPrincipal MyUserDetails userDetails){
         return candidateService.getCurrentCandidate(userDetails);
     }
 
+    // update candidate details
+    @PutMapping("/update")
+    public  ResponseEntity<?> updateCandidate(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody CandidateRegisterDTO candidate){
+        System.out.println("Log in candidate: "+userDetails.getUsername());
+        return candidateService.updateCandidate(userDetails.getUserId(),candidate);
+    }
+
+
     //  ---- JOB Application Features --------
     // apply job
-    @PostMapping("/applyJob/{jobId}")
+    @PostMapping("/apply/job/{jobId}")
     public ResponseEntity<?> applyJob(@PathVariable Integer jobId, @AuthenticationPrincipal MyUserDetails userDetails){
         return candidateService.applyJob(jobId, userDetails.getUserId());
     }
 
 
-
-
     // get job by company
-    @GetMapping("/job-by-company")
-    public ResponseEntity<?> getJobsByCompany(@RequestParam String companyName) {
-        return candidateService.getJobsByCompany(companyName);
+    @GetMapping("/jobs/{companyId}")
+    public ResponseEntity<?> getJobsByCompany(@PathVariable String companyId) {
+        return candidateService.getJobsByCompany(companyId);
     }
 
-    // view application status
-    @GetMapping("/application-status")
-    public ResponseEntity<?> viewApplicationStatus(@AuthenticationPrincipal MyUserDetails userDetails) {
-        return candidateService.viewApplicationStatus(userDetails.getUserId());
+
+    // view applied jobs
+    @GetMapping("/applied-jobs")
+    public ResponseEntity<?> viewAppliedJobs(@AuthenticationPrincipal MyUserDetails userDetails) {
+        return candidateService.viewAppliedJobs(userDetails.getUserId());
     }
 
 

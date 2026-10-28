@@ -235,13 +235,13 @@ public class CandidateService {
 
 
     // view application status
-    public ResponseEntity<?> viewApplicationStatus(Integer candidateId) {
+    public ResponseEntity<?> viewAppliedJobs(Integer candidateId) {
         Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + candidateId));
 
         List<JobApplication> jobApplications = jobApplicationRepository.findByCandidate(candidate);
 
         if (jobApplications.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Job applications were found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were applied!"));
         }
 
         List<ApplicationStatusDTO> statusList = jobApplications.stream().map(ApplicationStatusDTO::new).toList();

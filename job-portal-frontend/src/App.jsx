@@ -34,6 +34,7 @@ const App = () => {
                 {/* public page */}
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<Home />} />
+                    
                     <Route path="/admin/signup" element={<AdminRegister />} />
                     <Route
                         path="/candidate/signup"
@@ -43,9 +44,9 @@ const App = () => {
                         path="/company/signup"
                         element={<CompanyRegister />}
                     />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/about" element={<About />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="contact" element={<Contact />} />
+                    <Route path="about" element={<About />} />
                 </Route>
 
                 {/* company page */}
