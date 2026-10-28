@@ -112,31 +112,46 @@ public class AdminService {
             updatedFields.add("Last name");
         }
 
+
         if (admin.getEmail() != null && !admin.getEmail().trim().isEmpty()) {
-            if (admin1.getEmail().equalsIgnoreCase(admin.getEmail())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same Email"));
-            }
-            if (adminRepository.existsByEmail(admin.getEmail()) || usersRepository.existsByEmail(admin.getEmail())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Email already taken!"));
-            }
-            admin1.setEmail(admin.getEmail());
-            user.setEmail(admin.getEmail());
-            usersRepository.save(user);
-            updatedFields.add("Email");
 
-            newToken = jwtService.generateToken(admin.getEmail());
+            if (adminRepository.existsByEmailIgnoreCaseAndAdminIdNot(
+                    admin.getEmail(), admin1.getAdminId())
+                    || usersRepository.existsByEmailIgnoreCaseAndEmailNot(
+                    admin.getEmail(), user.getEmail())) {
+
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new LoginResponseDTO(
+                                LocalDateTime.now(),
+                                "Failure",
+                                "Email already taken!"
+                        ));
+            }
+
+            boolean emailChanged = !admin1.getEmail()
+                    .equalsIgnoreCase(admin.getEmail());
+
+            if (emailChanged) {
+                admin1.setEmail(admin.getEmail());
+                user.setEmail(admin.getEmail());
+
+                usersRepository.save(user);
+                updatedFields.add("Email");
+
+                newToken = jwtService.generateToken(admin.getEmail());
+            }
         }
+
+
         if (admin.getContact() != null && !admin.getContact().trim().isEmpty()) {
-            if (admin1.getContact().equals(admin.getContact())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same contact!"));
+            if (!admin1.getContact().equals(admin.getContact()) && adminRepository.existsByContact(admin.getContact())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
             }
 
-            if (adminRepository.existsByContact(admin.getContact())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
+            if (!admin1.getContact().equals(admin.getContact())) {admin1.setContact(admin.getContact());updatedFields.add("Contact");
             }
-            admin1.setContact(admin.getContact());
-            updatedFields.add("Contact");
         }
+
 
         adminRepository.save(admin1);
 

@@ -45,6 +45,13 @@ const AdminSidebar = () => {
                             </li>
 
                             <li className="sidebar-link">
+                                <Link to="/admin/admins">
+                                    <i className="fa-solid fa-user-tie !text-green-500 bg-green-50 border border-2 border-green-200"></i>
+                                    Admins
+                                </Link>
+                            </li>
+
+                            <li className="sidebar-link">
                                 <Link to="/admin/manage-jobs">
                                     <i className="fa-solid fa-briefcase !text-yellow-500 bg-yellow-50 border border-2 border-yellow-200"></i>{" "}
                                     Manage Jobs
@@ -52,16 +59,9 @@ const AdminSidebar = () => {
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/analytics">
-                                    <i className="fa-solid fa-chart-line !text-orange-500 bg-orange-50 border border-2 border-orange-200"></i>{" "}
-                                    Analytics
-                                </Link>
-                            </li>
-
-                            <li className="sidebar-link">
-                                <Link to="/admin/settings">
+                                <Link to="/admin/profile">
                                     <i className="fa-solid fa-gear !text-black bg-blue-50 border border-2"></i>{" "}
-                                    Settings
+                                    Profile
                                 </Link>
                             </li>
                         </ul>

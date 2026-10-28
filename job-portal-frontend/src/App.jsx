@@ -23,6 +23,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageApplicants from "./pages/company/ManageApplicants";
 import UpdateJob from "./pages/company/UpdateJob";
 import Companies from "./pages/admin/Companies";
+import Admins from "./pages/admin/Admins";
+import Candidates from "./pages/admin/Candidates";
+import AdminProfile from "./pages/admin/AdminProfile";
 
 const App = () => {
     return (
@@ -65,6 +68,9 @@ const App = () => {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="manage-jobs" element={<ManageJob />} />
                     <Route path="companies" element={<Companies />} />
+                    <Route path="admins" element={<Admins />} />
+                    <Route path="candidates" element={<Candidates />} />
+                    <Route path="profile" element={<AdminProfile />} />
                 </Route>
 
                 {/* Error page */}

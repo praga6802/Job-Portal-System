@@ -16,4 +16,6 @@ public interface AdminRepository extends JpaRepository<Admin,Integer> {
     Optional<Admin> findByEmail(String email);
 
     Optional<Admin> findByUserUserId(Integer adminId);
+
+    boolean existsByEmailIgnoreCaseAndAdminIdNot(String email, Integer adminId);
 }

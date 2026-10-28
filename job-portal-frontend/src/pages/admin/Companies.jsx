@@ -51,7 +51,7 @@ const Companies = () => {
         <div className="space-y-6 m-5">
             <div className="bg-blue-950 p-3 rounded-lg">
                 <h1 className="text-2xl font-bold text-yellow-500">
-                    Company Management
+                    Company List
                 </h1>
                 <p className="mt-1 text-sm text-slate-100">
                     View and manage all registered companies on the platform.
