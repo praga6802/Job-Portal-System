@@ -131,18 +131,19 @@ const Footer = () => {
 
                                 <li>
                                     <Link
-                                        to="/candidate/signup"
+                                        to="/contact"
                                         className="transition hover:text-blue-300"
                                     >
-                                        Candidate Registration
+                                        Contact
                                     </Link>
                                 </li>
+
                                 <li>
                                     <Link
-                                        to="/company/signup"
+                                        to="/about"
                                         className="transition hover:text-blue-300"
                                     >
-                                        Company Registration
+                                        About
                                     </Link>
                                 </li>
                             </ul>
@@ -171,6 +172,24 @@ const Footer = () => {
                                         Browse Jobs
                                     </Link>
                                 </li>
+
+                                <li>
+                                    <Link
+                                        to="/candidate/signup"
+                                        className="transition hover:text-blue-300"
+                                    >
+                                        Candidate Register
+                                    </Link>
+                                </li>
+
+                                <li>
+                                    <Link
+                                        to="/company/signup"
+                                        className="transition hover:text-blue-300"
+                                    >
+                                        Company Register
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
 
@@ -194,7 +213,7 @@ const Footer = () => {
                 </>
             )}
 
-            <div className="bg-blue-800 py-2 text-center font-medium text-gray-200">
+            <div className="bg-blue-950 py-2 text-center font-medium text-gray-200">
                 <p>
                     © {new Date().getFullYear()} JobPortal. All rights reserved.
                 </p>
