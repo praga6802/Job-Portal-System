@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
+import axiosInstance from "../services/api.js";
 
 const Navbar = () => {
     const [candidate, setCandidate] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const fetchCandidate = async () => {
@@ -19,7 +22,19 @@ const Navbar = () => {
             }
         };
         fetchCandidate();
-    }, []);
+    }, [location.pathname]);
+
+    const handleLogout = async () => {
+        try {
+            await axiosInstance.post(`/auth/logout`);
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            setCandidate(null);
+            navigate("/login", { replace: true });
+        } catch (err) {
+            console.error("Error logging out", err);
+        }
+    };
 
     return (
         <nav className="relative flex items-center bg-blue-950 px-8 py-4 text-white">
@@ -59,7 +74,8 @@ const Navbar = () => {
 
             <div className="ml-auto">
                 {candidate ? (
-                    <select defaultValue="hello"
+                    <select
+                        defaultValue="hello"
                         onChange={(e) => {
                             const value = e.target.value;
 
@@ -71,7 +87,7 @@ const Navbar = () => {
 
                             e.target.value = "hello";
                         }}
-                        className="cursor-pointer rounded-lg border-2 border-yellow-400 bg-blue-950 px-3 py-2 font-semibold text-yellow-400 outline-none"
+                        className="cursor-pointer rounded-lg bg-white border-none px-3 py-2 font-semibold text-black outline-none"
                     >
                         <option value="hello">
                             Hello, {candidate.firstname}

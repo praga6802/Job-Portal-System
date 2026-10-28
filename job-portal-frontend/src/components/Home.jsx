@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiInstance from "../services/api.js";
 import suitcase from "../assets/suitcase.png";
 const Home = () => {
+    const [candidate, setCandidate] = useState(null);
+
+    useEffect(() => {
+        const fetchCandidate = async () => {
+            try {
+                const response = await apiInstance.get(
+                    "/auth/candidate/current",
+                );
+                setCandidate(response.data.data);
+            } catch (error) {
+                setCandidate(null);
+            }
+        };
+
+        fetchCandidate();
+    }, []);
+
     const categories = [
         { name: "Software Development", icon: "💻", jobs: "60+ Jobs" },
         { name: "Data Science", icon: "📊", jobs: "20+ Jobs" },
@@ -191,31 +209,33 @@ const Home = () => {
             </section>
 
             {/* Call to action */}
-            <section className="bg-blue-950 px-6 py-16 text-center text-white">
-                <h2 className="text-3xl font-bold">
-                    Ready to Take the Next Step?
-                </h2>
-                <p className="mx-auto mt-4 max-w-xl text-blue-200">
-                    Create your account, explore opportunities, and move closer
-                    to your career goals.
-                </p>
+            {!candidate && (
+                <section className="bg-blue-950 px-6 py-16 text-center text-white">
+                    <h2 className="text-3xl font-bold">
+                        Ready to Take the Next Step?
+                    </h2>
+                    <p className="mx-auto mt-4 max-w-xl text-blue-200">
+                        Create your account, explore opportunities, and move
+                        closer to your career goals.
+                    </p>
 
-                <div className="mt-8 flex flex-wrap justify-center gap-4">
-                    <Link
-                        to="/candidate/signup"
-                        className="rounded-lg bg-yellow-400 px-6 py-3 font-bold text-blue-950 transition hover:bg-yellow-300"
-                    >
-                        Create Account
-                    </Link>
+                    <div className="mt-8 flex flex-wrap justify-center gap-4">
+                        <Link
+                            to="/candidate/signup"
+                            className="rounded-lg bg-yellow-400 px-6 py-3 font-bold text-blue-950 transition hover:bg-yellow-300"
+                        >
+                            Create Account
+                        </Link>
 
-                    <Link
-                        to="/login"
-                        className="rounded-lg border border-white px-6 py-3 font-semibold text-white transition hover:bg-white hover:text-blue-950"
-                    >
-                        Login
-                    </Link>
-                </div>
-            </section>
+                        <Link
+                            to="/login"
+                            className="rounded-lg border border-white px-6 py-3 font-semibold text-white transition hover:bg-white hover:text-blue-950"
+                        >
+                            Login
+                        </Link>
+                    </div>
+                </section>
+            )}
         </div>
     );
 };
