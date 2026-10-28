@@ -22,7 +22,7 @@ public class Company {
     private String email;
     private String url;
     private String type;
-
+    private String industry;
     @Column(name = "size")
     private String size;
     private String location;
@@ -33,6 +33,14 @@ public class Company {
     @JoinColumn(name = "user_id")
     private Users user; // Foreign key to Users table
 
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
 
     // Default Constructor
     public Company() {}

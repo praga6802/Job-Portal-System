@@ -17,6 +17,7 @@ public class CompanyRegisterDTO {
     private String url;
     private String size;
     private String type;
+    private String industry;
     private String location;
     private String gst;
 }

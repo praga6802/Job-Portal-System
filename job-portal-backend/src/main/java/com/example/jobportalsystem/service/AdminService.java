@@ -154,9 +154,9 @@ public class AdminService {
                 .collect(Collectors.toList());
 
         if (adminList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No admins Found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "No admins Found!"));
         }
-        return ResponseEntity.ok(adminList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Companies Fetched Successfully",adminList));
     }
 
     // get all candidates
@@ -164,9 +164,9 @@ public class AdminService {
         List<CandidateResponseDTO> candidateList = candidateRepository.findAll().stream().
                 map(CandidateResponseDTO::new).collect(Collectors.toList());
         if (candidateList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Candidates Found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "No Candidates Found!"));
         }
-        return ResponseEntity.ok(candidateList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Companies Fetched Successfully",candidateList));
     }
 
     // get all companies
@@ -174,9 +174,9 @@ public class AdminService {
         List<CompanyDTO> companyList = companyRepository.findAll().stream().
                 map(CompanyDTO::new).collect(Collectors.toList());
         if (companyList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No Companies Found!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "No Companies Found!"));
         }
-        return ResponseEntity.ok(companyList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Companies Fetched Successfully",companyList));
     }
 
     // get admin by ID

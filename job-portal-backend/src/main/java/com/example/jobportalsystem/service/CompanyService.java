@@ -113,6 +113,10 @@ public class CompanyService {
             c1.setType(company.getType());
         }
 
+        if(company.getIndustry()!=null && !company.getIndustry().isEmpty()){
+            c1.setIndustry(company.getIndustry());
+        }
+
         if(company.getGst()!=null && !company.getGst().isEmpty()){
             c1.setGst(company.getGst());
         }
@@ -188,6 +192,13 @@ public class CompanyService {
             if (!comp.getType().equals(company.getType())) {
                 comp.setType(company.getType());
                 updatedFields.add("Type");
+            }
+        }
+
+        if (company.getIndustry() != null && !company.getIndustry().trim().isEmpty()) {
+            if (!comp.getIndustry().equals(company.getIndustry())) {
+                comp.setIndustry(company.getIndustry());
+                updatedFields.add("Industry");
             }
         }
 

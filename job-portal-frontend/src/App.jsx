@@ -22,6 +22,7 @@ import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageApplicants from "./pages/company/ManageApplicants";
 import UpdateJob from "./pages/company/UpdateJob";
+import Companies from "./pages/admin/Companies";
 
 const App = () => {
     return (
@@ -50,7 +51,10 @@ const App = () => {
                     <Route path="post-job" element={<PostJob />} />
                     <Route path="profile" element={<CompanyUpdate />} />
                     <Route path="manage-jobs" element={<ManageJobs />} />
-                    <Route path="update-job/:jobId" element={<UpdateJob/>}></Route>
+                    <Route
+                        path="update-job/:jobId"
+                        element={<UpdateJob />}
+                    ></Route>
                     <Route
                         path="manage-applicants"
                         element={<ManageApplicants />}
@@ -60,6 +64,7 @@ const App = () => {
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="manage-jobs" element={<ManageJob />} />
+                    <Route path="companies" element={<Companies />} />
                 </Route>
 
                 {/* Error page */}

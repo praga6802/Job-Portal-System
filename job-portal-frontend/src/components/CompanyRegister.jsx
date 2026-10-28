@@ -12,6 +12,7 @@ const CompanyRegister = () => {
         url: "",
         size: "",
         type: "",
+        industry:"",
         location: "",
         gst: "",
     };
@@ -173,7 +174,20 @@ const CompanyRegister = () => {
                             type="text"
                             id="type"
                             name="type"
-                            placeholder="e.g. IT Services"
+                            placeholder="e.g. Private, .."
+                            value={formData.type}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="company-form-field">
+                        <label htmlFor="industry">Industry Type</label>
+                        <input
+                            type="text"
+                            id="industry"
+                            name="industry"
+                            placeholder="e.g. IT Service, Marketing, .."
                             value={formData.type}
                             onChange={handleChange}
                             required

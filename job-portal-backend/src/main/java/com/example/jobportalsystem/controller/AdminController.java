@@ -35,59 +35,59 @@ public class AdminController {
     }
 
     // get all Admins
-    @GetMapping("/get-admins")
+    @GetMapping("/admins")
     public ResponseEntity<?> getAdmins(){
         return adminService.getAdmins();
     }
 
 
     // get all Candidates
-    @GetMapping("/get-candidates")
+    @GetMapping("/candidates")
     public ResponseEntity<?> getCandidates(){
         return adminService.getCandidates();
     }
 
 
     // get all Companies
-    @GetMapping("/get-companies")
+    @GetMapping("/companies")
     public ResponseEntity<?> getCompanies(){
         return adminService.getCompanies();
     }
 
 
     //get Admin details by ID
-    @GetMapping("/getAdmin/{id}")
+    @GetMapping("/admin/{id}")
     public ResponseEntity<?> getAdmin(@PathVariable Integer id){
         return adminService.getAdmin(id);
     }
 
 
     //get Candidate details by ID
-    @GetMapping("/getCandidate/{id}")
+    @GetMapping("/candidate/{id}")
     public ResponseEntity<?> getCandidate(@PathVariable Integer id){
         return adminService.getCandidate(id);
     }
 
     //get Company details by ID
-    @GetMapping("/getCompany/{id}")
+    @GetMapping("/company/{id}")
     public ResponseEntity<?> getCompany(@PathVariable Integer id){
         return adminService.getCompany(id);
     }
 
     // Delete Candidate by ID
-    @DeleteMapping("/deleteCandidate/{candidateId}")
+    @DeleteMapping("/delete/candidate/{candidateId}")
     public ResponseEntity<?> deleteCandidate(@PathVariable Integer candidateId){
         return adminService.deleteCandidate(candidateId);
     }
 
     // Delete Company by ID
-    @DeleteMapping("/deleteCompany/{companyId}")
+    @DeleteMapping("/delete/company/{companyId}")
     public ResponseEntity<?> deleteCompany(@PathVariable Integer companyId){
         return adminService.deleteCompany(companyId);
     }
 
     // Delete Admin By ID
-    @DeleteMapping("/deleteAdmin/{adminId}")
+    @DeleteMapping("/delete/admin/{adminId}")
     public ResponseEntity<?> deleteAdmin(@PathVariable Integer adminId, Authentication authentication){
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         Integer currentAdminId=userDetails.getUserId();
@@ -96,19 +96,19 @@ public class AdminController {
     }
     
     // Delete all Admins
-    @DeleteMapping("/delete-admins")
+    @DeleteMapping("/delete/admins")
     public ResponseEntity<?> deleteAdmins(@AuthenticationPrincipal Users user){
         return adminService.deleteAdmins(user.getUserId());
     }
 
     // Delete all Candidates
-    @DeleteMapping("/delete-candidates")
+    @DeleteMapping("/delete/candidates")
     public ResponseEntity<?> deleteCandidates(){
         return adminService.deleteCandidates();
     }
 
     // Delete all Companies
-    @DeleteMapping("/delete-companies")
+    @DeleteMapping("/delete/companies")
     public ResponseEntity<?> deleteCompanies(){
         return adminService.deleteCompanies();
     }

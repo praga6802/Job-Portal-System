@@ -13,6 +13,7 @@ public class CompanyDTO {
     private String contact;
     private String url;
     private String type;
+    private String industry;
     private String size;
     private String location;
     private String gst;
@@ -28,5 +29,6 @@ public class CompanyDTO {
         this.size=company.getSize();
         this.location=company.getLocation();
         this.gst=company.getGst();
+        this.industry=company.getIndustry();
     }
 }
