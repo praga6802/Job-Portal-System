@@ -80,7 +80,7 @@ const Navbar = () => {
                             const value = e.target.value;
 
                             if (value === "profile") {
-                                navigate("/candidate/profile");
+                                navigate("/candidate/dashboard");
                             } else if (value === "logout") {
                                 handleLogout();
                             }

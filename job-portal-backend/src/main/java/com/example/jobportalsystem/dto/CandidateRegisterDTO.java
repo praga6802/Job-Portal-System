@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ public class CandidateRegisterDTO {
     private String password;
     private String contact;
     private String location;
-    private String dob;
+    private LocalDate dob;
     private String skills;
     private String experience;
 }

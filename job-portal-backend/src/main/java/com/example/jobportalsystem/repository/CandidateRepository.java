@@ -20,4 +20,8 @@ public interface CandidateRepository extends JpaRepository<Candidate,Integer> {
 
     @Query("SELECT COUNT(c) FROM Candidate c")
     Long getTotalCandidates();
+
+    boolean existsByEmailAndCandidateIdNot(String email, Integer candidateId);
+
+    boolean existsByContactAndCandidateIdNot(String contact, Integer candidateId);
 }

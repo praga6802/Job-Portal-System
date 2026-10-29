@@ -10,6 +10,8 @@ const CompanySidebar = () => {
         localStorage.removeItem("role");
         navigate("/login", { replace: true });
     };
+
+    
     return (
         <>
             <aside className="min-h-screen m-0 bg-blue-950 w-50 text-white flex flex-col justify-between ">

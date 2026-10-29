@@ -4,7 +4,7 @@ import CompanyRegister from "./components/CompanyRegister";
 import AdminRegister from "./components/AdminRegister";
 import Login from "./components/Login";
 import Error from "./components/Error";
-import Navbar from "./components/Navbar";
+
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
@@ -26,6 +26,10 @@ import Companies from "./pages/admin/Companies";
 import Admins from "./pages/admin/Admins";
 import Candidates from "./pages/admin/Candidates";
 import AdminProfile from "./pages/admin/AdminProfile";
+import CandidateLayout from "./components/CandidateLayout";
+import CandidateProfile from "../src/pages/candidate/CandidateProfile";
+import CandidateDashboard from "../src/pages/candidate/CandidateDashboard";
+import ManageApplications from "./pages/candidate/ManageApplications";
 
 const App = () => {
     return (
@@ -34,7 +38,7 @@ const App = () => {
                 {/* public page */}
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<Home />} />
-                    
+
                     <Route path="/admin/signup" element={<AdminRegister />} />
                     <Route
                         path="/candidate/signup"
@@ -47,6 +51,13 @@ const App = () => {
                     <Route path="login" element={<Login />} />
                     <Route path="contact" element={<Contact />} />
                     <Route path="about" element={<About />} />
+                </Route>
+
+                {/* Candidate Layout */}
+                <Route path="/candidate" element={<CandidateLayout />}>
+                    <Route path="dashboard" element={<CandidateDashboard />} />
+                    <Route path="manage-applications" element={<ManageApplications />} />
+                    <Route path="profile" element={<CandidateProfile />} />
                 </Route>
 
                 {/* company page */}

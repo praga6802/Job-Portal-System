@@ -3,6 +3,9 @@ package com.example.jobportalsystem.entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Entity
 @DynamicUpdate
@@ -18,7 +21,7 @@ public class Candidate {
     private String contact;
 
 
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
     private String skills;
     private String experience;
     private String location;
@@ -57,11 +60,11 @@ public class Candidate {
     }
 
 
-    public String getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

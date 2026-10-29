@@ -36,7 +36,6 @@ public class CandidateController {
     // update candidate details
     @PutMapping("/update")
     public  ResponseEntity<?> updateCandidate(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody CandidateRegisterDTO candidate){
-        System.out.println("Log in candidate: "+userDetails.getUsername());
         return candidateService.updateCandidate(userDetails.getUserId(),candidate);
     }
 
@@ -56,11 +55,67 @@ public class CandidateController {
     }
 
 
-    // view applied jobs
-    @GetMapping("/applied-jobs")
+    // view applications
+    @GetMapping("/applications")
     public ResponseEntity<?> viewAppliedJobs(@AuthenticationPrincipal MyUserDetails userDetails) {
         return candidateService.viewAppliedJobs(userDetails.getUserId());
     }
+
+    // view selected applications
+    @GetMapping("/applications/selected")
+    public ResponseEntity<?> viewSelectedApplications(@AuthenticationPrincipal MyUserDetails userDetails) {
+        return candidateService.viewSelectedApplications(userDetails.getUserId());
+    }
+
+    // view rejected applications
+    @GetMapping("/applications/rejected")
+    public ResponseEntity<?> viewRejectedApplications(@AuthenticationPrincipal MyUserDetails userDetails) {
+        return candidateService.viewRejectedApplications(userDetails.getUserId());
+    }
+
+    // view shortlisted applications
+    @GetMapping("/applications/shortlisted")
+    public ResponseEntity<?> viewShortlistedApplications(@AuthenticationPrincipal MyUserDetails userDetails) {
+        return candidateService.viewShortlistedApplications(userDetails.getUserId());
+    }
+
+    // view under-review applications
+    @GetMapping("/applications/under-review")
+    public ResponseEntity<?> viewUnderReviewApplications(@AuthenticationPrincipal MyUserDetails userDetails) {
+        return candidateService.viewUnderReviewApplications(userDetails.getUserId());
+    }
+
+    @GetMapping("/applied-jobs-count")
+    public ResponseEntity<?> viewAppliedJobsCount(@AuthenticationPrincipal MyUserDetails userDetails) {
+        System.out.println("User ID:"+userDetails.getUserId());
+        return candidateService.viewAppliedJobsCount(userDetails.getUserId());
+    }
+
+    @GetMapping("/selected-count")
+    public ResponseEntity<?> viewSelectedCount(@AuthenticationPrincipal MyUserDetails userDetails) {
+        System.out.println("User ID:"+userDetails.getUserId());
+        return candidateService.viewSelectedCount(userDetails.getUserId());
+    }
+
+    @GetMapping("/rejected-count")
+    public ResponseEntity<?> viewRejectedCount(@AuthenticationPrincipal MyUserDetails userDetails) {
+        System.out.println("User ID:"+userDetails.getUserId());
+        return candidateService.viewRejectedCount(userDetails.getUserId());
+    }
+
+    @GetMapping("/shortlisted-count")
+    public ResponseEntity<?> viewShortlistedCount(@AuthenticationPrincipal MyUserDetails userDetails) {
+        System.out.println("User ID:"+userDetails.getUserId());
+        return candidateService.viewShortlistedCount(userDetails.getUserId());
+    }
+
+    @GetMapping("/under-review-count")
+    public ResponseEntity<?> viewUnderReviewCount(@AuthenticationPrincipal MyUserDetails userDetails) {
+        System.out.println("User ID:"+userDetails.getUserId());
+        return candidateService.viewUnderReviewCount(userDetails.getUserId());
+    }
+
+
 
 
     // ----------------------- RESUME features ---------------------------

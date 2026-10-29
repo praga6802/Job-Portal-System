@@ -3,6 +3,8 @@ package com.example.jobportalsystem.dto;
 import com.example.jobportalsystem.entity.Candidate;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class CandidateResponseDTO {
 
@@ -11,9 +13,10 @@ public class CandidateResponseDTO {
     private String lastname;
     private String email;
     private String contact;
-    private String dob;
+    private LocalDate dob;
     private String skills;
     private String experience;
+    private String location;
 
 
     public CandidateResponseDTO(Candidate candidate){
@@ -25,6 +28,7 @@ public class CandidateResponseDTO {
         this.dob=candidate.getDateOfBirth();
         this.skills=candidate.getSkills();
         this.experience=candidate.getExperience();
+        this.location=candidate.getLocation();
 
     }
 

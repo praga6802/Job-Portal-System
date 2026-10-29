@@ -2,6 +2,7 @@ package com.example.jobportalsystem.service;
 
 import com.example.jobportalsystem.dto.*;
 import com.example.jobportalsystem.entity.*;
+import com.example.jobportalsystem.enums.ApplicationStatus;
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
@@ -98,8 +99,8 @@ public class CandidateService {
             verifyCandidate.setLocation(candidate.getLocation().trim());
         }
 
-        if (candidate.getDob() != null && !candidate.getDob().isBlank()) {
-            verifyCandidate.setDateOfBirth(candidate.getDob().trim());
+        if (candidate.getDob() != null) {
+            verifyCandidate.setDateOfBirth(candidate.getDob());
         }
 
         if (candidate.getExperience() != null && !candidate.getExperience().isBlank()) {
@@ -118,12 +119,11 @@ public class CandidateService {
 
     // Update Candidate Details
     @Transactional
-    public ResponseEntity<?> updateCandidate(Integer candidateId, CandidateRegisterDTO candidate) {
+    public ResponseEntity<?> updateCandidate(Integer userId, CandidateRegisterDTO candidate) {
         List<String> updatedFields = new ArrayList<>();
         String newToken = null;
 
-        Users user = usersRepository.findById(candidateId).orElseThrow(() -> new NotFoundException("User not found!"));
-        Candidate cand = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found!"));
+        Candidate cand = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found!"));
 
 
         if (candidate.getFirstname() != null && !candidate.getFirstname().trim().isEmpty()) {
@@ -137,13 +137,10 @@ public class CandidateService {
         }
 
         if (candidate.getEmail() != null && !candidate.getEmail().trim().isEmpty()) {
-            if (cand.getEmail().equals(candidate.getEmail())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same email"));
-            }
-            if (candidateRepository.existsByEmail(candidate.getEmail()) || usersRepository.existsByEmail(candidate.getEmail())) {
+            if (candidateRepository.existsByEmailAndCandidateIdNot(candidate.getEmail(), cand.getCandidateId()) || usersRepository.existsByEmailAndUserIdNot(candidate.getEmail(), cand.getUser().getUserId())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Email already taken!"));
             }
-            VerifyCandidate verifyCandidate = new VerifyCandidate();
+            VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(candidate.getEmail()).orElseGet(VerifyCandidate::new);
             verifyCandidate.setEmail(candidate.getEmail());
             verifyCandidateRepository.save(verifyCandidate);
 
@@ -151,19 +148,16 @@ public class CandidateService {
         }
 
         if (candidate.getContact() != null && !candidate.getContact().trim().isEmpty()) {
-            if (cand.getContact().equals(candidate.getContact())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Do not enter same contact!"));
-            }
 
-            if (candidateRepository.existsByContact(candidate.getContact())) {
+            if (candidateRepository.existsByContactAndCandidateIdNot(candidate.getContact(),cand.getCandidateId())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "Contact already registered!"));
             }
             cand.setContact(candidate.getContact().trim());
             updatedFields.add("Contact");
         }
 
-        if (candidate.getDob() != null && !candidate.getDob().trim().isEmpty()) {
-            cand.setDateOfBirth(candidate.getDob().trim());
+        if (candidate.getDob() != null) {
+            cand.setDateOfBirth(candidate.getDob());
             updatedFields.add("Date of Birth");
         }
 
@@ -175,6 +169,11 @@ public class CandidateService {
         if (candidate.getSkills() != null && !candidate.getSkills().trim().isEmpty()) {
             cand.setSkills(candidate.getSkills().trim());
             updatedFields.add("Skills");
+        }
+
+        if (candidate.getLocation() != null && !candidate.getLocation().trim().isEmpty()) {
+            cand.setLocation(candidate.getSkills().trim());
+            updatedFields.add("Location");
         }
         candidateRepository.save(cand);
 
@@ -244,8 +243,64 @@ public class CandidateService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No jobs were applied!"));
         }
 
-        List<ApplicationStatusDTO> statusList = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
-        return ResponseEntity.ok(statusList);
+        List<ApplicationStatusDTO> appliedJobs = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applied Jobs Fetched Successfully",appliedJobs));
+    }
+
+    public ResponseEntity<?> viewSelectedApplications(Integer userId) {
+
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + userId));
+
+        List<JobApplication> jobApplications = jobApplicationRepository.findByCandidateAndStatus(candidate,ApplicationStatus.SELECTED);
+
+        if (jobApplications.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No SELECTED applications found!"));
+        }
+
+        List<ApplicationStatusDTO> selectedApplications = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","SELECTED Applications Fetched Successfully",selectedApplications));
+    }
+
+    public ResponseEntity<?> viewRejectedApplications(Integer userId) {
+
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + userId));
+
+        List<JobApplication> jobApplications = jobApplicationRepository.findByCandidateAndStatus(candidate,ApplicationStatus.REJECTED);
+
+        if (jobApplications.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No REJECTED applications found!"));
+        }
+
+        List<ApplicationStatusDTO> rejectedApplications = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","REJECTED Applications Fetched Successfully",rejectedApplications));
+    }
+
+    public ResponseEntity<?> viewShortlistedApplications(Integer userId) {
+
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + userId));
+
+        List<JobApplication> jobApplications = jobApplicationRepository.findByCandidateAndStatus(candidate,ApplicationStatus.SHORTLISTED);
+
+        if (jobApplications.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No SHORTLISTED applications found!"));
+        }
+
+        List<ApplicationStatusDTO> shortlistedApplications = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","SHORTLISTED Applications Fetched Successfully",shortlistedApplications));
+    }
+
+    public ResponseEntity<?> viewUnderReviewApplications(Integer userId) {
+
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found with id: " + userId));
+
+        List<JobApplication> jobApplications = jobApplicationRepository.findByCandidateAndStatus(candidate,ApplicationStatus.UNDER_REVIEW);
+
+        if (jobApplications.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "No UNDER-REVIEW applications found!"));
+        }
+
+        List<ApplicationStatusDTO> underReviewApplications = jobApplications.stream().map(ApplicationStatusDTO::new).toList();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","UNDER-REVIEW Applications Fetched Successfully",underReviewApplications));
     }
 
     // RESUME FEATURES
@@ -511,4 +566,57 @@ public class CandidateService {
         Candidate candidate = candidateRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please try again"));
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Candidate Fetched Successfully",new CandidateResponseDTO(candidate)));
     }
+
+    public ResponseEntity<?> viewAppliedJobsCount(Integer userId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+
+        Long appliedJobsCount = jobApplicationRepository.countByCandidate_CandidateId(candidate.getCandidateId());
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applied Count fetched Successfully",appliedJobsCount));
+    }
+
+
+
+
+
+    public ResponseEntity<?> viewSelectedCount(Integer candidateId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+        System.out.println("Logged-in candidate ID: " + candidate.getCandidateId());
+
+        Long selectedCount = jobApplicationRepository.countByCandidate_CandidateIdAndStatus(candidate.getCandidateId(), ApplicationStatus.SELECTED);
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Selected Count fetched Successfully",selectedCount));
+
+    }
+
+    public ResponseEntity<?> viewRejectedCount(Integer candidateId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+        System.out.println("Logged-in candidate ID: " + candidate.getCandidateId());
+
+        Long rejectedCount = jobApplicationRepository.countByCandidate_CandidateIdAndStatus(candidate.getCandidateId(), ApplicationStatus.REJECTED);
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Rejected Count fetched Successfully",rejectedCount));
+    }
+
+
+    public ResponseEntity<?> viewShortlistedCount(Integer candidateId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+        System.out.println("Logged-in candidate ID: " + candidate.getCandidateId());
+
+        Long shortlistedCount = jobApplicationRepository.countByCandidate_CandidateIdAndStatus(candidate.getCandidateId(), ApplicationStatus.SHORTLISTED);
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Shortlisted Count fetched Successfully",shortlistedCount));
+    }
+
+
+    public ResponseEntity<?> viewUnderReviewCount(Integer candidateId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(()-> new NotFoundException("Candidate not found"));
+        System.out.println("Logged-in candidate ID: " + candidate.getCandidateId());
+
+        Long underReviewCount = jobApplicationRepository.countByCandidate_CandidateIdAndStatus(candidate.getCandidateId(), ApplicationStatus.UNDER_REVIEW);
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","UnderReviewCount Count fetched Successfully",underReviewCount));
+    }
+
+
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +27,7 @@ public class VerifyCandidate {
     private String contact;
     private String password;
 
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
     private String location;
 
     private String experience;
