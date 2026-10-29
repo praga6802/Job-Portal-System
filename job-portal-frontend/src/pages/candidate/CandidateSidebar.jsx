@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "../../styles/sidebar.css";
 
 const CandidateSidebar = () => {
@@ -10,6 +10,8 @@ const CandidateSidebar = () => {
         localStorage.removeItem("role");
         navigate("/login", { replace: true });
     };
+
+    const isActive = ({ isActive }) => (isActive ? "active" : "");
 
     return (
         <>
@@ -24,24 +26,33 @@ const CandidateSidebar = () => {
                     <div className="sidebar">
                         <ul className="bg-black p-4 w-full">
                             <li className="sidebar-link">
-                                <Link to="/candidate/dashboard">
+                                <NavLink
+                                    to="/candidate/dashboard"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-border-all !text-blue-500 bg-blue-50 border border-2 border-blue-200"></i>
                                     Dashboard
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/candidate/profile">
+                                <NavLink
+                                    to="/candidate/profile"
+                                    className={isActive}
+                                >
                                     <i className="fa-regular fa-user !text-green-500 bg-green-50 border border-2 border-green-600"></i>
                                     Candidate Profile
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/candidate/manage-applications">
+                                <NavLink
+                                    to="/candidate/manage-applications"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-suitcase !text-yellow-500 bg-yellow-50 border border-2 border-yellow-200"></i>{" "}
                                     Applications
-                                </Link>
+                                </NavLink>
                             </li>
                         </ul>
                     </div>

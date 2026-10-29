@@ -11,7 +11,8 @@ const CompanySidebar = () => {
         navigate("/login", { replace: true });
     };
 
-    
+    const isActive = ({ isActive }) => (isActive ? "active" : "");
+
     return (
         <>
             <aside className="min-h-screen m-0 bg-blue-950 w-50 text-white flex flex-col justify-between ">
@@ -25,38 +26,53 @@ const CompanySidebar = () => {
                     <div className="sidebar">
                         <ul className="bg-black p-4 w-full">
                             <li className="sidebar-link">
-                                <Link to="/company/dashboard">
+                                <NavLink
+                                    to="/company/dashboard"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-border-all !text-blue-500 bg-blue-50 border border-2 border-blue-200"></i>
                                     Dashboard
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/company/profile">
+                                <NavLink
+                                    to="/company/profile"
+                                    className={isActive}
+                                >
                                     <i className="fa-regular fa-building !text-green-500 bg-green-50 border border-2 border-green-600"></i>
                                     Company Profile
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/company/post-job">
+                                <NavLink
+                                    to="/company/post-job"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-circle-plus !text-yellow-500 bg-yellow-50 border border-2 border-yellow-200"></i>{" "}
                                     Post Job
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/company/manage-jobs">
+                                <NavLink
+                                    to="/company/manage-jobs"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-chart-gantt !text-orange-500 bg-orange-50 border border-2 border-orange-200"></i>{" "}
                                     Manage Jobs
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/company/manage-applicants">
+                                <NavLink
+                                    to="/company/manage-applicants"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-users !text-green-500 bg-green-50 border border-2 border-green-600"></i>{" "}
                                     Applicants
-                                </Link>
+                                </NavLink>
                             </li>
                         </ul>
                     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, NavLink } from "react-router-dom";
 import "../../styles/sidebar.css";
 
 const AdminSidebar = () => {
@@ -10,6 +10,8 @@ const AdminSidebar = () => {
         localStorage.removeItem("role");
         navigate("/login", { replace: true });
     };
+
+    const isActive = ({ isActive }) => (isActive ? "active" : "");
 
     return (
         <>
@@ -24,45 +26,63 @@ const AdminSidebar = () => {
                     <div className="sidebar">
                         <ul className="bg-black p-4 w-full">
                             <li className="sidebar-link">
-                                <Link to="/admin/dashboard">
+                                <NavLink
+                                    to="/admin/dashboard"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-border-all !text-blue-500 bg-blue-50 border border-2 border-blue-200"></i>
                                     Dashboard
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/companies">
+                                <NavLink
+                                    to="/admin/companies"
+                                    className={isActive}
+                                >
                                     <i className="fa-regular fa-building !text-red-500 bg-red-50 border border-2 border-red-200"></i>
                                     Companies
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/candidates">
+                                <NavLink
+                                    to="/admin/candidates"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-users !text-green-500 bg-green-50 border border-2 border-green-200"></i>
                                     Candidates
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/admins">
+                                <NavLink
+                                    to="/admin/admins"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-user-tie !text-green-500 bg-green-50 border border-2 border-green-200"></i>
                                     Admins
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/manage-jobs">
+                                <NavLink
+                                    to="/admin/manage-jobs"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-briefcase !text-yellow-500 bg-yellow-50 border border-2 border-yellow-200"></i>{" "}
                                     Manage Jobs
-                                </Link>
+                                </NavLink>
                             </li>
 
                             <li className="sidebar-link">
-                                <Link to="/admin/profile">
+                                <NavLink
+                                    to="/admin/profile"
+                                    className={isActive}
+                                >
                                     <i className="fa-solid fa-gear !text-black bg-blue-50 border border-2"></i>{" "}
                                     Profile
-                                </Link>
+                                </NavLink>
                             </li>
                         </ul>
                     </div>

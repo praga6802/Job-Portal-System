@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, NavLink } from "react-router-dom";
 import logo from "../assets/logo.png";
 import axiosInstance from "../services/api.js";
 
@@ -36,6 +36,13 @@ const Navbar = () => {
         }
     };
 
+    const navLinkClass = ({ isActive }) =>
+        `transition-colors ${
+            isActive
+                ? "bg-yellow-600 text-white px-5 py-2 rounded-lg"
+                : "text-white hover:text-yellow-400 px-2 py-1"
+        }`;
+
     return (
         <nav className="relative flex items-center bg-blue-950 px-8 py-4 text-white">
             <Link to="/" className="flex items-center gap-2">
@@ -51,24 +58,24 @@ const Navbar = () => {
 
             <ul className="absolute left-1/2 flex -translate-x-1/2 list-none items-center gap-20 font-bold">
                 <li>
-                    <Link to="/" className="hover:text-yellow-400">
+                    <NavLink to="/" className={navLinkClass}>
                         Home
-                    </Link>
+                    </NavLink>
                 </li>
                 <li>
-                    <Link to="/jobs" className="hover:text-yellow-400">
+                    <NavLink to="/jobs" className={navLinkClass}>
                         Jobs
-                    </Link>
+                    </NavLink>
                 </li>
                 <li>
-                    <Link to="/about" className="hover:text-yellow-400">
+                    <NavLink to="/about" className={navLinkClass}>
                         About
-                    </Link>
+                    </NavLink>
                 </li>
                 <li>
-                    <Link to="/contact" className="hover:text-yellow-400">
+                    <NavLink to="/contact" className={navLinkClass}>
                         Contact
-                    </Link>
+                    </NavLink>
                 </li>
             </ul>
 
