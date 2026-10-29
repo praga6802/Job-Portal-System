@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import CompanySidebar from "../pages/company/CompanySidebar";
-import CompanyNavbar from "../pages/company/CompanyNavbar";
 import axiosInstance from "../services/api.js";
 import Navbar from "./Navbar.jsx";
 import CandidateSidebar from "../pages/candidate/CandidateSidebar.jsx";

@@ -95,7 +95,7 @@ public class AuthService {
         }
         List<JobResponseDTO> jobList = jobs.stream().map(JobResponseDTO::new).toList();
 
-        return ResponseEntity.ok(jobList);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Jobs Fetched Successfully",jobList));
     }
 
 

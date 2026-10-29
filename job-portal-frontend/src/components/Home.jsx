@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiInstance from "../services/api.js";
 import suitcase from "../assets/suitcase.png";
+import Jobs from "./Jobs.jsx";
+import FeaturedJobs from "./FeaturedJobs.jsx";
 const Home = () => {
     const [candidate, setCandidate] = useState(null);
 
@@ -159,52 +161,9 @@ const Home = () => {
                         </Link>
                     </div>
 
-                    <div className="grid gap-6 lg:grid-cols-2 md:grid-cols-2">
-                        {jobs.map((job) => (
-                            <article
-                                key={job.title}
-                                className="rounded-xl border border-slate-200 p-6 transition hover:border-blue-300 hover:shadow-lg"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 font-bold text-blue-950">
-                                        {job.company.charAt(0)}
-                                    </div>
-                                    <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
-                                        {job.type}
-                                    </span>
-                                </div>
-
-                                <h3 className="mt-5 text-xl font-bold text-blue-950">
-                                    {job.title}
-                                </h3>
-
-                                <p className="mt-2 text-slate-500">
-                                    {job.company}
-                                </p>
-
-                                <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600">
-                                    <span>📍 {job.location}</span>
-                                    <span>💰 {job.salary}</span>
-                                    <span className="flex gap-2">
-                                        <img
-                                            src={suitcase}
-                                            alt=""
-                                            height={15}
-                                            width={15}
-                                        />
-                                        {job.experience}
-                                    </span>
-                                </div>
-
-                                <Link
-                                    to="/login"
-                                    className="mt-6 block rounded-lg border border-blue-950 px-4 py-2.5 text-center font-semibold text-blue-950 transition hover:bg-yellow-300 hover:text-slate-800 hover:border-none"
-                                >
-                                    Apply Now
-                                </Link>
-                            </article>
-                        ))}
-                    </div>
+                    
+                    <FeaturedJobs/>
+                    
                 </div>
             </section>
 
