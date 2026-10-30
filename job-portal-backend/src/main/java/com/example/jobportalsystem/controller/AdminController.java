@@ -222,4 +222,9 @@ public class AdminController {
     public ResponseEntity<?> getPendingJobsCount(){
         return adminService.getPendingJobsCount();
     }
+
+    @GetMapping("/queries")
+    public ResponseEntity<?> getQueries(){
+        return adminService.getQueries();
+    }
 }

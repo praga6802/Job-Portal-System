@@ -84,6 +84,16 @@ const AdminSidebar = () => {
                                     Profile
                                 </NavLink>
                             </li>
+
+                            <li className="sidebar-link">
+                                <NavLink
+                                    to="/admin/queries"
+                                    className={isActive}
+                                >
+                                    <i class="fa-solid fa-comment-dots !text-blue-500 bg-blue-50 border border-2"></i>{" "}
+                                    Queries
+                                </NavLink>
+                            </li>
                         </ul>
                     </div>
                 </div>

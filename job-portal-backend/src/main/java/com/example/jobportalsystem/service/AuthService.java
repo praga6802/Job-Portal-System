@@ -2,12 +2,14 @@ package com.example.jobportalsystem.service;
 
 
 import com.example.jobportalsystem.dto.*;
+import com.example.jobportalsystem.entity.ContactQuery;
 import com.example.jobportalsystem.entity.Job;
 import com.example.jobportalsystem.entity.Users;
 
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
+import com.example.jobportalsystem.repository.ContactQueryRepository;
 import com.example.jobportalsystem.repository.JobRepository;
 import com.example.jobportalsystem.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class AuthService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private ContactQueryRepository contactQueryRepository;
 
 
     //login feature
@@ -102,5 +107,16 @@ public class AuthService {
     public ResponseEntity<?> findJobCategoriesWithCount() {
         List<JobCategoryDTO> categoryList = jobRepository.findJobCategoriesWithCount();
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Categories fetched Successfully",categoryList));
+    }
+
+    public ResponseEntity<?> postQuery(PostQueryDTO dto) {
+        ContactQuery query = new ContactQuery();
+        query.setFullName(dto.getFullName());
+        query.setEmail(dto.getEmail());
+        query.setContact(dto.getContact());
+        query.setMessage(dto.getMessage());
+
+        contactQueryRepository.save(query);
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Your Query sent Successfully"));
     }
 }

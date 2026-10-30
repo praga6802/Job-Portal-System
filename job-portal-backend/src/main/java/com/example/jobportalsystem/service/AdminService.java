@@ -47,6 +47,9 @@ public class AdminService {
     private UsersRepository usersRepository;
 
     @Autowired
+    private ContactQueryRepository contactQueryRepository;
+
+    @Autowired
     private JWTService jwtService;
 
     // register admin
@@ -463,6 +466,16 @@ public class AdminService {
         job.setStatus(JobStatus.PENDING);
         jobRepository.save(job);
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Job has been moved back to Pending for review!"));
+    }
+
+    public ResponseEntity<?> getQueries() {
+        List<ContactQuery> queries = contactQueryRepository.findAll();
+
+        if(queries.isEmpty()){
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No Queries found"));
+        }
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Queries fetched Successfully",queries));
+
     }
 }
 

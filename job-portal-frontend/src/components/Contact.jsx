@@ -1,7 +1,50 @@
 import React, { useState } from "react";
+import axiosInstance from "../services/api.js";
 
 const Contact = () => {
     const [openFaq, setOpenFaq] = useState(null);
+
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        contact: "",
+        message: "",
+    });
+
+    const [loading, setLoading] = useState(false);
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setLoading(true);
+
+            const response = await axiosInstance.post(
+                "/auth/contact",
+                formData,
+            );
+
+            alert(response.data.message || "Query submitted successfully!");
+
+            setFormData({
+                fullName: "",
+                email: "",
+                contact: "",
+                message: "",
+            });
+        } catch (error) {
+            console.error("Error submitting query:", error);
+
+            alert(
+                error.response?.data?.message ||
+                    "Failed to submit your query. Please try again.",
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const faqs = [
         {
@@ -40,22 +83,19 @@ const Contact = () => {
                             Any Help?
                         </h2>
 
-                        <form
-                            className="space-y-5"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                alert("Your message has been submitted!");
-                            }}
-                        >
+                        <form className="space-y-5" onSubmit={handleSubmit}>
                             <div>
                                 <label className="mb-2 block font-medium text-gray-700">
                                     Full Name
                                 </label>
                                 <input
                                     type="text"
+                                    name="fullName"
+                                    value={formData.fullName}
                                     placeholder="Enter your name"
                                     required
                                     className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-950"
+                                    onChange={handleChange}
                                 />
                             </div>
 
@@ -65,20 +105,27 @@ const Contact = () => {
                                 </label>
                                 <input
                                     type="email"
+                                    name="email"
+                                    value={formData.email}
                                     placeholder="Enter your email"
                                     required
+                                    onChange={handleChange}
                                     className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-950"
                                 />
                             </div>
 
                             <div>
                                 <label className="mb-2 block font-medium text-gray-700">
-                                    Subject
+                                    Mobile Number
                                 </label>
                                 <input
-                                    type="text"
-                                    placeholder="Enter subject"
+                                    type="tel"
+                                    name="contact"
+                                    value={formData.contact}
+                                    placeholder="Enter 10-digit Number"
                                     required
+                                    pattern="[0-9]{10}"
+                                    onChange={handleChange}
                                     className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-950"
                                 />
                             </div>
@@ -89,8 +136,11 @@ const Contact = () => {
                                 </label>
                                 <textarea
                                     rows="4"
+                                    name="message"
+                                    value={formData.message}
                                     placeholder="Write your message..."
                                     required
+                                    onChange={handleChange}
                                     className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-950"
                                 />
                             </div>

@@ -3,7 +3,8 @@ import axios from "axios";
 const apiInstance = axios.create({
     baseURL: "http://localhost:8080",
 });
-const isRedirecting = false;
+
+let isRedirecting = false;
 apiInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");

@@ -36,6 +36,7 @@ public class JWTValidationFilter extends OncePerRequestFilter {
 
         return path.equals("/auth/jobs")
                 || path.equals("/auth/categories")
+                ||path.equals("/auth/contact")
                 || path.equals("/auth/login")
                 || path.equals("/auth/logout")
                 || path.equals("/auth/company/register")

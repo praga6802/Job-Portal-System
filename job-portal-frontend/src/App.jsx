@@ -30,6 +30,7 @@ import CandidateProfile from "../src/pages/candidate/CandidateProfile";
 import CandidateDashboard from "../src/pages/candidate/CandidateDashboard";
 import ManageApplications from "./pages/candidate/ManageApplications";
 import Jobs from "./components/Jobs";
+import Queries from "../src/pages/admin/Queries.jsx";
 
 const App = () => {
     return (
@@ -87,6 +88,7 @@ const App = () => {
                     <Route path="admins" element={<Admins />} />
                     <Route path="candidates" element={<Candidates />} />
                     <Route path="profile" element={<AdminProfile />} />
+                    <Route path="queries" element={<Queries />} />
                 </Route>
 
                 {/* Error page */}
