@@ -32,8 +32,16 @@ public class JWTValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
 
-        return request.getServletPath().equals("/auth/jobs");
+        return path.equals("/auth/jobs")
+                || path.equals("/auth/categories")
+                || path.equals("/auth/login")
+                || path.equals("/auth/logout")
+                || path.equals("/auth/company/register")
+                || path.equals("/auth/candidate/register")
+                || path.equals("/auth/candidate/verify-otp")
+                || path.equals("/auth/admin/register");
     }
 
     @Override

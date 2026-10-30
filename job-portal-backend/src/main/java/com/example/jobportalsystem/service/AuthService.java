@@ -99,4 +99,8 @@ public class AuthService {
     }
 
 
+    public ResponseEntity<?> findJobCategoriesWithCount() {
+        List<JobCategoryDTO> categoryList = jobRepository.findJobCategoriesWithCount();
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Categories fetched Successfully",categoryList));
+    }
 }

@@ -1,9 +1,11 @@
 package com.example.jobportalsystem.repository;
 
+import com.example.jobportalsystem.dto.JobCategoryDTO;
 import com.example.jobportalsystem.entity.Company;
 import com.example.jobportalsystem.entity.Job;
 import com.example.jobportalsystem.enums.JobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,4 +42,18 @@ public interface JobRepository extends JpaRepository<Job,Integer> {
     List<Job> findByCompanyAndActiveFalseAndStatusIn(Company company, List<JobStatus> rejected);
 
     Long countByCompanyAndActiveFalseAndStatusIn(Company company, List<JobStatus> rejected);
+
+    @Query("""
+    SELECT new com.example.jobportalsystem.dto.JobCategoryDTO(
+        j.category,
+        COUNT(j)
+    )
+    FROM Job j
+    WHERE j.status = com.example.jobportalsystem.enums.JobStatus.APPROVED
+    AND j.active = true
+    AND j.deadline > CURRENT_TIMESTAMP
+    GROUP BY j.category
+    ORDER BY COUNT(j) DESC
+""")
+    List<JobCategoryDTO> findJobCategoriesWithCount();
 }

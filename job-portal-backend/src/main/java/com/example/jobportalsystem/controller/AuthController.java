@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    AuthService authService;
+    private AuthService authService;
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest){
@@ -38,6 +39,11 @@ public class AuthController {
     @GetMapping("/jobs")
     public ResponseEntity<?> getJobs() {
         return authService.getJobs();
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<?> getJobCategories() {
+        return authService.findJobCategoriesWithCount();
     }
 
 }

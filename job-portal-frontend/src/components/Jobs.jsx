@@ -170,8 +170,8 @@ const Jobs = () => {
 
                                                 <p className="font-semibold text-gray-800">
                                                     <i className="fa-solid fa-sack-dollar mr-2 text-yellow-500"></i>
-                                                    {job.minSalary ?? "N/A"} –{" "}
-                                                    {job.maxSalary ?? "N/A"} LPA
+                                                    {Number(job.minSalary/100000) ?? "N/A"} –{" "}
+                                                    {Number(job.maxSalary/100000) ?? "N/A"} LPA
                                                 </p>
                                                 {"|"}
 

@@ -514,11 +514,11 @@ const ManageJobs = () => {
                                                                         </span>
                                                                         <span>
                                                                             {
-                                                                                job.minSalary
+                                                                                Number(job.minSalary/100000)
                                                                             }{" "}
                                                                             -{" "}
                                                                             {
-                                                                                job.maxSalary
+                                                                                Number(job.maxSalary/100000)
                                                                             }
                                                                         </span>{" "}
                                                                         LPA

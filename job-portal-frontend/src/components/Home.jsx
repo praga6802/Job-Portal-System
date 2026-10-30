@@ -6,63 +6,65 @@ import Jobs from "./Jobs.jsx";
 import FeaturedJobs from "./FeaturedJobs.jsx";
 const Home = () => {
     const [candidate, setCandidate] = useState(null);
+    const [categories, setCategories] = useState([]);
+
+    const fetchCandidate = async () => {
+        try {
+            const response = await apiInstance.get("/auth/candidate/current");
+            setCandidate(response.data.data);
+        } catch (error) {
+            setCandidate(null);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const response = await apiInstance.get("/auth/categories");
+            setCategories(response.data.data);
+        } catch (error) {
+            setCategories(null);
+        }
+    };
 
     useEffect(() => {
-        const fetchCandidate = async () => {
-            try {
-                const response = await apiInstance.get(
-                    "/auth/candidate/current",
-                );
-                setCandidate(response.data.data);
-            } catch (error) {
-                setCandidate(null);
-            }
-        };
-
+        fetchCategories();
         fetchCandidate();
     }, []);
 
-    const categories = [
-        { name: "Software Development", icon: "💻", jobs: "60+ Jobs" },
-        { name: "Data Science", icon: "📊", jobs: "20+ Jobs" },
-        { name: "UI/UX Design", icon: "🎨", jobs: "30+ Jobs" },
-        { name: "Marketing", icon: "📢", jobs: "40+ Jobs" },
-    ];
-
-    const jobs = [
-        {
-            title: "Java Developer",
-            company: "Tech Solutions",
-            location: "Chennai",
-            type: "Full Time",
-            salary: "₹4–8 LPA",
-            experience: "Fresher",
+    const categoryIcons = {
+        SOFTWARE_DEVELOPMENT: {
+            icon: "fa-solid fa-code",
+            color: "text-blue-500",
         },
-        {
-            title: "React Developer",
-            company: "Digital Innovations",
-            location: "Bengaluru",
-            type: "Full Time",
-            salary: "₹5–10 LPA",
-            experience: "0-2 yrs",
+        DATA_ANALYTICS: {
+            icon: "fa-solid fa-chart-line",
+            color: "text-purple-500",
         },
-        {
-            title: "Backend Developer",
-            company: "Cloud Systems",
-            location: "Remote",
-            type: "Remote",
-            salary: "₹6–12 LPA",
-            experience: "3-4 yrs",
+        HR: {
+            icon: "fa-solid fa-users",
+            color: "text-green-500",
         },
-        {
-            title: "Python Developer",
-            company: "HCL Tech",
-            location: "Chennai",
-            type: "Hybrid",
-            salary: "₹7–12 LPA",
-            experience: "7-10 yrs",
+        DESIGN: {
+            icon: "fa-solid fa-palette",
+            color: "text-pink-500",
         },
-    ];
+        MARKETING: {
+            icon: "fa-solid fa-bullhorn",
+            color: "text-orange-500",
+        },
+        FINANCE: {
+            icon: "fa-solid fa-coins",
+            color: "text-yellow-500",
+        },
+        OTHER: {
+            icon: "fa-solid fa-briefcase",
+            color: "text-gray-500",
+        },
+        IT: {
+            icon: "fa-solid fa-laptop-code",
+            color: "text-cyan-500",
+        },
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -107,7 +109,7 @@ const Home = () => {
                     </Link>
                 </form>
 
-                <p className="mt-5 text-sm text-blue-200">
+                <p className="mt-5 text-normal font-semibold text-yellow-500">
                     Popular: Java Developer · React Developer · Data Analyst
                 </p>
             </section>
@@ -122,19 +124,23 @@ const Home = () => {
                     </p>
                 </div>
 
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center">
                     {categories.map((category) => (
                         <Link
                             to="/jobs"
-                            key={category.name}
-                            className="rounded-xl border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+                            key={category.category}
+                            className="rounded-xl border border-slate-200 bg-white p-8 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
                         >
-                            <span className="text-3xl">{category.icon}</span>
-                            <h3 className="mt-4 font-bold text-blue-950">
-                                {category.name}
+                            <i
+                                className={` ${categoryIcons[category.category].color} text-3xl ${categoryIcons[category.category].icon}`}
+                            ></i>
+                            <h3 className=" text-normal mt-4 font-bold text-blue-950">
+                                {category.category.includes("_")
+                                    ? category.category.replaceAll("_", " ")
+                                    : category.category}
                             </h3>
-                            <p className="mt-2 text-sm text-slate-500">
-                                {category.jobs}
+                            <p className="mt-2 text-lg font-semibold text-red-600">
+                                {category.count}+ jobs
                             </p>
                         </Link>
                     ))}
@@ -161,9 +167,7 @@ const Home = () => {
                         </Link>
                     </div>
 
-                    
-                    <FeaturedJobs/>
-                    
+                    <FeaturedJobs />
                 </div>
             </section>
 
