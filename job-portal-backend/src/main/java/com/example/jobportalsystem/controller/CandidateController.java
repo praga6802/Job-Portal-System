@@ -143,6 +143,15 @@ public class CandidateController {
         return candidateService.downloadResume(candidate.getUserId());
     }
 
+    @GetMapping("/current-resume")
+    public ResponseEntity<?> getCurrentResume(
+            @AuthenticationPrincipal MyUserDetails candidate) {
+
+        return candidateService.getCurrentResume(candidate.getUserId());
+    }
+
+
+
     // ----------------------- EMAIL verification ---------------------------
 
     @PostMapping("/verify-otp")

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import axiosInstance from "../../services/api.js";
+import UploadResume from "./UploadResume.jsx";
 
 const CandidateDashboard = () => {
     const [appliedJobCount, setAppliedJobCount] = useState(0);
@@ -273,6 +274,9 @@ const CandidateDashboard = () => {
                     </div>
                 </div>
             </div>
+
+
+            <UploadResume/>
         </>
     );
 };

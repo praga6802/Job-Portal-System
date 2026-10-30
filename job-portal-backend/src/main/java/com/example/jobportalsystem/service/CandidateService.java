@@ -308,60 +308,74 @@ public class CandidateService {
     public ResponseEntity<?> uploadResume(MultipartFile file, Integer candidateId) throws IOException {
         Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with ID: " + candidateId));
 
-        String fileType = file.getContentType();
-        if (!("application/pdf".equals(fileType) || "application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType))) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Only PDF or DOCX files are allowed"));
-        }
-
         if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "File cannot be empty"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDTO(LocalDateTime.now(), "Failure","File cannot be empty"));
         }
 
-      //create folder for uploading resume
-        String dirPath = "uploads/resume/" +"CAND_"+ candidateId + "/";
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        // Validate file type
+        String fileType = file.getContentType();
+
+        if (!("application/pdf".equals(fileType) || "application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType))) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Only PDF or DOCX files are allowed"));
         }
-//
-//        //check if the user has already a resume
+
+        // Validate original filename
+        String reqFileName = file.getOriginalFilename();
+
+        if (reqFileName == null || !reqFileName.contains(".")) {
+            return ResponseEntity.badRequest().body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Invalid file name"));
+        }
+
+        // Create absolute directory path
+        Path uploadPath = Paths.get(
+                System.getProperty("user.dir"),
+                "uploads",
+                "resume",
+                "CAND_" + candidateId
+        ).toAbsolutePath().normalize();
+
+        // Create directory if it doesn't exist
+        Files.createDirectories(uploadPath);
+
+        // Get file extension
+        String extension = reqFileName.substring(reqFileName.lastIndexOf("."));
+
+        // Create filename
+        String fileName = candidate.getFirstname() + "_" + candidate.getLastname() + extension;
+
+        // Create absolute file path
+        Path filePath = uploadPath.resolve(fileName);
+
+        // Delete existing resume if available
         Optional<Resume> existingResume = resumeRepository.findByCandidate(candidate);
-        if(existingResume.isPresent()){
-            String path=existingResume.get().getFilePath();
-            if (path != null) {
-                Path oldPath = Paths.get(existingResume.get().getFilePath());
-                Files.deleteIfExists(oldPath);
+
+        Resume resume;
+
+        if (existingResume.isPresent()) {
+
+            resume = existingResume.get();
+
+            // Delete old physical file
+            String oldFilePath = resume.getFilePath();
+
+            if (oldFilePath != null && !oldFilePath.isBlank()) {
+                Files.deleteIfExists(Paths.get(oldFilePath));
             }
-            resumeRepository.delete(existingResume.get());
+
+        } else {
+            resume = new Resume();
         }
-//
-//
-//        //creating file name
-        String reqFileName=file.getOriginalFilename();
-        if(reqFileName == null || !reqFileName.contains(".")){
-            return ResponseEntity.badRequest().body(new ApiResponseDTO(LocalDateTime.now(),"Failure","Invalid file name"));
-        }
-//
-        String extension= Objects.requireNonNull(reqFileName).substring(reqFileName.lastIndexOf("."));
-        String fileName=candidate.getFirstname()+"_"+candidate.getLastname()+extension;
 
-        //creating file path
-        Path filePath= Paths.get(dirPath + fileName);
+        // Save new file
+        Files.write(filePath, file.getBytes());
 
-        //writing file content into file path
-        Files.write(filePath,file.getBytes());
-
-        //save file path for the user role only
-        Resume resume=new Resume();
         resume.setFileName(fileName);
         resume.setFilePath(filePath.toString());
         resume.setCandidate(candidate);
-
         resumeRepository.save(resume);
 
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Resume uploaded Successfully"));
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Resume Uploaded successfully"));
+
     }
 
 
@@ -386,23 +400,35 @@ public class CandidateService {
 
     //view resume
     public ResponseEntity<?> viewResume(Integer candidateId) throws IOException {
-        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with this ID: ", candidateId));
 
-        Resume resume = resumeRepository.findByCandidate(candidate).orElseThrow(()-> new NotFoundException("No Resume found for "+candidate.getFirstname()));
-        String resumePath=resume.getFilePath();
+        Candidate candidate = candidateRepository.findByUser_UserId(candidateId).orElseThrow(() -> new NotFoundException("Candidate not found with this ID: ", candidateId));
+        Resume resume = resumeRepository.findByCandidate(candidate).orElseThrow(() -> new NotFoundException("No Resume found for " + candidate.getFirstname()));
+
+        String resumePath = resume.getFilePath();
 
         if (resumePath == null || resumePath.isBlank()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponseDTO(LocalDateTime.now(),"Failure","Resume File is missing!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Resume file is missing!"));
         }
 
-        Path path=Paths.get(resumePath);
-        byte[] fileBytes=Files.readAllBytes(path);
+        Path path = Paths.get(resumePath).toAbsolutePath().normalize();
+        System.out.println(path);
+        System.out.println(Files.exists(path));
+        System.out.println(Files.isRegularFile(path));
 
-        HttpHeaders httpHeaders= new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
-        httpHeaders.setContentDisposition(ContentDisposition.inline().filename(path.getFileName().toString()).build());
-        return new ResponseEntity<>(fileBytes,httpHeaders,HttpStatus.OK);
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Resume file does not exist on the server!"));
+        }
+
+        byte[] fileBytes = Files.readAllBytes(path);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(
+                ContentDisposition.inline()
+                        .filename(path.getFileName().toString())
+                        .build());
+
+        return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
 
     // download resume
@@ -619,4 +645,29 @@ public class CandidateService {
     }
 
 
+    public ResponseEntity<?> getCurrentResume(Integer userId) {
+
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found"));
+
+        Optional<Resume> resume = resumeRepository.findByCandidate(candidate);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("status", 200);
+
+        if (resume.isPresent()) {
+            response.put("message", "Resume found");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("fileName", resume.get().getFileName());
+            data.put("resumeId", resume.get().getResumeId());
+            response.put("data", data);
+
+        } else {
+            response.put("message", "No resume uploaded");
+            response.put("data", null);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }
