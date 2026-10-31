@@ -36,6 +36,25 @@ const ManageApplicants = () => {
         "UNDER_REVIEW",
     ];
 
+    const viewResume = async (candidateId) => {
+        try {
+            const response = await axiosInstance.get(
+                `/auth/company/resume/${candidateId}`,
+                {
+                    responseType: "blob",
+                },
+            );
+
+            const fileURL = window.URL.createObjectURL(
+                new Blob([response.data], { type: "application/pdf" }),
+            );
+            window.open(fileURL, "_blank");
+        } catch (err) {
+            console.error("Unable to view resume", err);
+            alert("Unable to view resume");
+        }
+    };
+
     const handleStatusChange = async (applicationId, status) => {
         setIsLoading(true);
         setMessage("");
@@ -577,10 +596,17 @@ const ManageApplicants = () => {
                                                 </div>
 
                                                 <div className="flex justify-end items-center gap-4 p-2 rounded-lg me-3">
-                                                    <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1 rounded-lg">
-                                                        <Link to="/company/jobs">
-                                                            View Details
-                                                        </Link>
+                                                    <div className="bg-green-50 border border-1 border-green-400 text-green-600 p-1  rounded-lg">
+                                                        <button
+                                                            className="cursor-pointer"
+                                                            onClick={() =>
+                                                                viewResume(
+                                                                    applicant.candidateId,
+                                                                )
+                                                            }
+                                                        >
+                                                            View Resume
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>

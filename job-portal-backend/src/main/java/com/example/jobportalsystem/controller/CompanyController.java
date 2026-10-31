@@ -256,5 +256,10 @@ public class CompanyController {
         return companyService.getUnderReviewCandidatesCount(userDetails.getUsername());
     }
 
+    @GetMapping("/resume/{candidateId}")
+    public ResponseEntity<?> getResume(@PathVariable Integer candidateId, @AuthenticationPrincipal MyUserDetails candidate) throws Exception{
+        return companyService.getResume(candidateId,candidate.getUserId());
+    }
+
 
 }

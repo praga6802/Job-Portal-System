@@ -1,10 +1,7 @@
 package com.example.jobportalsystem.service;
 
 import com.example.jobportalsystem.dto.*;
-import com.example.jobportalsystem.entity.Company;
-import com.example.jobportalsystem.entity.Job;
-import com.example.jobportalsystem.entity.JobApplication;
-import com.example.jobportalsystem.entity.Users;
+import com.example.jobportalsystem.entity.*;
 import com.example.jobportalsystem.enums.ApplicationStatus;
 import com.example.jobportalsystem.enums.JobStatus;
 import com.example.jobportalsystem.enums.JobType;
@@ -12,17 +9,17 @@ import com.example.jobportalsystem.exception.BusinessException;
 import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.exception.UnAuthorizedException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
-import com.example.jobportalsystem.repository.CompanyRepository;
-import com.example.jobportalsystem.repository.JobApplicationRepository;
-import com.example.jobportalsystem.repository.JobRepository;
-import com.example.jobportalsystem.repository.UsersRepository;
+import com.example.jobportalsystem.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +31,10 @@ public class CompanyService {
 
     @Autowired
     private CompanyRepository companyRepository;
+
+
+    @Autowired
+    private CandidateRepository candidateRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -814,5 +815,37 @@ public class CompanyService {
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success", "Under-Review Candidates count fetched successfully",underReviewCandidatesCount));
     }
 
+    public ResponseEntity<?> getResume(Integer candidateId,Integer userId) throws IOException {
+        Company company = companyRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Company not found with this ID: ", userId));
+        Candidate candidate = candidateRepository.findById(candidateId).orElseThrow(()-> new NotFoundException("Candidate nof found with this ID: ",candidateId));
+        JobApplication jobApplication = jobApplicationRepository.findByCompany_CompanyIdAndCandidate_CandidateId(company.getCompanyId(),candidate.getCandidateId()).orElseThrow(()-> new NotFoundException("Job Application not found"));
+
+        Resume resume = jobApplication.getResume();
+        String resumePath = resume.getFilePath();
+
+        if (resumePath == null || resumePath.isBlank()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Resume file is missing!"));
+        }
+
+        Path path = Paths.get(resumePath).toAbsolutePath().normalize();
+        System.out.println(path);
+        System.out.println(Files.exists(path));
+        System.out.println(Files.isRegularFile(path));
+
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Resume file does not exist on the server!"));
+        }
+
+        byte[] fileBytes = Files.readAllBytes(path);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(
+                ContentDisposition.inline()
+                        .filename(path.getFileName().toString())
+                        .build());
+
+        return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+    }
 }
 
