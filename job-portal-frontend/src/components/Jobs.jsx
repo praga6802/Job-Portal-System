@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axiosInstance from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -7,8 +7,19 @@ const Jobs = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [candidate, setCandidate] = useState(null);
+    const [openSection, setOpenSection] = useState({});
+
+    const [filters, setFilters] = useState({
+        category: [],
+        jobType: [],
+        experience: [],
+        workMode: [],
+        location: [],
+    });
+
     const navigate = useNavigate();
 
+    // FETCH ALL JOBS
     useEffect(() => {
         const fetchJobs = async () => {
             setIsLoading(true);
@@ -16,24 +27,17 @@ const Jobs = () => {
 
             try {
                 const response = await axiosInstance.get("/auth/jobs");
-
-                console.log("Full response:", response.data);
-
                 const jobData = response?.data?.data;
-
-                console.log("Job data:", jobData);
 
                 if (!Array.isArray(jobData)) {
                     setJobs([]);
                     setMessage("Invalid jobs response from backend.");
                     return;
                 }
+
                 setJobs(jobData);
             } catch (err) {
                 console.error("Error fetching jobs:", err);
-                console.error("Status:", err.response?.status);
-                console.error("Response:", err.response?.data);
-
                 setMessage("Unable to load jobs.");
             } finally {
                 setIsLoading(false);
@@ -49,14 +53,17 @@ const Jobs = () => {
                 const response = await axiosInstance.get(
                     "/auth/candidate/current",
                 );
+
                 setCandidate(response?.data?.data || null);
             } catch (err) {
                 setCandidate(null);
             }
         };
+
         fetchCandidate();
     }, []);
 
+    // APPLY FOR JOB
     const handleApply = async (job) => {
         if (!candidate) {
             navigate("/login");
@@ -84,162 +91,400 @@ const Jobs = () => {
         }
     };
 
+    const getUniqueOptions = (field) => {
+        return [
+            ...new Set(
+                jobs
+                    .map((job) => job[field])
+                    .filter(
+                        (value) =>
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "",
+                    ),
+            ),
+        ].sort();
+    };
+
+    const filterSections = [
+        {
+            title: "Job Category",
+            type: "category",
+            options: getUniqueOptions("category"),
+        },
+        {
+            title: "Job Type",
+            type: "jobType",
+            options: getUniqueOptions("jobType"),
+        },
+        {
+            title: "Experience",
+            type: "experience",
+            options: [
+                "Fresher",
+                "0-1 Years",
+                "1-3 Years",
+                "3-5 Years",
+                "5+ Years",
+            ],
+        },
+        {
+            title: "Work Mode",
+            type: "workMode",
+            options: getUniqueOptions("workMode"),
+        },
+        {
+            title: "Location",
+            type: "location",
+            options: getUniqueOptions("location"),
+        },
+    ];
+
+    // HANDLE FILTER CHECKBOX
+    const handleFilterChange = (type, value) => {
+        setFilters((prev) => ({
+            ...prev,
+            [type]: prev[type].includes(value)
+                ? prev[type].filter((item) => item !== value)
+                : [...prev[type], value],
+        }));
+    };
+
+    // CLEAR ALL FILTERS
+    const clearFilters = () => {
+        setFilters({
+            category: [],
+            jobType: [],
+            experience: [],
+            workMode: [],
+            location: [],
+        });
+    };
+
+    // EXPERIENCE FILTER
+    const matchesExperience = (job, selectedExperience) => {
+        const min = Number(job.minExperience);
+        const max = Number(job.maxExperience);
+
+        if (job.minExperience == null || job.maxExperience == null) {
+            return false;
+        }
+
+        switch (selectedExperience) {
+            case "Fresher":
+                return min === 0;
+
+            case "0-1 Years":
+                return min <= 1 && max >= 0;
+
+            case "1-3 Years":
+                return min <= 3 && max >= 1;
+
+            case "3-5 Years":
+                return min <= 5 && max >= 3;
+
+            case "5+ Years":
+                return max >= 5;
+
+            default:
+                return false;
+        }
+    };
+
+    // FILTER JOBS
+    const filteredJobs = useMemo(() => {
+        return jobs.filter((job) => {
+            const categoryMatch =
+                !filters.category.length ||
+                filters.category.includes(job.category);
+
+            const jobTypeMatch =
+                !filters.jobType.length ||
+                filters.jobType.includes(job.jobType);
+
+            const experienceMatch =
+                !filters.experience.length ||
+                filters.experience.some((exp) => matchesExperience(job, exp));
+
+            const workModeMatch =
+                !filters.workMode.length ||
+                filters.workMode.includes(job.workMode);
+
+            const locationMatch =
+                !filters.location.length ||
+                filters.location.includes(job.location);
+
+            return (
+                categoryMatch &&
+                jobTypeMatch &&
+                experienceMatch &&
+                workModeMatch &&
+                locationMatch
+            );
+        });
+    }, [jobs, filters]);
+
+    // FORMAT LABELS
+    const formatLabel = (value) => {
+        return value?.replaceAll("_", " ") || "Not specified";
+    };
+
+    // FORMAT SALARY
+    const formatSalary = (salary) => {
+        return salary != null ? (Number(salary) / 100000).toFixed(1) : "N/A";
+    };
+
     return (
-        <div className="min-h-screen w-full">
-            <div className="m-2 rounded-lg bg-blue-950 px-4 py-4">
-                <h1 className="text-2xl font-bold text-yellow-500">
+        <div className="min-h-screen w-full bg-gray-50">
+            {/* PAGE HEADER */}
+            <div className="m-2 rounded-xl bg-blue-950 px-6 py-6">
+                <h1 className="text-2xl font-bold text-yellow-400">
                     Explore Jobs
                 </h1>
-                <h5 className="mt-1 font-semibold text-blue-100">
+
+                <p className="mt-2 text-sm font-medium text-blue-100">
                     Explore exciting opportunities and find the right job for
                     you!
-                </h5>
+                </p>
             </div>
 
-            {isLoading ? (
-                <p className="m-5 text-center font-semibold text-gray-600">
-                    Fetching Job Details...
-                </p>
-            ) : message ? (
-                <p className="m-5 mx-auto w-fit rounded-lg border-1 border-red-100 p-3 text-center font-semibold text-red-500 bg-red-50">
-                    {message}
-                </p>
-            ) : jobs.length === 0 ? (
-                <p className="m-5 text-center text-gray-600">
-                    No jobs available at the moment!
-                </p>
-            ) : (
-                <div className="flex min-h-screen w-full">
-                    <div className="hidden w-1/3 lg:block"></div>
+            {/* MAIN CONTENT */}
+            <div className="flex w-full justify-between flex-col gap-6 px-4 py-6 lg:flex-row">
+                {/* LEFT FILTER SIDEBAR */}
+                <aside className="h-fit w-full max-w-sm rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-5">
+                    {/* FILTER HEADER */}
+                    <div className="mb-5 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-gray-800">
+                            <i className="fa-solid fa-sliders mr-2 text-blue-600"></i>
+                            Filters
+                        </h2>
 
-                    <div className="w-full lg:w-2/3">
-                        <div className="card-container flex min-h-screen flex-col gap-5 bg-gray-500 p-5">
-                            {jobs.map((job) => (
+                        <button
+                            onClick={clearFilters}
+                            className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-800"
+                        >
+                            Clear All
+                        </button>
+                    </div>
+
+                    <hr className="mb-5 border-gray-300" />
+
+                    {filterSections.map((section) => (
+                        <div
+                            key={section.type}
+                            className="mb-4 border-b border-gray-100 pb-4 last:border-none"
+                        >
+                            {/* FILTER TITLE */}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setOpenSection((prev) => ({
+                                        ...prev,
+                                        [section.type]: !prev[section.type],
+                                    }))
+                                }
+                                className="flex w-full items-center justify-between text-sm font-bold uppercase tracking-wide text-gray-700 hover:text-yellow-600"
+                            >
+                                {section.title}
+
+                                <i
+                                    className={`fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-200 ${
+                                        openSection[section.type]
+                                            ? "rotate-180"
+                                            : ""
+                                    }`}
+                                ></i>
+                            </button>
+
+                            {/* FILTER OPTIONS */}
+                            {openSection[section.type] && (
+                                <div className="mt-4 space-y-3">
+                                    {section.options.length === 0 ? (
+                                        <p className="text-xs text-gray-400">
+                                            No options available
+                                        </p>
+                                    ) : (
+                                        section.options.map((option) => (
+                                            <label
+                                                key={option}
+                                                className="flex cursor-pointer items-center gap-3 text-sm text-gray-600 hover:text-yellow-600"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={filters[
+                                                        section.type
+                                                    ].includes(option)}
+                                                    onChange={() =>
+                                                        handleFilterChange(
+                                                            section.type,
+                                                            option,
+                                                        )
+                                                    }
+                                                    className="h-4 w-4 cursor-pointer accent-blue-600"
+                                                />
+
+                                                <span>
+                                                    {formatLabel(option)}
+                                                </span>
+                                            </label>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </aside>
+
+                {/* RIGHT JOB LISTINGS */}
+                <section className="w-full lg:w-3/4">
+                    {/* JOB LIST HEADER */}
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-800">
+                                Latest Jobs
+                            </h2>
+
+                            <p className="mt-1 text-sm text-gray-500">
+                                Discover opportunities that match your skills.
+                            </p>
+                        </div>
+
+                        <span className="rounded-lg bg-blue-100 px-4 py-2 text-sm font-bold text-blue-700">
+                            {filteredJobs.length} Jobs Found
+                        </span>
+                    </div>
+
+                    {/* LOADING */}
+                    {isLoading ? (
+                        <div className="rounded-xl border bg-white p-10 text-center">
+                            <i className="fa-solid fa-spinner fa-spin mb-3 text-3xl text-blue-600"></i>
+
+                            <p className="font-semibold text-gray-600">
+                                Fetching Job Details...
+                            </p>
+                        </div>
+                    ) : message ? (
+                        <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-center font-semibold text-red-600">
+                            {message}
+                        </div>
+                    ) : filteredJobs.length === 0 ? (
+                        <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
+                            <i className="fa-solid fa-briefcase mb-4 text-4xl text-gray-300"></i>
+
+                            <h3 className="text-lg font-bold text-gray-700">
+                                No Jobs Found
+                            </h3>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                                Try changing your filters to find more
+                                opportunities.
+                            </p>
+
+                            <button
+                                onClick={clearFilters}
+                                className="mt-4 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
+                    ) : (
+                        /* JOB CARDS */
+                        <div className="flex flex-col gap-4">
+                            {filteredJobs.map((job) => (
                                 <div
                                     key={job.jobId}
-                                    className="ml-auto w-full rounded-xl border border-gray-200 bg-white p-5 shadow-md transition hover:shadow-lg"
+                                    className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:border-blue-200 hover:shadow-md"
                                 >
-                                    {/* Job title and status */}
-                                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                                    {/* JOB TITLE AND APPLY BUTTON */}
+                                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                                         <div>
-                                            <h2 className="flex flex-wrap items-center gap-3 text-xl font-bold text-gray-800">
+                                            <h3 className="text-lg font-bold text-gray-800">
                                                 {job.title}
+                                            </h3>
 
-                                                <span
-                                                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                                                        job.active
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-600"
-                                                    }`}
-                                                >
-                                                    {job.active
-                                                        ? "Active"
-                                                        : "Inactive"}
-                                                </span>
-                                            </h2>
-
-                                            <p className="mt-1 text-lg font-semibold text-blue-800">
+                                            <p className="mt-1 font-semibold text-blue-700">
                                                 {job.company}
                                             </p>
                                         </div>
 
-                                        <div>
-                                            <button
-                                                className="border-2 border-green-500 text-green px-3 py-1 rounded-lg font-semibold text-green-500 cursor-pointer hover:bg-green-600 hover:text-white"
-                                                onClick={() => {
-                                                    handleApply(job);
-                                                }}
-                                            >
-                                                APPLY
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => handleApply(job)}
+                                            className="rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <i className="fa-solid fa-paper-plane mr-2"></i>
+                                            Apply Now
+                                        </button>
                                     </div>
 
-                                    <hr className="my-4 border-gray-200" />
+                                    <hr className="my-4 border-gray-100" />
 
-                                    <div className="flex justify-between">
-                                        {/* Job details */}
-                                        <div>
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-                                                <p className="font-medium text-gray-800">
-                                                    <i className="fa-solid fa-location-dot mr-2 text-blue-500"></i>
-                                                    {job.location ||
-                                                        "Not specified"}
-                                                </p>
-                                                {"|"}
+                                    {/* JOB DETAILS */}
+                                    <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-600">
+                                        <p>
+                                            <i className="fa-solid fa-location-dot mr-2 text-blue-500"></i>
+                                            {job.location || "Not specified"}
+                                        </p>
 
-                                                <p className="font-semibold text-gray-800">
-                                                    <i className="fa-solid fa-sack-dollar mr-2 text-yellow-500"></i>
-                                                    {Number(job.minSalary/100000) ?? "N/A"} –{" "}
-                                                    {Number(job.maxSalary/100000) ?? "N/A"} LPA
-                                                </p>
-                                                {"|"}
+                                        <p>
+                                            <i className="fa-solid fa-indian-rupee-sign mr-2 text-green-600"></i>
+                                            {formatSalary(job.minSalary)} -{" "}
+                                            {formatSalary(job.maxSalary)} LPA
+                                        </p>
 
-                                                <p className="font-medium text-gray-800">
-                                                    <i className="fa fa-briefcase mr-2 text-gray-500"></i>
-                                                    {job.minExperience ?? "N/A"}{" "}
-                                                    –{" "}
-                                                    {job.maxExperience ?? "N/A"}{" "}
-                                                    years
-                                                </p>
-                                            </div>
+                                        <p>
+                                            <i className="fa-solid fa-briefcase mr-2 text-gray-500"></i>
+                                            {job.minExperience ?? "N/A"} -{" "}
+                                            {job.maxExperience ?? "N/A"} Years
+                                        </p>
+                                    </div>
 
-                                            {/* Additional details */}
-                                            <div className="mt-4 flex flex-wrap gap-3">
-                                                {job.workMode && (
-                                                    <span className="rounded-md bg-purple-50 px-3 py-1 text-sm text-purple-700">
-                                                        <i className="fa-solid fa-building mr-2"></i>
-                                                        {job.workMode.replaceAll(
-                                                            "_",
-                                                            " ",
-                                                        )}
-                                                    </span>
-                                                )}
+                                    {/* JOB TAGS */}
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <span className="rounded-md bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+                                            {formatLabel(job.jobType)}
+                                        </span>
 
-                                                <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                                    {job.jobType?.replaceAll(
-                                                        "_",
-                                                        " ",
-                                                    ) || "Not specified"}
-                                                </span>
+                                        <span className="rounded-md bg-gray-300 px-3 py-1 text-xs font-semibold text-black">
+                                            {formatLabel(job.workMode)}
+                                        </span>
 
-                                                {job.openings != null && (
-                                                    <span className="rounded-md bg-blue-50 px-3 py-1 text-sm text-blue-700">
-                                                        <i className="fa-solid fa-users mr-2"></i>
-                                                        {job.openings} openings
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+                                        <span className="rounded-md bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                            {formatLabel(job.category)}
+                                        </span>
 
-                                        {/* Deadline */}
-                                        <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 h-fit">
-                                            <p className="text-sm font-semibold text-red-600">
-                                                Application Deadline
-                                            </p>
+                                        {job.openings != null && (
+                                            <span className="rounded-md bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
+                                                <i className="fa-solid fa-users mr-1"></i>
+                                                {job.openings} Openings
+                                            </span>
+                                        )}
+                                    </div>
 
-                                            <p className="font-medium text-gray-800">
-                                                {job.deadline
-                                                    ? new Date(
-                                                          job.deadline,
-                                                      ).toLocaleDateString(
-                                                          "en-IN",
-                                                          {
-                                                              day: "2-digit",
-                                                              month: "long",
-                                                              year: "numeric",
-                                                          },
-                                                      )
-                                                    : "Not specified"}
-                                            </p>
-                                        </div>
+                                    {/* APPLICATION DEADLINE */}
+                                    <div className="mt-4 border-t border-gray-100 pt-3">
+                                        <p className="text-xs font-medium text-red-600 bg-red-50 w-fit px-2 py-1 rounded-lg">
+                                            <i className="fa-regular fa-calendar mr-2"></i>
+                                            Application Deadline:{" "}
+                                            {job.deadline
+                                                ? new Date(
+                                                      job.deadline,
+                                                  ).toLocaleDateString(
+                                                      "en-IN",
+                                                      {
+                                                          day: "2-digit",
+                                                          month: "long",
+                                                          year: "numeric",
+                                                      },
+                                                  )
+                                                : "Not specified"}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+                </section>
+            </div>
         </div>
     );
 };
