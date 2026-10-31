@@ -150,6 +150,11 @@ public class CandidateController {
         return candidateService.getCurrentResume(candidate.getUserId());
     }
 
+    @GetMapping("/applied-job-ids")
+    public ResponseEntity<?> getAppliedJobIds(@AuthenticationPrincipal MyUserDetails userDetails){
+        return candidateService.getAppliedJobIds(userDetails.getUserId());
+    }
+
 
 
     // ----------------------- EMAIL verification ---------------------------

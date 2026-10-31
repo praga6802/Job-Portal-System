@@ -670,4 +670,14 @@ public class CandidateService {
 
         return ResponseEntity.ok(response);
     }
+
+    public ResponseEntity<?> getAppliedJobIds(Integer userId) {
+        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found"));
+        List<Integer> jobsIds = jobApplicationRepository.findAppliedJobIdsByCandidateId(candidate.getCandidateId());
+        if(jobsIds.isEmpty()){
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","No jobs were applied", Collections.emptyList()));
+        }
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applied job IDs fetched successfully", jobsIds));
+    }
 }

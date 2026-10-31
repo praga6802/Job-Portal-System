@@ -149,17 +149,20 @@ const ManageApplications = () => {
                                                         </div>
 
                                                         <span
-                                                            className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                                                            className={`w-fit rounded-lg px-3 py-1 text-sm font-semibold ${
                                                                 application.status ===
-                                                                "SELECTED"
-                                                                    ? "bg-green-100 text-green-700"
+                                                                "APPLIED"
+                                                                    ? "bg-blue-100 text-blue-600"
                                                                     : application.status ===
-                                                                        "REJECTED"
-                                                                      ? "bg-red-100 text-red-700"
+                                                                        "SELECTED"
+                                                                      ? "bg-green-100 text-green-700"
                                                                       : application.status ===
-                                                                          "SHORTLISTED"
-                                                                        ? "bg-purple-100 text-purple-700"
-                                                                        : "bg-yellow-100 text-yellow-700"
+                                                                          "REJECTED"
+                                                                        ? "bg-red-100 text-red-700"
+                                                                        : application.status ===
+                                                                            "SHORTLISTED"
+                                                                          ? "bg-purple-100 text-purple-700"
+                                                                          : "bg-yellow-100 text-yellow-500"
                                                             }`}
                                                         >
                                                             {application.status?.replaceAll(
@@ -183,13 +186,15 @@ const ManageApplications = () => {
 
                                                             <p className="mt-1 font-semibold text-gray-800">
                                                                 <i class="fa-solid fa-sack-dollar text-yellow-500"></i>{" "}
-                                                                {
-                                                                    application.minSalary
-                                                                }
-                                                                –
-                                                                {
-                                                                    application.maxSalary
-                                                                }{" "}
+                                                                {Number(
+                                                                    application.minSalary /
+                                                                        100000,
+                                                                )}
+                                                                {" - "}
+                                                                {Number(
+                                                                    application.maxSalary /
+                                                                        100000,
+                                                                )}{" "}
                                                                 LPA
                                                             </p>
                                                             {"|"}
@@ -198,7 +203,7 @@ const ManageApplications = () => {
                                                                 {
                                                                     application.minExperience
                                                                 }
-                                                                –
+                                                                {" - "}
                                                                 {
                                                                     application.maxExperience
                                                                 }{" "}

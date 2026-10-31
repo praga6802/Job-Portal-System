@@ -11,6 +11,7 @@ import com.example.jobportalsystem.enums.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -73,5 +74,14 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     Optional<JobApplication> findByCompany_CompanyIdAndCandidate_CandidateId(
             Integer companyId,
             Integer candidateId
+    );
+
+    @Query("""
+        SELECT DISTINCT ja.job.jobId
+        FROM JobApplication ja
+        WHERE ja.candidate.candidateId = :candidateId
+    """)
+    List<Integer> findAppliedJobIdsByCandidateId(
+            @Param("candidateId") Integer candidateId
     );
 }

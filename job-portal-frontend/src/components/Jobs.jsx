@@ -8,6 +8,7 @@ const Jobs = () => {
     const [message, setMessage] = useState("");
     const [candidate, setCandidate] = useState(null);
     const [openSection, setOpenSection] = useState({});
+    const [appliedJobIds, setAppliedJobIds] = useState([]);
 
     const [filters, setFilters] = useState({
         category: [],
@@ -48,29 +49,56 @@ const Jobs = () => {
     }, []);
 
     useEffect(() => {
-        const fetchCandidate = async () => {
+        const fetchJobIds = async () => {
+            setIsLoading(true);
+            setMessage("");
+
             try {
                 const response = await axiosInstance.get(
-                    "/auth/candidate/current",
+                    "/auth/candidate/applied-job-ids",
                 );
+                const jobData = response?.data?.data;
 
-                setCandidate(response?.data?.data || null);
+                if (!Array.isArray(jobData)) {
+                    setAppliedJobIds([]);
+                    return;
+                }
+
+                setAppliedJobIds(jobData);
             } catch (err) {
-                setCandidate(null);
+                console.error("Error fetching jobs:", err);
+                setMessage(err?.response?.data?.message);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchCandidate();
+        fetchJobIds();
     }, []);
 
     // APPLY FOR JOB
     const handleApply = async (job) => {
-        if (!candidate) {
-            navigate("/login");
-            return;
-        }
-
         try {
+            // Check candidate login only when APPLY is clicked
+            const candidateResponse = await axiosInstance.get(
+                "/auth/candidate/current",
+            );
+
+            const currentCandidate = candidateResponse?.data?.data;
+
+            if (!currentCandidate) {
+                setMessage(
+                    "Please log in to your account to apply for this job.",
+                );
+
+                setTimeout(() => {
+                    navigate("/login");
+                }, 2000);
+
+                return;
+            }
+
+            // Apply for job
             const response = await axiosInstance.post(
                 `/auth/candidate/apply/job/${job.jobId}`,
             );
@@ -79,9 +107,17 @@ const Jobs = () => {
                 response?.data?.message ||
                     "Application submitted successfully!",
             );
+            setAppliedJobIds((prev) => [...prev, job.jobId]);
+
         } catch (err) {
             if (err.response?.status === 401 || err.response?.status === 403) {
-                navigate("/login");
+                setMessage(
+                    "Please log in to your account to apply for this job.",
+                );
+
+                setTimeout(() => {
+                    navigate("/login");
+                }, 2000);
             } else {
                 alert(
                     err.response?.data?.message ||
@@ -394,6 +430,13 @@ const Jobs = () => {
                                     key={job.jobId}
                                     className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:border-blue-200 hover:shadow-md"
                                 >
+                                    {message && (
+                                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                                            <i className="fa-solid fa-circle-info mr-2"></i>
+                                            {message}
+                                        </div>
+                                    )}
+
                                     {/* JOB TITLE AND APPLY BUTTON */}
                                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                                         <div>
@@ -408,10 +451,30 @@ const Jobs = () => {
 
                                         <button
                                             onClick={() => handleApply(job)}
-                                            className="rounded-lg border-1 border-blue-600 px-5 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-600 hover:text-white cursor-pointer"
+                                            disabled={appliedJobIds.includes(
+                                                job.jobId,
+                                            )}
+                                            className={`rounded-lg px-5 py-2 text-normal font-bold transition ${
+                                                appliedJobIds.includes(
+                                                    job.jobId,
+                                                )
+                                                    ? "cursor-not-allowed bg-green-100 text-green-700"
+                                                    : "cursor-pointer border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                                            }`}
                                         >
-                                            <i className="fa-solid fa-paper-plane mr-2"></i>
-                                            APPLY
+                                            <i
+                                                className={`fa-solid ${
+                                                    appliedJobIds.includes(
+                                                        job.jobId,
+                                                    )
+                                                        ? "fa-check"
+                                                        : "fa-paper-plane"
+                                                } mr-2`}
+                                            ></i>
+
+                                            {appliedJobIds.includes(job.jobId)
+                                                ? "APPLIED"
+                                                : "APPLY"}
                                         </button>
                                     </div>
 
