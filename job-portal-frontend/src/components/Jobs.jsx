@@ -161,7 +161,6 @@ const Jobs = () => {
         });
     };
 
-    // EXPERIENCE FILTER
     const matchesExperience = (job, selectedExperience) => {
         const min = Number(job.minExperience);
         const max = Number(job.maxExperience);
@@ -409,26 +408,28 @@ const Jobs = () => {
 
                                         <button
                                             onClick={() => handleApply(job)}
-                                            className="rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                            className="rounded-lg border-1 border-blue-600 px-5 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-600 hover:text-white cursor-pointer"
                                         >
                                             <i className="fa-solid fa-paper-plane mr-2"></i>
-                                            Apply Now
+                                            APPLY
                                         </button>
                                     </div>
 
-                                    <hr className="my-4 border-gray-100" />
+                                    <hr className="my-2 border-gray-100" />
 
                                     {/* JOB DETAILS */}
-                                    <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-600">
+                                    <div className="flex flex-wrap gap-3 text-sm text-gray-600">
                                         <p>
                                             <i className="fa-solid fa-location-dot mr-2 text-blue-500"></i>
                                             {job.location || "Not specified"}
+                                            {" | "}
                                         </p>
 
                                         <p>
                                             <i className="fa-solid fa-indian-rupee-sign mr-2 text-green-600"></i>
                                             {formatSalary(job.minSalary)} -{" "}
                                             {formatSalary(job.maxSalary)} LPA
+                                            {" | "}
                                         </p>
 
                                         <p>
@@ -440,7 +441,7 @@ const Jobs = () => {
 
                                     {/* JOB TAGS */}
                                     <div className="mt-4 flex flex-wrap gap-2">
-                                        <span className="rounded-md bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+                                        <span className="rounded-md bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                                             {formatLabel(job.jobType)}
                                         </span>
 
@@ -448,12 +449,12 @@ const Jobs = () => {
                                             {formatLabel(job.workMode)}
                                         </span>
 
-                                        <span className="rounded-md bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                        <span className="rounded-md bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                                             {formatLabel(job.category)}
                                         </span>
 
                                         {job.openings != null && (
-                                            <span className="rounded-md bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
+                                            <span className="rounded-md bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
                                                 <i className="fa-solid fa-users mr-1"></i>
                                                 {job.openings} Openings
                                             </span>
@@ -464,7 +465,7 @@ const Jobs = () => {
                                     <div className="mt-4 border-t border-gray-100 pt-3">
                                         <p className="text-xs font-medium text-red-600 bg-red-50 w-fit px-2 py-1 rounded-lg">
                                             <i className="fa-regular fa-calendar mr-2"></i>
-                                            Application Deadline:{" "}
+                                            DEADLINE:{" "}
                                             {job.deadline
                                                 ? new Date(
                                                       job.deadline,
