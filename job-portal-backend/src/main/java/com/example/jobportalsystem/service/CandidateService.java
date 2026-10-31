@@ -213,6 +213,27 @@ public class CandidateService {
         jobApplication.setCompany(job.getCompany());
         jobApplicationRepository.save(jobApplication);
 
+        emailService.sendEmail(
+                new EmailRequestDTO(
+                        candidate.getEmail(),
+                        "Job Application Submitted - Job Portal",
+                        "Hello, " + candidate.getFirstname() + " " + candidate.getLastname()+"!" +
+                                "Your job application has been successfully submitted.\n\n" +
+                                "Here are your application details:\n" +
+                                "Job Title: " + job.getTitle() + "\n" +
+                                "Company Name: " + job.getCompany().getName() + "\n" +
+                                "Application ID: " + jobApplication.getId() + "\n" +
+                                "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
+                                "Application Status: " + jobApplication.getStatus() + "\n\n" +
+
+                                "You can track your application status by logging into your Smart Job Portal account\n"+
+                                "Thank you for using Smart Job Portal. We wish you the best of luck!\n\n" +
+
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
+
         return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(), "Success", "Job Applied Successfully"));
     }
 

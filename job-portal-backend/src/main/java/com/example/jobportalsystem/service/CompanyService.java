@@ -32,6 +32,8 @@ public class CompanyService {
     @Autowired
     private CompanyRepository companyRepository;
 
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private CandidateRepository candidateRepository;
@@ -519,6 +521,33 @@ public class CompanyService {
 
         jobApplication.setStatus(ApplicationStatus.SHORTLISTED);
         jobApplicationRepository.save(jobApplication);
+        emailService.sendEmail(
+                new EmailRequestDTO(
+                        jobApplication.getCandidate().getEmail(),
+                        "Congratulations! Your Application Has Been Shortlisted - Job Portal",
+                        "Hello, " + jobApplication.getCandidate().getFirstname() + " " +
+                                jobApplication.getCandidate().getLastname() + "!\n\n" +
+
+                                "Congratulations! Your job application has been shortlisted by the employer.\n\n" +
+
+                                "Here are your application details:\n" +
+                                "Job Title: " + jobApplication.getJob().getTitle() + "\n" +
+                                "Company Name: " + jobApplication.getCompany().getName() + "\n" +
+                                "Application ID: " + jobApplication.getId() + "\n" +
+                                "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
+                                "Application Status: " + jobApplication.getStatus() + "\n\n" +
+
+                                "The recruitment team may contact you regarding the next steps in the hiring process.\n\n" +
+
+                                "Please log in to your Job Portal account regularly to check for application updates.\n\n" +
+
+                                "Thank you for using Job Portal. We wish you success in your recruitment journey!\n\n" +
+
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to SHORTLISTED Successfully!"));
     }
 
@@ -534,6 +563,33 @@ public class CompanyService {
 
         jobApplication.setStatus(ApplicationStatus.SELECTED);
         jobApplicationRepository.save(jobApplication);
+
+        emailService.sendEmail(
+                new EmailRequestDTO(
+                        jobApplication.getCandidate().getEmail(),
+                        "Congratulations! Your Application Has Been Selected - Job Portal",
+                        "Hello, " + jobApplication.getCandidate().getFirstname() + " " +
+                                jobApplication.getCandidate().getLastname() + "!\n\n" +
+
+                                "Congratulations! We are delighted to inform you that you have been SELECTED for this job opportunity.\n\n" +
+
+                                "Here are your application details:\n" +
+                                "Job Title: " + jobApplication.getJob().getTitle() + "\n" +
+                                "Company Name: " + jobApplication.getCompany().getName() + "\n" +
+                                "Application ID: " + jobApplication.getId() + "\n" +
+                                "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
+                                "Application Status: " + jobApplication.getStatus() + "\n\n" +
+
+                                "The employer has selected your profile for this position. Please stay available for further communication regarding the joining process and other formalities.\n\n" +
+
+                                "Please log in to your Job Portal account regularly for further updates.\n\n" +
+
+                                "Thank you for using Job Portal. We wish you great success in your career!\n\n" +
+
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to SELECTED Successfully!"));
     }
 
@@ -548,6 +604,33 @@ public class CompanyService {
 
         jobApplication.setStatus(ApplicationStatus.REJECTED);
         jobApplicationRepository.save(jobApplication);
+
+        emailService.sendEmail(
+                new EmailRequestDTO(
+                        jobApplication.getCandidate().getEmail(),
+                        "Update on Your Job Application - Job Portal",
+                        "Hello, " + jobApplication.getCandidate().getFirstname() + "!\n\n" +
+
+                                "Thank you for your interest in this opportunity.\n\n" +
+                                "We regret to inform you that your application has not been selected by the employer.\n\n" +
+
+                                "Here are your application details:\n" +
+                                "Job Title: " + jobApplication.getJob().getTitle() + "\n" +
+                                "Company Name: " + jobApplication.getCompany().getName() + "\n" +
+                                "Application ID: " + jobApplication.getId() + "\n" +
+                                "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
+                                "Application Status: " + jobApplication.getStatus() + "\n\n" +
+
+                                "We encourage you to explore other opportunities and continue applying for jobs that match your skills and experience.\n\n" +
+
+                                "Thank you for using Job Portal. We wish you all the best in your career!\n\n" +
+
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
+
+
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to REJECTED Successfully!"));
     }
 
@@ -561,6 +644,33 @@ public class CompanyService {
 
         jobApplication.setStatus(ApplicationStatus.UNDER_REVIEW);
         jobApplicationRepository.save(jobApplication);
+
+        emailService.sendEmail(
+                new EmailRequestDTO(
+                        jobApplication.getCandidate().getEmail(),
+                        "Your Application Is Under Review - Job Portal",
+                        "Hello, " + jobApplication.getCandidate().getFirstname() + " " +
+                                jobApplication.getCandidate().getLastname() + "!\n\n" +
+
+                                "Your job application is currently UNDER REVIEW by the employer.\n\n" +
+
+                                "Here are your application details:\n" +
+                                "Job Title: " + jobApplication.getJob().getTitle() + "\n" +
+                                "Company Name: " + jobApplication.getCompany().getName() + "\n" +
+                                "Application ID: " + jobApplication.getId() + "\n" +
+                                "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
+                                "Application Status: " + jobApplication.getStatus() + "\n\n" +
+
+                                "The employer is currently reviewing your profile. You will be notified once there is an update regarding your application.\n\n" +
+
+                                "Please log in to your Job Portal account regularly to check your application status.\n\n" +
+
+                                "Thank you for using Job Portal. We appreciate your patience!\n\n" +
+
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Application status changed to UNDER-REVIEW Successfully!"));
     }
 
