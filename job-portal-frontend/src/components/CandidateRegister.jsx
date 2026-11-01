@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/CandidateRegister.css";
 
 const CandidateRegister = () => {
+    const navigate = useNavigate();
     const initialFormState = {
         firstName: "",
         lastName: "",
@@ -12,6 +14,7 @@ const CandidateRegister = () => {
         dob: "",
         skills: "",
         experience: "",
+        location: "",
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -41,9 +44,15 @@ const CandidateRegister = () => {
                 formData,
             );
 
-            setMessage(
-                response?.data?.message || "Candidate registered successfully!",
-            );
+            setMessage(response?.data?.message || "OTP has sent to your email");
+
+            setTimeout(() => {
+                navigate("/verify-otp", {
+                    state: {
+                        email: formData.email,
+                    },
+                });
+            }, 1000);
 
             setTimeout(() => {
                 setFormData({ ...initialFormState });
@@ -155,15 +164,14 @@ const CandidateRegister = () => {
                             required
                         />
                     </div>
-
                     <div className="candidate-form-field">
-                        <label htmlFor="skills">Skills</label>
+                        <label htmlFor="location">Location</label>
                         <input
                             type="text"
-                            id="skills"
-                            name="skills"
-                            placeholder="e.g. Java, React, Spring Boot"
-                            value={formData.skills}
+                            id="location"
+                            name="location"
+                            placeholder="e.g. Chennai, Tamil Nadu"
+                            value={formData.location}
                             onChange={handleChange}
                             required
                         />
@@ -177,6 +185,19 @@ const CandidateRegister = () => {
                             name="experience"
                             placeholder="e.g. Fresher or 2 Years"
                             value={formData.experience}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="candidate-form-field skill-field">
+                        <label htmlFor="skills">Skills</label>
+                        <input
+                            type="text"
+                            id="skills"
+                            name="skills"
+                            placeholder="e.g. Java, React, Spring Boot"
+                            value={formData.skills}
                             onChange={handleChange}
                             required
                         />
@@ -199,7 +220,7 @@ const CandidateRegister = () => {
 
                 {message && (
                     <p
-                        className="candidate-register-message"
+                        className="py-2 rounded-lg w-fit px-4 mx-auto bg-red-100 text-red-500 font-medium text-center mt-2"
                         role="status"
                         aria-live="polite"
                     >

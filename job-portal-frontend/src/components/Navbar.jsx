@@ -10,17 +10,29 @@ const Navbar = () => {
 
     useEffect(() => {
         const fetchCandidate = async () => {
+            const token = localStorage.getItem("token");
+            const role = localStorage.getItem("role");
+
+            if (!token || role !== "CANDIDATE") {
+                setCandidate(null);
+                return;
+            }
+
             try {
                 const response = await axiosInstance.get(
                     "/auth/candidate/current",
                 );
 
                 setCandidate(response.data.data);
-                console.log(response.data);
             } catch (error) {
+                console.error(
+                    "Error fetching candidate:",
+                    error.response?.data || error.message,
+                );
                 setCandidate(null);
             }
         };
+
         fetchCandidate();
     }, [location.pathname]);
 

@@ -132,11 +132,16 @@
   margin: 22px 0 0;
   padding: 12px 14px;
   border-radius: 9px;
-  background: #eff6ff;
-  color: #1e40af;
+  background: rgb(248, 88, 88);
+  color: white;
   font-size: 0.95rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.skill-field {
+  width: 780px;
 }
 
 @media (max-width: 640px) {

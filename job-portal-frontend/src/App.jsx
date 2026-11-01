@@ -31,6 +31,7 @@ import CandidateDashboard from "../src/pages/candidate/CandidateDashboard";
 import ManageApplications from "./pages/candidate/ManageApplications";
 import Jobs from "./components/Jobs";
 import Queries from "../src/pages/admin/Queries.jsx";
+import VerifyOTP from "./components/VerifyOTP.jsx";
 
 const App = () => {
     return (
@@ -49,10 +50,11 @@ const App = () => {
                         path="/company/signup"
                         element={<CompanyRegister />}
                     />
-                    <Route path="login" element={<Login />} />
-                    <Route path="contact" element={<Contact />} />
-                    <Route path="about" element={<About />} />
-                    <Route path="jobs" element={<Jobs />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/jobs" element={<Jobs />} />
+                    <Route path="/verify-otp" element={<VerifyOTP />} />
                 </Route>
 
                 {/* Candidate Layout */}

@@ -22,10 +22,5 @@ public class EmailService {
         mailSender.send(smm);
     }
 
-    public void verifyEmail(EmailRequestDTO email){
-        SimpleMailMessage smm=new SimpleMailMessage();
-        smm.setTo(email.getToEmail());
-        smm.setSubject(email.getSubject());
-        smm.setText(email.getDescription());
-    }
+
 }

@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 public class VerifyCandidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer pendingCandidateId;
+    @Column(name="candidate_id")
+    private Integer candidateId;
+
 
     private String firstname;
 

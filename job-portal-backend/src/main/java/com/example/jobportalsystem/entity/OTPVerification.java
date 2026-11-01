@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Verification {
+public class OTPVerification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

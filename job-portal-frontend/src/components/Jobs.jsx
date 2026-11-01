@@ -49,31 +49,30 @@ const Jobs = () => {
     }, []);
 
     useEffect(() => {
-        const fetchJobIds = async () => {
-            setIsLoading(true);
-            setMessage("");
+        const fetchAppliedJobIds = async () => {
+            const token = localStorage.getItem("token");
+            const role = localStorage.getItem("role");
+
+            if (!token || role !== "CANDIDATE") {
+                setAppliedJobIds([]);
+                return;
+            }
 
             try {
                 const response = await axiosInstance.get(
                     "/auth/candidate/applied-job-ids",
                 );
-                const jobData = response?.data?.data;
 
-                if (!Array.isArray(jobData)) {
-                    setAppliedJobIds([]);
-                    return;
-                }
-
-                setAppliedJobIds(jobData);
-            } catch (err) {
-                console.error("Error fetching jobs:", err);
-                setMessage(err?.response?.data?.message);
-            } finally {
-                setIsLoading(false);
+                setAppliedJobIds(response.data.data || []);
+            } catch (error) {
+                console.error(
+                    "Error fetching applied job IDs:",
+                    error.response?.data || error.message,
+                );
             }
         };
 
-        fetchJobIds();
+        fetchAppliedJobIds();
     }, []);
 
     // APPLY FOR JOB
@@ -108,7 +107,6 @@ const Jobs = () => {
                     "Application submitted successfully!",
             );
             setAppliedJobIds((prev) => [...prev, job.jobId]);
-
         } catch (err) {
             if (err.response?.status === 401 || err.response?.status === 403) {
                 setMessage(

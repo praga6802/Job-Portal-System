@@ -7,17 +7,25 @@ const Footer = () => {
     const [candidate, setCandidate] = useState(null);
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token || role !== "CANDIDATE") {
+            setCandidate(null);
+            return;
+        }
+
         const fetchCandidate = async () => {
             try {
-                const response = await apiInstance.get(
+                const response = await axiosInstance.get(
                     "/auth/candidate/current",
                 );
+
                 setCandidate(response.data.data);
             } catch (error) {
                 setCandidate(null);
             }
         };
-
         fetchCandidate();
     }, []);
 

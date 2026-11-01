@@ -12,8 +12,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class CandidateRegisterDTO {
 
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String contact;

@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,12 +74,12 @@ public class CandidateService {
 
         //storing candidate temporarily
         VerifyCandidate verifyCandidate = new VerifyCandidate();
-        if (candidate.getFirstname() != null && !candidate.getFirstname().isBlank()) {
-            verifyCandidate.setFirstname(candidate.getFirstname().trim());
+        if (candidate.getFirstName() != null && !candidate.getFirstName().isBlank()) {
+            verifyCandidate.setFirstname(candidate.getFirstName().trim());
         }
 
-        if (candidate.getLastname() != null && !candidate.getLastname().isBlank()) {
-            verifyCandidate.setLastname(candidate.getLastname().trim());
+        if (candidate.getLastName() != null && !candidate.getLastName().isBlank()) {
+            verifyCandidate.setLastname(candidate.getLastName().trim());
         }
 
         if (candidate.getEmail() != null && !candidate.getEmail().isBlank()) {
@@ -117,6 +116,37 @@ public class CandidateService {
         return verifyEmail(candidate.getEmail());
     }
 
+    // verify candidate email and sent OTP
+    public ResponseEntity<?> verifyEmail(String email) {
+
+        VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Candidate not found"));
+        int otp=100000+new Random().nextInt(900000);
+
+        OTPVerification verification=new OTPVerification();
+        verification.setEmail(email);
+        verification.setOtp(String.valueOf(otp));
+        verification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        verification.setVerified(false);
+        verification.setUsed(false);
+
+        verificationRepository.save(verification);
+
+        emailService.sendEmail(
+                new EmailRequestDTO(email, "Email Verification - Smart Job Portal",
+                        "Hello " + verifyCandidate.getFirstname()+verifyCandidate.getLastname()+","+ "\n\n" +
+                                "Thank you for registering with Job Portal.\n\n" +
+                                "Your One-Time Password (OTP) for email verification is:\n\n" +
+                                "OTP: " + otp + "\n\n" +
+                                "This OTP is valid for 10 minutes. Please do not share this OTP with anyone.\n\n" +
+                                "If you did not initiate this registration, you can safely ignore this email.\n\n" +
+                                "Regards,\n" +
+                                "Job Portal Team"
+                )
+        );
+
+        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "OTP has been sent to your Email: "+email));
+    }
+
     // Update Candidate Details
     @Transactional
     public ResponseEntity<?> updateCandidate(Integer userId, CandidateRegisterDTO candidate) {
@@ -126,13 +156,13 @@ public class CandidateService {
         Candidate cand = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found!"));
 
 
-        if (candidate.getFirstname() != null && !candidate.getFirstname().trim().isEmpty()) {
-            cand.setFirstname(candidate.getFirstname().trim());
+        if (candidate.getFirstName() != null && !candidate.getFirstName().trim().isEmpty()) {
+            cand.setFirstname(candidate.getFirstName().trim());
             updatedFields.add("First name");
         }
 
-        if (candidate.getLastname() != null && !candidate.getLastname().trim().isEmpty()) {
-            cand.setLastname(candidate.getLastname().trim());
+        if (candidate.getLastName() != null && !candidate.getLastName().trim().isEmpty()) {
+            cand.setLastname(candidate.getLastName().trim());
             updatedFields.add("Last name");
         }
 
@@ -217,7 +247,7 @@ public class CandidateService {
                 new EmailRequestDTO(
                         candidate.getEmail(),
                         "Job Application Submitted - Job Portal",
-                        "Hello, " + candidate.getFirstname() + " " + candidate.getLastname()+"!" +
+                        "Hello, " + candidate.getFirstname() + " " + candidate.getLastname()+"!\n\n" +
                                 "Your job application has been successfully submitted.\n\n" +
                                 "Here are your application details:\n" +
                                 "Job Title: " + job.getTitle() + "\n" +
@@ -473,43 +503,14 @@ public class CandidateService {
         return new ResponseEntity<>(fileBytes,header,HttpStatus.OK);
     }
 
-    // verify candidate email and sent OTP
-    public ResponseEntity<?> verifyEmail(String email) {
 
-        String candidateName = verifyCandidateRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Candidate not found")).getFirstname();
-        int otp=100000+new Random().nextInt(900000);
-
-        Verification verification=new Verification();
-        verification.setEmail(email);
-        verification.setOtp(String.valueOf(otp));
-        verification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
-        verification.setVerified(false);
-        verification.setUsed(false);
-
-        verificationRepository.save(verification);
-
-        emailService.sendEmail(
-                new EmailRequestDTO(email, "Email Verification - Smart Job Portal",
-                        "Hello, " + candidateName + "\n\n" +
-                        "Thank you for registering with Smart Job Portal.\n\n" +
-                        "Your One-Time Password (OTP) for email verification is:\n\n" +
-                        "OTP: " + otp + "\n\n" +
-                        "This OTP is valid for 10 minutes. Please do not share this OTP with anyone.\n\n" +
-                        "If you did not initiate this registration, you can safely ignore this email.\n\n" +
-                        "Regards,\n" +
-                        "Smart Job Portal Team"
-                )
-        );
-
-        return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "OTP has been sent to your Email: "+email));
-    }
 
     // verify OTP for register user
     public ResponseEntity<?> verifyOtp(String email, String otp) {
 
         VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Email not matches!"));
 
-        Verification verification = verificationRepository.findByEmailAndOtpAndIsUsedFalse(email,otp)
+        OTPVerification verification = verificationRepository.findByEmailAndOtpAndIsUsedFalse(email,otp)
                 .orElseThrow(()-> new NotFoundException("Invalid OTP: "+otp));
 
         if(verification.getExpiresAt().isBefore(LocalDateTime.now())){
@@ -525,18 +526,19 @@ public class CandidateService {
         usersRepository.save(user);
 
         // create candidate details
-        Candidate newCandidate = new Candidate();
-        newCandidate.setFirstname(verifyCandidate.getFirstname());
-        newCandidate.setLastname(verifyCandidate.getLastname());
-        newCandidate.setEmail(verifyCandidate.getEmail());
-        newCandidate.setContact(verifyCandidate.getContact());
-        newCandidate.setDateOfBirth(verifyCandidate.getDateOfBirth());
-        newCandidate.setExperience(verifyCandidate.getExperience());
-        newCandidate.setSkills(verifyCandidate.getSkills());
-        newCandidate.setUser(user);
-        newCandidate.setVerified(true);
+        Candidate candidate = new Candidate();
+        candidate.setFirstname(verifyCandidate.getFirstname());
+        candidate.setLastname(verifyCandidate.getLastname());
+        candidate.setEmail(verifyCandidate.getEmail());
+        candidate.setContact(verifyCandidate.getContact());
+        candidate.setDateOfBirth(verifyCandidate.getDateOfBirth());
+        candidate.setExperience(verifyCandidate.getExperience());
+        candidate.setSkills(verifyCandidate.getSkills());
+        candidate.setLocation(verifyCandidate.getLocation());
+        candidate.setUser(user);
+        candidate.setVerified(true);
 
-        candidateRepository.save(newCandidate);
+        candidateRepository.save(candidate);
 
         verification.setUsed(true); // otp is used
         verification.setVerified(true); // email is verified
@@ -546,14 +548,13 @@ public class CandidateService {
         // send welcome email after successful registration
         EmailRequestDTO emailDTO = new EmailRequestDTO();
         emailDTO.setToEmail(verifyCandidate.getEmail());
-        emailDTO.setSubject("Welcome to Smart Job Portal – Your Career Journey Starts Here!");
+        emailDTO.setSubject("Welcome to Job Portal – Your Career Journey Starts Here!");
         emailDTO.setDescription(
-                "Hi "+newCandidate.getFirstname() + " "+newCandidate.getLastname()+", \n\n"+
-                "Welcome to Smart Job Portal!" + "\n" +
-                "Your registration was successful. \n\n" +
+                "Hi "+candidate.getFirstname() + " "+candidate.getLastname()+", \n\n"+
+                "Welcome to Smart Job Portal! "+ "Your registration was successful. \n" +
                 "Go ahead, explore new job opportunities, apply for your dream job, and get hired faster with our platform! \n\n" +
                 "Best wishes,\n" +
-                "Smart Job Portal Team"
+                "Job Portal Team"
         );
         emailService.sendEmail(emailDTO);
 
@@ -565,7 +566,7 @@ public class CandidateService {
 
     // verify otp for email update
     public ResponseEntity<?> verifyEmailUpdate(String otp, Integer userId) {
-        Verification verification = verificationRepository.findByOtpAndIsUsedFalse(otp)
+        OTPVerification verification = verificationRepository.findByOtpAndIsUsedFalse(otp)
                 .orElseThrow(()-> new NotFoundException("Invalid OTP: "+otp));
 
         if(verification.getExpiresAt().isBefore(LocalDateTime.now())){

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import apiInstance from "../services/api.js";
+import axiosInstance from "../services/api.js";
 import suitcase from "../assets/suitcase.png";
 import Jobs from "./Jobs.jsx";
 import FeaturedJobs from "./FeaturedJobs.jsx";
@@ -8,18 +8,32 @@ const Home = () => {
     const [candidate, setCandidate] = useState(null);
     const [categories, setCategories] = useState([]);
 
-    const fetchCandidate = async () => {
-        try {
-            const response = await apiInstance.get("/auth/candidate/current");
-            setCandidate(response.data.data);
-        } catch (error) {
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token || role !== "CANDIDATE") {
             setCandidate(null);
+            return;
         }
-    };
+
+        const fetchCandidate = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    "/auth/candidate/current",
+                );
+
+                setCandidate(response.data.data);
+            } catch (error) {
+                setCandidate(null);
+            }
+        };
+        fetchCandidate();
+    }, []);
 
     const fetchCategories = async () => {
         try {
-            const response = await apiInstance.get("/auth/categories");
+            const response = await axiosInstance.get("/auth/categories");
             setCategories(response.data.data);
         } catch (error) {
             setCategories(null);
@@ -28,7 +42,6 @@ const Home = () => {
 
     useEffect(() => {
         fetchCategories();
-        fetchCandidate();
     }, []);
 
     const categoryIcons = {
