@@ -132,7 +132,7 @@ public class CandidateService {
         verificationRepository.save(verification);
 
         emailService.sendEmail(
-                new EmailRequestDTO(email, "Email Verification - Smart Job Portal",
+                new EmailRequestDTO(email, "Email Verification - Job Portal",
                         "Hello " + verifyCandidate.getFirstname()+verifyCandidate.getLastname()+","+ "\n\n" +
                                 "Thank you for registering with Job Portal.\n\n" +
                                 "Your One-Time Password (OTP) for email verification is:\n\n" +
@@ -247,17 +247,17 @@ public class CandidateService {
                 new EmailRequestDTO(
                         candidate.getEmail(),
                         "Job Application Submitted - Job Portal",
-                        "Hello, " + candidate.getFirstname() + " " + candidate.getLastname()+"!\n\n" +
+                        "Hello, " + candidate.getFirstname() + " " + candidate.getLastname()+"!\n" +
                                 "Your job application has been successfully submitted.\n\n" +
-                                "Here are your application details:\n" +
+                                "Application Details:\n" +
                                 "Job Title: " + job.getTitle() + "\n" +
                                 "Company Name: " + job.getCompany().getName() + "\n" +
                                 "Application ID: " + jobApplication.getId() + "\n" +
                                 "Applied Date: " + jobApplication.getAppliedAt().toLocalDate() + "\n" +
                                 "Application Status: " + jobApplication.getStatus() + "\n\n" +
 
-                                "You can track your application status by logging into your Smart Job Portal account\n"+
-                                "Thank you for using Smart Job Portal. We wish you the best of luck!\n\n" +
+                                "You can track your application status by logging into your Job Portal account\n"+
+                                "Thank you for using Job Portal. We wish you the best of luck!\n\n" +
 
                                 "Regards,\n" +
                                 "Job Portal Team"
@@ -551,7 +551,7 @@ public class CandidateService {
         emailDTO.setSubject("Welcome to Job Portal – Your Career Journey Starts Here!");
         emailDTO.setDescription(
                 "Hi "+candidate.getFirstname() + " "+candidate.getLastname()+", \n\n"+
-                "Welcome to Smart Job Portal! "+ "Your registration was successful. \n" +
+                "Welcome to Job Portal! "+ "Your registration was successful. \n" +
                 "Go ahead, explore new job opportunities, apply for your dream job, and get hired faster with our platform! \n\n" +
                 "Best wishes,\n" +
                 "Job Portal Team"
@@ -599,7 +599,7 @@ public class CandidateService {
                 "Hi "+ candidate.getFirstname()+" "+candidate.getLastname() +", \n\n"+
                 "Your email has been SUCCESSFULLY updated from "+ users.getEmail() + " to " +verifyCandidate.getEmail()+ "\n\n" +
                 "Best regards, \n\n" +
-                "Smart Job Portal team."
+                "Job Portal team."
                 );
 
         verifyCandidateRepository.delete(verifyCandidate);
@@ -622,9 +622,6 @@ public class CandidateService {
 
         return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(),"Success","Applied Count fetched Successfully",appliedJobsCount));
     }
-
-
-
 
 
     public ResponseEntity<?> viewSelectedCount(Integer candidateId) {

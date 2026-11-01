@@ -116,8 +116,6 @@ public class CandidateController {
     }
 
 
-
-
     // ----------------------- RESUME features ---------------------------
     // upload resume
     @PostMapping("/upload-resume")
