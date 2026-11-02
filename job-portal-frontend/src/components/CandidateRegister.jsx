@@ -50,6 +50,7 @@ const CandidateRegister = () => {
                 navigate("/verify-otp", {
                     state: {
                         email: formData.email,
+                        purpose: "REGISTRATION",
                     },
                 });
             }, 1000);
