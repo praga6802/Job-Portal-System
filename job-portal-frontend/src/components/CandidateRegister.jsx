@@ -5,6 +5,7 @@ import "../styles/CandidateRegister.css";
 
 const CandidateRegister = () => {
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const initialFormState = {
         firstName: "",
         lastName: "",
@@ -37,6 +38,7 @@ const CandidateRegister = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
+        setIsSubmitting(true);
 
         try {
             const response = await axios.post(
@@ -64,6 +66,8 @@ const CandidateRegister = () => {
             );
 
             console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -162,6 +166,7 @@ const CandidateRegister = () => {
                             name="dob"
                             value={formData.dob}
                             onChange={handleChange}
+                            max={new Date().toISOString().split("T")[0]}
                             required
                         />
                     </div>
@@ -213,8 +218,12 @@ const CandidateRegister = () => {
                             Reset
                         </button>
 
-                        <button type="submit" className="candidate-submit-btn">
-                            Create Account
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="candidate-submit-btn"
+                        >
+                            {isSubmitting ? "Signing in.." : "Create Account"}
                         </button>
                     </div>
                 </form>

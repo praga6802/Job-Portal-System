@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +19,8 @@ public class OTPVerification {
     @Column(name="id")
     private Integer verificationId;
 
-    @Column(name="email",nullable = false)
-    private String email;
+    @Column(name="new_email",nullable = false)
+    private String newEmail;
 
     @Column(name="otp", nullable = false)
     private String otp;
@@ -37,5 +38,9 @@ public class OTPVerification {
     @Column(nullable = false)
     private String purpose;
 
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Users user;
 
 }

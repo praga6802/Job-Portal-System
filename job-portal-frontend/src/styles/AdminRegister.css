@@ -1,0 +1,234 @@
+/* ===============================
+   Admin Registration Page
+================================ */
+
+.admin-register-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #071a3d 0%, #102b59 55%, #1d4ed8 100%);
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* ===============================
+   Registration Container
+================================ */
+
+.admin-register-container {
+    width: 100%;
+    max-width: 550px;
+    padding: 40px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+}
+
+/* ===============================
+   Header
+================================ */
+
+.admin-register-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.admin-register-header h1 {
+    font-size: 35px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 10px;
+}
+
+.admin-register-header p {
+    font-size: 18px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* ===============================
+   Form
+================================ */
+
+.admin-register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Name Row */
+
+.admin-register-name-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Input Fields */
+
+.admin-register-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-register-field label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.admin-register-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #131923;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.admin-register-field input::placeholder {
+    color: #94a3b8;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.admin-register-field input:hover {
+    border-color: #94a3b8;
+}
+
+.admin-register-field input:focus {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ===============================
+   Buttons
+================================ */
+
+.admin-register-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.admin-register-submit-btn,
+.admin-register-reset-btn {
+    flex: 1;
+    width: max-content;
+    padding: 13px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Create Account Button */
+
+.admin-register-submit-btn {
+    color: #ffffff;
+    background: #2563eb;
+}
+
+.admin-register-submit-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.admin-register-submit-btn:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Reset Button */
+
+.admin-register-reset-btn {
+    color: #334155;
+    background: #e2e8f0;
+}
+
+.admin-register-reset-btn:hover {
+    background: #cbd5e1;
+}
+
+.admin-register-reset-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===============================
+   Success / Error Message
+================================ */
+
+.admin-register-message {
+    margin-top: 20px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.admin-register-message.success {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.admin-register-message.error {
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+/* ===============================
+   Responsive Design
+================================ */
+
+@media (max-width: 600px) {
+    .admin-register-page {
+        padding: 20px 15px;
+    }
+
+    .admin-register-container {
+        padding: 28px 22px;
+    }
+
+    .admin-register-header h1 {
+        font-size: 24px;
+    }
+
+    .admin-register-name-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .admin-register-container {
+        padding: 24px 16px;
+    }
+
+    .admin-register-buttons {
+        flex-direction: column;
+    }
+
+    .admin-register-submit-btn,
+    .admin-register-reset-btn {
+        width: 100%;
+    }
+}

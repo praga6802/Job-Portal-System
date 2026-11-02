@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../services/api";
 
 const CandidateProfile = () => {
@@ -13,6 +14,8 @@ const CandidateProfile = () => {
         skills: "",
         experience: "",
     });
+
+    const navigate = useNavigate();
     const [originalCandidate, setOriginalCandidate] = useState({});
     const [message, setMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
@@ -86,14 +89,17 @@ const CandidateProfile = () => {
             );
 
             if (updatedCandidate.email) {
-                navigate("/verify-otp", {
-                    state: {
-                        email: updatedCandidate.email,
-                        purpose: "EMAIL_UPDATE",
-                    },
-                });
+                setMessage("Email changed. Navigating to OTP page...");
 
-                return;
+                setTimeout(() => {
+                    navigate("/verify-otp", {
+                        state: {
+                            email: updatedCandidate.email,
+                            purpose: "EMAIL_UPDATE",
+                        },
+                    });
+                    return;
+                }, 2000);
             }
 
             setMessage(

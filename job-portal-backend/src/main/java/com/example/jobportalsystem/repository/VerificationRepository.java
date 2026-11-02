@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface VerificationRepository extends JpaRepository<OTPVerification, Integer> {
 
 
-    Optional<OTPVerification> findByEmailAndOtpAndIsUsedFalse(String email, String otp);
+    Optional<OTPVerification> findByNewEmailAndOtpAndIsUsedFalse(String email, String otp);
 
-    Optional<OTPVerification> findByOtpAndIsUsedFalse(String otp);
+    Optional<OTPVerification> findByNewEmailAndOtpAndPurposeAndIsUsedFalse(String email, String otp, String purpose);
 }

@@ -12,10 +12,11 @@ const CompanyRegister = () => {
         url: "",
         size: "",
         type: "",
-        industry:"",
+        industry: "",
         location: "",
         gst: "",
     };
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState(initialFormState);
     const [message, setMessage] = useState("");
@@ -35,6 +36,7 @@ const CompanyRegister = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
+        setIsSubmitting(true);
 
         try {
             const response = await axios.post(
@@ -54,6 +56,8 @@ const CompanyRegister = () => {
                 err.response?.data?.message || "Company registration failed!",
             );
             console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -225,13 +229,14 @@ const CompanyRegister = () => {
                         <button
                             type="button"
                             className="company-reset-btn"
+                            disabled={isSubmitting}
                             onClick={handleReset}
                         >
                             Reset
                         </button>
 
                         <button type="submit" className="company-submit-btn">
-                            Register
+                            {isSubmitting ? "Signing in.." : "Create Account"}
                         </button>
                     </div>
                 </form>
