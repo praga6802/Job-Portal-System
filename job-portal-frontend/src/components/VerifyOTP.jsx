@@ -7,6 +7,7 @@ const VerifyOTP = () => {
     const navigate = useNavigate();
 
     const email = location.state?.email;
+    const purpose = location.state?.purpose;
 
     const [otp, setOtp] = useState("");
     const [message, setMessage] = useState("");
@@ -18,8 +19,9 @@ const VerifyOTP = () => {
             const response = await axios.post(
                 "http://localhost:8080/auth/candidate/verify-otp",
                 {
-                    email: email,
-                    otp: otp,
+                    email,
+                    otp,
+                    purpose,
                 },
             );
 

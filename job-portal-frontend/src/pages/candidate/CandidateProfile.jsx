@@ -13,7 +13,7 @@ const CandidateProfile = () => {
         skills: "",
         experience: "",
     });
-
+    const [originalCandidate, setOriginalCandidate] = useState({});
     const [message, setMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const CandidateProfile = () => {
 
             const data = response.data.data;
 
-            setCandidate({
+            const candidateData = {
                 firstname: data.firstname || "",
                 lastname: data.lastname || "",
                 email: data.email || "",
@@ -38,7 +38,9 @@ const CandidateProfile = () => {
                 dob: data.dob || "",
                 skills: data.skills || "",
                 experience: data.experience || "",
-            });
+            };
+            setCandidate(candidateData);
+            setOriginalCandidate(candidateData);
         } catch (error) {
             setMessage("Unable to load candidate profile.");
             setIsSuccess(false);
@@ -61,20 +63,48 @@ const CandidateProfile = () => {
         setMessage("");
 
         try {
-            const updatedCandidate = { ...candidate };
+            const updatedCandidate = {};
+
+            Object.keys(candidate).forEach((key) => {
+                if (
+                    key !== "password" &&
+                    candidate[key] !== originalCandidate[key]
+                ) {
+                    updatedCandidate[key] = candidate[key];
+                }
+            });
+
+            if (Object.keys(updatedCandidate).length === 0) {
+                setMessage("No changes detected.");
+                setIsSuccess(false);
+                return;
+            }
 
             const response = await axiosInstance.put(
                 "/auth/candidate/update",
                 updatedCandidate,
             );
 
+            if (updatedCandidate.email) {
+                navigate("/verify-otp", {
+                    state: {
+                        email: updatedCandidate.email,
+                        purpose: "EMAIL_UPDATE",
+                    },
+                });
+
+                return;
+            }
+
             setMessage(
                 response?.data?.message || "Profile updated successfully!",
             );
+
             setIsSuccess(true);
 
-            setCandidate((prev) => ({
+            setOriginalCandidate((prev) => ({
                 ...prev,
+                ...updatedCandidate,
             }));
 
             setTimeout(() => {
@@ -84,6 +114,7 @@ const CandidateProfile = () => {
             setMessage(
                 error.response?.data?.message || "Failed to update profile.",
             );
+
             setIsSuccess(false);
         }
     };

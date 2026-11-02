@@ -2,10 +2,13 @@ package com.example.jobportalsystem.controller;
 
 
 import com.example.jobportalsystem.dto.*;
+import com.example.jobportalsystem.exception.NotFoundException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
+import com.example.jobportalsystem.repository.UsersRepository;
 import com.example.jobportalsystem.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,9 @@ public class CandidateController {
 
     @Autowired
     private CandidateService candidateService;
+
+    @Autowired
+    private UsersRepository usersRepository;
 
     // candidate registration
     @PostMapping("/register")
@@ -154,18 +160,17 @@ public class CandidateController {
     }
 
 
-
     // ----------------------- EMAIL verification ---------------------------
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody CandidateRegistrationVerificationDTO candidate) {
-        return candidateService.verifyOtp(candidate.getEmail(),candidate.getOtp());
-    }
+    public ResponseEntity<?> verifyOtp(@RequestBody CandidateRegistrationVerificationDTO candidate, Authentication authentication) {
+        Integer userId = null;
 
-    @PostMapping("/verify-email-update")
-    public ResponseEntity<?> verifyEmailUpdate(@RequestBody OTPRequestDTO otp, @AuthenticationPrincipal MyUserDetails userDetails){
-        System.out.println(userDetails.getEmail()+" "+userDetails.getUsername());
-        return candidateService.verifyEmailUpdate(otp.getOtp(),userDetails.getUserId());
+        if ("EMAIL_UPDATE".equals(candidate.getPurpose())) {
+            userId = usersRepository.findByEmail(authentication.getName()).orElseThrow(() -> new NotFoundException("User not found!")).getUserId();
+        }
+
+        return candidateService.verifyOtp(candidate.getEmail(), candidate.getOtp(), candidate.getPurpose(), userId);
     }
 
 }

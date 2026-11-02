@@ -18,7 +18,6 @@ public class VerifyCandidate {
     @Column(name="candidate_id")
     private Integer candidateId;
 
-
     private String firstname;
 
     private String lastname;

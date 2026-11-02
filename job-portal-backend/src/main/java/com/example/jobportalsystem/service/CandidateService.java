@@ -113,11 +113,11 @@ public class CandidateService {
         verifyCandidate.setCreatedAt(LocalDateTime.now());
         verifyCandidateRepository.save(verifyCandidate);
 
-        return verifyEmail(candidate.getEmail());
+        return verifyEmail(candidate.getEmail(), "REGISTRATION");
     }
 
     // verify candidate email and sent OTP
-    public ResponseEntity<?> verifyEmail(String email) {
+    public ResponseEntity<?> verifyEmail(String email, String purpose) {
 
         VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Candidate not found"));
         int otp=100000+new Random().nextInt(900000);
@@ -128,6 +128,7 @@ public class CandidateService {
         verification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         verification.setVerified(false);
         verification.setUsed(false);
+        verification.setPurpose(purpose);
 
         verificationRepository.save(verification);
 
@@ -174,7 +175,7 @@ public class CandidateService {
             verifyCandidate.setEmail(candidate.getEmail());
             verifyCandidateRepository.save(verifyCandidate);
 
-            return verifyEmail(candidate.getEmail());
+            return verifyEmail(candidate.getEmail(), "EMAIL_UPDATE");
         }
 
         if (candidate.getContact() != null && !candidate.getContact().trim().isEmpty()) {
@@ -202,7 +203,7 @@ public class CandidateService {
         }
 
         if (candidate.getLocation() != null && !candidate.getLocation().trim().isEmpty()) {
-            cand.setLocation(candidate.getSkills().trim());
+            cand.setLocation(candidate.getLocation().trim());
             updatedFields.add("Location");
         }
         candidateRepository.save(cand);
@@ -506,109 +507,130 @@ public class CandidateService {
 
 
     // verify OTP for register user
-    public ResponseEntity<?> verifyOtp(String email, String otp) {
+    @Transactional
+    public ResponseEntity<?> verifyOtp(String email, String otp, String purpose, Integer userId) {
 
-        VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("Email not matches!"));
+        OTPVerification verification = verificationRepository.findByEmailAndOtpAndIsUsedFalse(email, otp).orElseThrow(() -> new NotFoundException("Invalid OTP!"));
 
-        OTPVerification verification = verificationRepository.findByEmailAndOtpAndIsUsedFalse(email,otp)
-                .orElseThrow(()-> new NotFoundException("Invalid OTP: "+otp));
+        if (verification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "OTP has expired!"));
+        }
 
-        if(verification.getExpiresAt().isBefore(LocalDateTime.now())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","OTP has expired!"));
+        if (verification.isVerified()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(), "Failure", "OTP already verified!"));
         }
 
 
-        // create user details
-        Users user = new Users();
-        user.setEmail(verifyCandidate.getEmail());
-        user.setPassword(verifyCandidate.getPassword());
-        user.setRole("CANDIDATE");
-        usersRepository.save(user);
+        // ================= REGISTRATION =================
 
-        // create candidate details
-        Candidate candidate = new Candidate();
-        candidate.setFirstname(verifyCandidate.getFirstname());
-        candidate.setLastname(verifyCandidate.getLastname());
-        candidate.setEmail(verifyCandidate.getEmail());
-        candidate.setContact(verifyCandidate.getContact());
-        candidate.setDateOfBirth(verifyCandidate.getDateOfBirth());
-        candidate.setExperience(verifyCandidate.getExperience());
-        candidate.setSkills(verifyCandidate.getSkills());
-        candidate.setLocation(verifyCandidate.getLocation());
-        candidate.setUser(user);
-        candidate.setVerified(true);
+        if ("REGISTRATION".equals(purpose)) {
 
-        candidateRepository.save(candidate);
+            VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Email not matches!"));
 
-        verification.setUsed(true); // otp is used
-        verification.setVerified(true); // email is verified
-        verificationRepository.save(verification);
+            // Create user details
+            Users user = new Users();
+            user.setEmail(verifyCandidate.getEmail());
+            user.setPassword(verifyCandidate.getPassword());
+            user.setRole("CANDIDATE");
+            usersRepository.save(user);
 
+            // Create candidate details
+            Candidate candidate = new Candidate();
+            candidate.setFirstname(verifyCandidate.getFirstname());
+            candidate.setLastname(verifyCandidate.getLastname());
+            candidate.setEmail(verifyCandidate.getEmail());
+            candidate.setContact(verifyCandidate.getContact());
+            candidate.setDateOfBirth(verifyCandidate.getDateOfBirth());
+            candidate.setExperience(verifyCandidate.getExperience());
+            candidate.setSkills(verifyCandidate.getSkills());
+            candidate.setLocation(verifyCandidate.getLocation());
+            candidate.setUser(user);
+            candidate.setVerified(true);
 
-        // send welcome email after successful registration
-        EmailRequestDTO emailDTO = new EmailRequestDTO();
-        emailDTO.setToEmail(verifyCandidate.getEmail());
-        emailDTO.setSubject("Welcome to Job Portal – Your Career Journey Starts Here!");
-        emailDTO.setDescription(
-                "Hi "+candidate.getFirstname() + " "+candidate.getLastname()+", \n\n"+
-                "Welcome to Job Portal! "+ "Your registration was successful. \n" +
-                "Go ahead, explore new job opportunities, apply for your dream job, and get hired faster with our platform! \n\n" +
-                "Best wishes,\n" +
-                "Job Portal Team"
-        );
-        emailService.sendEmail(emailDTO);
+            candidateRepository.save(candidate);
 
-        verifyCandidateRepository.delete(verifyCandidate); // delete temporary candidate details
-        verificationRepository.delete(verification);
+            verification.setUsed(true);
+            verification.setVerified(true);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(LocalDateTime.now(),"Success", "SignUp Successfully!"));
-    }
+            verificationRepository.save(verification);
 
-    // verify otp for email update
-    public ResponseEntity<?> verifyEmailUpdate(String otp, Integer userId) {
-        OTPVerification verification = verificationRepository.findByOtpAndIsUsedFalse(otp)
-                .orElseThrow(()-> new NotFoundException("Invalid OTP: "+otp));
+            // Send welcome email
+            EmailRequestDTO emailDTO = new EmailRequestDTO();
+            emailDTO.setToEmail(verifyCandidate.getEmail());
+            emailDTO.setSubject(
+                    "Welcome to Job Portal – Your Career Journey Starts Here!"
+            );
 
-        if(verification.getExpiresAt().isBefore(LocalDateTime.now())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new LoginResponseDTO(LocalDateTime.now(),"Failure","OTP has expired!"));
+            emailDTO.setDescription(
+                    "Dear " + candidate.getFirstname() + " "
+                            + candidate.getLastname() + ",\n\n"
+                            + "Welcome to Job Portal!\n\n"
+                            + "We are delighted to have you as a part of our growing "
+                            + "professional community. Your account has been successfully "
+                            + "created, and you are now ready to explore exciting career "
+                            + "opportunities that match your skills and experience.\n\n"
+                            + "With Job Portal, you can:\n"
+                            + "- Explore job opportunities across various industries.\n"
+                            + "- Apply for jobs that match your career goals.\n"
+                            + "- Track your application status.\n"
+                            + "- Connect with potential employers.\n\n"
+                            + "We wish you the very best in your job search and look "
+                            + "forward to helping you take the next step in your career.\n\n"
+                            + "Thank you for choosing Job Portal!\n\n"
+                            + "Best Regards,\n"
+                            + "Job Portal Team\n"
+                            + "Your Career. Your Future."
+            );
+
+            emailService.sendEmail(emailDTO);
+
+            verifyCandidateRepository.delete(verifyCandidate);
+            verificationRepository.delete(verification);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(LocalDateTime.now(), "Success", "SignUp Successfully!"));
         }
 
-        VerifyCandidate verifyCandidate = verifyCandidateRepository.findByEmail(verification.getEmail()).orElseThrow(()-> new NotFoundException("New email not found"));
+        // ================= EMAIL UPDATE =================
 
+        else if ("EMAIL_UPDATE".equals(purpose)) {
+            Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(() -> new NotFoundException("Candidate not found!"));
+            Users user = candidate.getUser();
+            String oldEmail = user.getEmail();
 
-        Users users = usersRepository.findById(userId).orElseThrow(()-> new NotFoundException("User not found!"));
-        Candidate candidate = candidateRepository.findByUser_UserId(userId).orElseThrow(()-> new NotFoundException("Candidate not found!"));
+            candidate.setEmail(email);
+            user.setEmail(email);
 
-        users.setEmail(verifyCandidate.getEmail());
-        usersRepository.save(users);
+            candidateRepository.save(candidate);
+            usersRepository.save(user);
 
-        candidate.setEmail(verifyCandidate.getEmail());
-        candidateRepository.save(candidate);
+            verification.setUsed(true);
+            verification.setVerified(true);
 
-        verification.setVerified(true);
-        verification.setUsed(true);
-        verificationRepository.save(verification);
+            EmailRequestDTO emailDTO = new EmailRequestDTO();
+            emailDTO.setToEmail(candidate.getEmail());
+            emailDTO.setSubject("Email Updated Successfully!");
+            emailDTO.setDescription(
+                    "Hi " + candidate.getFirstname() + " "
+                            + candidate.getLastname() + ",\n\n"
+                            + "Your email has been successfully updated.\n\n"
+                            + "Previous Email: " + oldEmail + "\n"
+                            + "New Email: " + candidate.getEmail() + "\n\n"
+                            + "If you did not make this change, please contact our support team.\n\n"
+                            + "Best regards,\n"
+                            + "Job Portal Team."
+            );
 
-        String token = jwtService.generateToken(verifyCandidate.getEmail());
+            verificationRepository.save(verification);
+            verificationRepository.delete(verification);
 
-        // send success after new email update
-        EmailRequestDTO emailDTO = new EmailRequestDTO();
-        emailDTO.setToEmail(verifyCandidate.getEmail());
-        emailDTO.setSubject("Email Updation Successful!");
-        emailDTO.setDescription(
-                "Hi "+ candidate.getFirstname()+" "+candidate.getLastname() +", \n\n"+
-                "Your email has been SUCCESSFULLY updated from "+ users.getEmail() + " to " +verifyCandidate.getEmail()+ "\n\n" +
-                "Best regards, \n\n" +
-                "Job Portal team."
-                );
+            return ResponseEntity.ok(new ApiResponseDTO(LocalDateTime.now(), "Success", "Email updated successfully!"));
+        }
 
-        verifyCandidateRepository.delete(verifyCandidate);
-        verificationRepository.delete(verification);
-
-        return ResponseEntity.ok(new LoginResponseDTO(LocalDateTime.now(),"Success","Email Updated Successfully",token));
-
-
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDTO(LocalDateTime.now(), "Failure", "Invalid OTP purpose!"));
+        }
     }
+
 
     public ResponseEntity<ApiResponseDTO> getCurrentCandidate(MyUserDetails userDetails) {
         Candidate candidate = candidateRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new NotFoundException("Session Expired! Please try again"));
