@@ -305,6 +305,6 @@ The frontend and backend can now be accessed through their respective local deve
 
 Aspiring Java Full Stack Developer
 
-- GitHub: [praga6802](https://github.com/praga6802)
-- Portfolio: [Pragadeeswaran Sekar](https://portfolio-pragadeeswaran.vercel.app/)
+- **GitHub:** [praga6802](https://github.com/praga6802)
+- **Portfolio:** [Pragadeeswaran Sekar](https://portfolio-pragadeeswaran.vercel.app/)
 
