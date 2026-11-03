@@ -168,7 +168,7 @@ public class CandidateController {
 
         Integer userId = null;
 
-        //fetching the details for exisiting candidate
+        //fetching the details for existing candidate
         if ("EMAIL_UPDATE".equals(candidate.getPurpose())) {
 
             if (myUserDetails == null) {

@@ -1,131 +1,174 @@
 # Job Portal System
 
-A **Spring Boot based backend application** that provides a platform for candidates, companies, and administrators to manage job-related activities securely. The system provides **JWT-based authentication**, email verification using OTP, job posting and application management, resume handling, and role-based access to REST APIs.
+A full-stack **Job Portal System** developed using Java, Spring Boot, React, and MySQL that connects candidates with companies and provides administrative management capabilities. The application enables candidates to search and apply for jobs, companies to manage job postings and applications, and administrators to oversee system operations.
+
+The project implements secure authentication, role-based authorization, OTP-based email verification, resume management, and RESTful API integration.
 
 ## 🚀 Features
 
-* User Registration and Login
-* **JWT Based Authentication**
-* **Role-Based Authorization**
-* Secure Password Encryption using **BCrypt**
-* **Email Verification using OTP**
-* OTP Expiration and Verification Handling
-* Candidate Management
-* Company Management
-* Job Posting Management
-* Job Application Management
-* Resume Upload and Download
-* Active Job Management
-* RESTful API Architecture
-* Global Exception Handling
-* Common API Response Structure using DTOs
-* Database Integration using **Spring Data JPA**
-* MySQL Database Integration
-* API Testing using Postman
+### 🔐 Authentication & Authorization
+- User Registration and Login
+- JWT-Based Authentication
+- Role-Based Access Control (RBAC)
+- Secure Password Hashing using BCrypt
+- OTP-Based Email Verification
+- OTP Expiration and Verification Handling
+- Protected Routes based on User Roles
 
-## 🛠 Tech Stack
+### 👨‍💻 Candidate Management
+- Candidate Registration and Login
+- Candidate Profile Management
+- Job Search and Job Details
+- Apply for Available Jobs
+- View Applied Jobs
+- Resume Upload and Management
+- Resume Validation, Viewing, Downloading, and Deletion
 
-* **Java**
-* **Spring Boot**
-* **Spring Security**
-* **JWT (JSON Web Token)**
-* **Spring Data JPA**
-* **Hibernate**
-* **MySQL**
-* **Maven**
-* **Postman**
-* **Git & GitHub**
+### 🏢 Company Management
+- Company Registration and Login
+- Company Profile Management
+- Create and Manage Job Postings
+- Activate and Deactivate Job Listings
+- View Job Applications
+- Manage Applicant Status
+- Shortlist, Select, and Reject Applicants
+
+### 🛡️ Admin Management
+- Administrative Dashboard
+- Manage Candidate and Company Accounts
+- Monitor Job Postings
+- Manage System-Level Operations
+
+### ⚙️ Backend Features
+- RESTful API Architecture
+- Global Exception Handling
+- Standardized API Response Structure using DTOs
+- Database Integration using Spring Data JPA
+- Entity Relationships using Hibernate
+- JWT Authentication Filter
+- API Testing using Postman
+
+### 🎨 Frontend Features
+- Responsive User Interface
+- React-Based Component Architecture
+- React Router for Navigation
+- Axios for REST API Integration
+- Role-Based Navigation
+- Responsive Layout using HTML and CSS
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|---|---|
+| Programming Language | Java, JavaScript |
+| Frontend | React.js, HTML5, CSS3 |
+| Backend | Spring Boot, Spring MVC |
+| Security | Spring Security, JWT, BCrypt |
+| Database | MySQL |
+| ORM | Spring Data JPA, Hibernate |
+| API Communication | REST APIs, Axios |
+| Build Tool | Maven |
+| API Testing | Postman |
+| Version Control | Git, GitHub |
+| IDE | IntelliJ IDEA, VS Code |
 
 ## 🔐 Authentication & Authorization
 
-The application uses **Spring Security** with **JWT authentication** to secure protected APIs.
+The application uses Spring Security and JWT to authenticate users and protect REST APIs.
 
 ### Authentication Flow
 
-1. User registers with their required details.
-2. An **OTP is sent to the registered email address** for email verification.
-3. User verifies the OTP within the allowed expiration time.
-4. User logs in using their email and password.
-5. The system authenticates the user credentials.
-6. A **JWT token** is generated after successful authentication.
-7. The token must be included in the `Authorization` header when accessing protected APIs.
+1. Users register with their required details.
+2. An OTP is generated and sent to the registered email address.
+3. Users verify their email using the OTP within the validity period.
+4. Users log in using their email and password.
+5. Spring Security authenticates the user credentials.
+6. A JWT token is generated after successful authentication.
+7. The token is used to access protected APIs.
+
+### Role-Based Access Control
+
+The application supports three user roles:
+
+| Role | Access |
+|---|---|
+| Candidate | Search jobs, apply for jobs, manage profile and resume |
+| Company | Create job postings, manage jobs, view and manage applicants |
+| Admin | Manage and monitor system operations |
+
+Protected API requests are authenticated using JWT.
 
 ```http
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-### Role-Based Access
+## 📧 OTP-Based Email Verification
 
-Different users can access APIs based on their assigned roles.
+The application implements OTP-based email verification for secure user registration.
 
-* **Candidate** – Search and apply for jobs, manage profile and resume
-* **Company** – Create and manage job postings and view applications
-* **Admin** – Manage and monitor system-level operations
+- Generates a unique OTP for email verification.
+- Sends the OTP to the user's email address.
+- Maintains OTP expiration with a 10-minute validity period.
+- Rejects invalid and expired OTPs.
+- Tracks verification status to prevent OTP reuse.
 
-## 📧 Email Verification
-
-The registration process includes email verification using **OTP**.
-
-* OTP is generated during registration.
-* OTP is sent to the user's email.
-* OTP has a limited validity period.
-* Invalid or expired OTPs are rejected.
-* Verification status is maintained to prevent reuse of OTPs.
-
-## 💼 Job Management
+## 💼 Job Posting Management
 
 Companies can manage job postings through secured REST APIs.
 
-The system supports operations such as:
+Functionalities include:
 
-* Create job postings
-* Update job postings
-* Manage job status
-* Retrieve active jobs
-* View job details
-* Manage jobs associated with a company
+- Create job postings
+- Update job details
+- Manage job status
+- Activate and deactivate jobs
+- Retrieve active job listings
+- View job details
+- Manage company-specific job postings
+
+## 📝 Job Application Management
+
+Candidates can apply for available jobs, and companies can manage applications for their job postings.
+
+Functionalities include:
+
+- Apply for jobs
+- Retrieve candidate applications
+- View applications associated with company job postings
+- Track application status
+- Shortlist applicants
+- Select or reject applicants
 
 ## 📄 Resume Management
 
 Candidates can upload and manage their resumes.
 
-The system supports:
+- Resume Upload
+- Resume Storage
+- Resume File Validation
+- Resume Viewing
+- Resume Download
+- Resume Deletion
 
-* Resume upload
-* Resume storage
-* Resume validation
-* Resume retrieval
-* Resume download
-* Resume deletion
+## 🗄️ Database Design
 
-## 📝 Job Application Management
+The application uses MySQL as its relational database, with Spring Data JPA and Hibernate for persistence and entity relationship management.
 
-Candidates can apply for available jobs, while companies can manage applications associated with their job postings.
+### Major Entities
 
-The system provides APIs for:
+- Users
+- Candidate
+- Company
+- Job
+- Job Application
+- OTP Verification
+- Resume
 
-* Applying for jobs
-* Viewing job applications
-* Managing application information
-* Retrieving applications for company job postings
+## 🏗️ Project Architecture
 
-## 🗄 Database
+The backend follows a layered architecture to maintain separation of concerns and improve maintainability.
 
-The application uses **MySQL** as the relational database and **Spring Data JPA / Hibernate** for database operations.
-
-Major entities include:
-
-* Users
-* Candidate
-* Company
-* Job
-* Job Application
-* Verification Data
-* Resume
-
-## 📁 Project Architecture
-
-The application follows a layered Spring Boot architecture:
+### Backend Package Structure
 
 ```text
 src/main/java
@@ -137,53 +180,131 @@ src/main/java
     ├── dto
     ├── enums
     ├── exception
-    └── configuration
-    └── filter
+    ├── configuration
+    ├── filter
     └── pojo
-
 ```
 
 ### Architecture Flow
 
 ```text
-Client
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Repository
-   ↓
-MySQL Database
+                  React Frontend
+                       |
+                 Axios REST API
+                       |
+                Spring Security
+                  JWT Filter
+                       |
+                   Controller
+                       |
+                    Service
+                       |
+                  Repository
+                       |
+                  MySQL Database
 ```
 
-Security-related requests are handled through Spring Security and JWT filters before reaching protected controllers.
+The frontend communicates with the backend through REST APIs. Spring Security and JWT filters authenticate incoming requests before protected controller operations are executed.
 
 ## 🧪 API Testing
 
-The REST APIs are tested using **Postman**.
+The REST APIs are tested using Postman to validate functionality, authentication, authorization, and request-response handling.
 
-The project includes APIs for:
+API modules include:
 
-* Authentication
-* Candidate management
-* Company management
-* Job management
-* Job applications
-* Resume management
-* Email verification
+- Authentication and Authorization
+- Candidate Management
+- Company Management
+- Job Management
+- Job Application Management
+- Resume Management
+- OTP Email Verification
+- Admin Management
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+- Java JDK
+- Maven
+- Node.js and npm
+- MySQL
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+```
+
+### 2. Backend Setup
+
+Navigate to the backend directory:
+
+```bash
+cd <BACKEND_DIRECTORY>
+```
+
+Configure the MySQL database and required application properties in `application.properties`.
+
+Configure the following environment-specific values:
+
+- Database URL
+- Database Username
+- Database Password
+- JWT Secret Key
+- Email SMTP Configuration
+
+Build the backend:
+
+```bash
+mvn clean install
+```
+
+Run the Spring Boot application:
+
+```bash
+mvn spring-boot:run
+```
+
+### 3. Frontend Setup
+
+Navigate to the frontend directory:
+
+```bash
+cd <FRONTEND_DIRECTORY>
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Configure the backend API base URL in the frontend API configuration.
+
+Start the React application:
+
+```bash
+npm run dev
+```
+
+The frontend and backend can now be accessed through their respective local development URLs.
 
 ## 🔮 Future Improvements
 
-* **Refresh Token Service**
-* Frontend / UI implementation
-* Job search and advanced filtering
-* Improved pagination and sorting
-* Additional notification features
-* Deployment and cloud integration
+- Refresh Token Implementation
+- Real-Time Notifications
+- Cloud Deployment
+- Enhanced Job Search and Filtering
+- Improved Dashboard Analytics
 
 ## 👨‍💻 Author
 
 **Pragadeeswaran Sekar**
 
-Aspiring **Java Backend Developer** passionate about building secure and scalable applications using **Java, Spring Boot, REST APIs, Spring Security, and MySQL**.
+Aspiring Java Full Stack Developer
+
+- GitHub: [praga6802](https://github.com/praga6802)
+- Portfolio: [Pragadeeswaran Sekar](https://portfolio-pragadeeswaran.vercel.app/)
+
