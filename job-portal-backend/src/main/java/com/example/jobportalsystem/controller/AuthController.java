@@ -1,9 +1,7 @@
 package com.example.jobportalsystem.controller;
 
-import com.example.jobportalsystem.dto.ForgotPasswordDTO;
-import com.example.jobportalsystem.dto.LoginRequestDTO;
-import com.example.jobportalsystem.dto.LoginResponseDTO;
-import com.example.jobportalsystem.dto.PostQueryDTO;
+import com.example.jobportalsystem.dto.*;
+import com.example.jobportalsystem.exception.UnAuthorizedException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +50,7 @@ public class AuthController {
         return authService.postQuery(dto);
 
     }
+
+
 
 }

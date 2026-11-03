@@ -154,7 +154,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-lg cursor-pointer bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {isSubmitting ? "Logging in..." : "Login"}
                         </button>
@@ -162,7 +162,7 @@ const Login = () => {
                         <button
                             type="button"
                             onClick={handleReset}
-                            className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-yellow-500"
+                            className="rounded-lg cursor-pointer bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-yellow-500"
                         >
                             Reset
                         </button>

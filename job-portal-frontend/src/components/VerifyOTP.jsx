@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../services/api.js";
 
 const VerifyOTP = () => {
     const location = useLocation();
@@ -13,7 +13,7 @@ const VerifyOTP = () => {
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [timeLeft, setTimeLeft] = useState(300);
+    const [timeLeft, setTimeLeft] = useState(600);
 
     useEffect(() => {
         if (timeLeft <= 0) return;
@@ -39,8 +39,8 @@ const VerifyOTP = () => {
         setMessage("");
 
         try {
-            const response = await axios.post(
-                "http://localhost:8080/auth/candidate/verify-otp",
+            const response = await axiosInstance.post(
+                "/auth/candidate/verify-otp",
                 {
                     email,
                     otp,
@@ -50,6 +50,10 @@ const VerifyOTP = () => {
 
             setMessage(response?.data?.message || "OTP verified successfully!");
 
+            if (purpose === "EMAIL_UPDATE") {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+            }
             setTimeout(() => {
                 navigate("/login");
             }, 1500);

@@ -20,6 +20,7 @@ const CandidateProfile = () => {
     const [message, setMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         fetchCandidate();
@@ -64,6 +65,7 @@ const CandidateProfile = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
+        setIsSubmitting(true);
 
         try {
             const updatedCandidate = {};
@@ -122,6 +124,8 @@ const CandidateProfile = () => {
             );
 
             setIsSuccess(false);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -214,15 +218,16 @@ const CandidateProfile = () => {
                     <div className="mt-8 flex flex-wrap gap-4">
                         <button
                             type="submit"
-                            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+                            disabled={isSubmitting}
+                            className="rounded-lg cursor-pointer bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
                         >
-                            Update Profile
+                            {isSubmitting ? "Updating.." : "Update Profile"}
                         </button>
 
                         <button
                             type="button"
                             onClick={fetchCandidate}
-                            className="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition hover:bg-gray-100"
+                            className="rounded-lg cursor-pointer border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition hover:bg-gray-100"
                         >
                             Reset
                         </button>

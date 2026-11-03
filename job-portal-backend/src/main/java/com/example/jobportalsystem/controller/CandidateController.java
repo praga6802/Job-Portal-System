@@ -3,6 +3,7 @@ package com.example.jobportalsystem.controller;
 
 import com.example.jobportalsystem.dto.*;
 import com.example.jobportalsystem.exception.NotFoundException;
+import com.example.jobportalsystem.exception.UnAuthorizedException;
 import com.example.jobportalsystem.pojo.MyUserDetails;
 import com.example.jobportalsystem.repository.UsersRepository;
 import com.example.jobportalsystem.service.CandidateService;
@@ -163,13 +164,19 @@ public class CandidateController {
     // ----------------------- EMAIL verification ---------------------------
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody CandidateRegistrationVerificationDTO candidate, Authentication authentication) {
+    public ResponseEntity<?> verifyOtp(@RequestBody CandidateRegistrationVerificationDTO candidate, @AuthenticationPrincipal MyUserDetails myUserDetails) {
+
         Integer userId = null;
 
+        //fetching the details for exisiting candidate
         if ("EMAIL_UPDATE".equals(candidate.getPurpose())) {
-            userId = usersRepository.findByEmail(authentication.getName()).orElseThrow(() -> new NotFoundException("User not found!")).getUserId();
-        }
 
+            if (myUserDetails == null) {
+                throw new UnAuthorizedException("Email",myUserDetails.getEmail());
+            }
+            System.out.println("Logged Email:"+myUserDetails.getEmail());
+            userId = myUserDetails.getUserId();
+        }
         return candidateService.verifyOtp(candidate.getEmail(), candidate.getOtp(), candidate.getPurpose(), userId);
     }
 
